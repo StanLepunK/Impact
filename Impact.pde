@@ -8,9 +8,10 @@ Rope r = new Rope();
 
 ArrayList<R_Line2D>[] main_branch;
 ArrayList<R_Line2D>[] circle_branch;
-int num_branch = 12;
-int num_circle = 12;
-int num_iter = 12; // work with r.SPIRAL mode when the num of iter is upper to the num of branches
+int base = 12;
+int num_branch = base;
+int num_circle = base;
+int num_iter = base; // work with r.SPIRAL mode when the num of iter is upper to the num of branches
 // int circle_mode = r.SPIRAL; // r.SPIRAL / r.NOTCH / r.NORMAL
 // int circle_mode = r.NOTCH; // r.SPIRAL / r.NOTCH / r.NORMAL
 int circle_mode = r.NORMAL; // r.SPIRAL / r.NOTCH / r.NORMAL
@@ -72,7 +73,8 @@ void circle_branch_impl(ArrayList<R_Line2D> web_string, vec2 offset, int num_ite
   float step_angle = TAU / num_branch;
   vec2 ang_set = new vec2(start_angle, step_angle);
   float fact_growth = 0.4;
-  vec2 buf_meet = null;
+  vec2 buf_meet = new vec2(-1);
+  // vec2 buf_meet = null;
   int count = 0;
   boolean jump_is = false;
   float buf_dist = dist;
@@ -80,26 +82,39 @@ void circle_branch_impl(ArrayList<R_Line2D> web_string, vec2 offset, int num_ite
 
   println("new while level ::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::");
   while(count < num_iter) {
+    println("count", count);
     R_Line2D line = draw_string_web(ang_set, offset, buf_dist, fact_growth, mode);
 
     vec2 [] tupple = meet_point(line, true);
     boolean good_tupple_is = false;
     if(tupple[0] != null && tupple[1] != null) {
       good_tupple_is = true;
+    } else {
+      // buf_meet = null;
     }
-
+    println("-------------- BEFORE >>>>>", buf_meet);
     jump_is = adjust_string_web(web_string, line, buf_meet, tupple, good_tupple_is, jump_is);
+    println("-------------- AFTER >>>>>>", buf_meet);
     // end part
     count++;
     if(mode == r.SPIRAL) {
       buf_dist = r.dist(line.b(),offset);
     }
     if(mode != r.NOTCH && count%num_branch == 0 && count <= web_string.size()) {
-      int which_one = count -1;
+      int which_one = count - num_branch;
       close_string_web(web_string, which_one);
     }
   }
+
+  // if(count == num_branch && count <= web_string.size()) {
+  //   int which_one = count - num_branch;
+  //   println("CLOSE LOOP which_one",which_one);
+  //   close_string_web(web_string, which_one);
+  // }
 }
+
+
+
 
 R_Line2D draw_string_web(vec2 ang_set, vec2 offset, float dist, float fact_growth, int mode) {
   float final_angle = ang_set.x();
@@ -119,26 +134,32 @@ R_Line2D draw_string_web(vec2 ang_set, vec2 offset, float dist, float fact_growt
 }
 
 boolean adjust_string_web(ArrayList<R_Line2D> web_string, R_Line2D line, vec2 buf_meet, vec2 [] tupple, boolean good_tupple_is, boolean jump_is) {
+  println("START adjust_string_web()", buf_meet);
+  boolean init = true;
   if(!good_tupple_is) {
-    buf_meet = null;
+    println("BAD", tupple[0],tupple[1],"buf_meet",buf_meet,"------------------------------------ AU SECOURS");
+    init = false;
     jump_is = true;
   } else {
-    if(buf_meet == null) {    
+    if(buf_meet.equals(-1)) {  
       line.set(tupple[0],tupple[1]);
       web_string.add(line);
       if(jump_is) {
-        buf_meet = new vec2(tupple[1]);
+        println("JUMP");
+        buf_meet.set(tupple[1].x(),tupple[1].y());
       } else {
-        buf_meet = new vec2(tupple[0]);
-        // buf_meet = new vec2(tupple[1]);
+        println("ADJUST");
+        buf_meet.set(tupple[0].x(), tupple[0].y());
       }
       jump_is = false;
     } else {
+      println("SET");
       line.set(buf_meet,tupple[1]);
       web_string.add(line);
       buf_meet.set(tupple[1]);
     }
   }
+  println("END adjust_string_web()", buf_meet);
   return jump_is;
 }
 
