@@ -2,38 +2,70 @@ import rope.vector.vec2;
 import rope.vector.vec3;
 import rope.core.Rope;
 import rope.costume.R_Line2D;
+import rope.core.R_Constants;
 
 
 Rope r = new Rope();
 
 ArrayList<R_Line2D>[] main_branch;
 ArrayList<R_Line2D>[] circle_branch;
-int base = 12;
-int num_branch = base;
-int num_circle = base / 12;
-int num_iter = base *4; // work with r.SPIRAL mode when the num of iter is upper to the num of branches
-int circle_mode = r.SPIRAL; // r.SPIRAL / r.NOTCH / r.NORMAL
-// int circle_mode = r.NOTCH; // r.SPIRAL / r.NOTCH / r.NORMAL
-// int circle_mode = r.NORMAL; // r.SPIRAL / r.NOTCH / r.NORMAL
+
+// int circle_mode = r.SPIRAL; // r.SPIRAL / r.NOTCH / r.NORMAL
+int circle_mode = r.LINE; // r.SPIRAL / r.NOTCH / r.NORMAL
 int power = 250;
 float res = 50;
+int num_branch = 1;
+int num_circle = 1;
+int num_iter = 1; // work with r.SPIRAL mode when the num of iter is upper to the num of branches
+
+
+
 
 void setup() {
   size(600,600,P2D);
   background(r.BLACK);
+  set_mode();
   build();
 }
 
 void draw() {
   background(r.BLACK);
-  show_branch(main_branch, -1);
-  show_branch(circle_branch, -1);
+  show_branch(main_branch);
+  show_branch(circle_branch);
+}
+
+void set_mode() {
+  int base = 12;
+  switch(circle_mode) {
+    case R_Constants.SPIRAL:
+      num_branch = base;
+      num_circle = 1;
+      num_iter = base * 4; // work with r.SPIRAL mode when the num of iter is upper to the num of branche
+      break;
+    case R_Constants.LINE:
+      num_branch = base;
+      num_circle = base;
+      num_iter = base; // work with r.SPIRAL mode when the num of iter is upper to the num of branche
+      break;
+    default:
+      num_branch = base;
+      num_circle = base;
+      num_iter = base; // work with r.SPIRAL mode when the num of iter is upper to the num of branche
+      break;
+  }
+
 }
 
 void keyPressed() {
   if(key == 'n') {
     build();
-
+    float choice_mode = random(1); 
+    if(choice_mode < 0.5) {
+      circle_mode = r.LINE;
+    } else {
+      circle_mode = r.SPIRAL;
+    }
+    set_mode();
   }
 }
 
@@ -60,7 +92,6 @@ void build_circle_branches(int x, int y, int num_circle, int num_branch, int num
   float dist_step = power / num_branch; // bizarre
   dist_step *= 1.2;
 
-
   for(int i = 0 ; i < num_circle ; i++) {
     circle_branch[i] = new ArrayList<R_Line2D>();
     dist += dist_step;
@@ -78,12 +109,10 @@ void circle_branch_impl(ArrayList<R_Line2D> web_string, vec2 offset, int num_ite
   boolean jump_is = false;
   float buf_dist = dist;
 
-
-  println("new while level ::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::");
   while(count < num_iter) {
-    println("count", count);
     R_Line2D line = draw_string_web(ang_set, offset, buf_dist, fact_growth, mode);
 
+    // here we catch the meeting point with the main branches
     vec2 [] tupple = meet_point(line, true);
     boolean good_tupple_is = false;
     if(tupple[0] != null && tupple[1] != null) {
@@ -95,7 +124,7 @@ void circle_branch_impl(ArrayList<R_Line2D> web_string, vec2 offset, int num_ite
     if(mode == r.SPIRAL) {
       buf_dist = r.dist(line.b(),offset);
     }
-    if(mode != r.NOTCH && count%num_branch == 0 && count <= web_string.size()) {
+    if(mode == r.LINE && count%num_branch == 0 && count <= web_string.size()) {
       int which_one = count - num_branch;
       close_string_web(web_string, which_one);
     }
@@ -107,11 +136,12 @@ void circle_branch_impl(ArrayList<R_Line2D> web_string, vec2 offset, int num_ite
 
 R_Line2D draw_string_web(vec2 ang_set, vec2 offset, float dist, float fact_growth, int mode) {
   float final_angle = ang_set.x();
+  float ref_dist = dist;
   float ax = sin(final_angle) * dist + offset.x();
   float ay = cos(final_angle) * dist + offset.y();
   ang_set.x(ang_set.x() + ang_set.y());
   final_angle = ang_set.x();
-  if(mode == r.NOTCH || mode == r.SPIRAL) {
+  if(mode == r.SPIRAL) {
     dist += (fact_growth*8);
   }
   float bx = sin(final_angle) * dist + offset.x();
@@ -124,7 +154,6 @@ R_Line2D draw_string_web(vec2 ang_set, vec2 offset, float dist, float fact_growt
 
 boolean adjust_string_web(ArrayList<R_Line2D> web_string, R_Line2D line, vec2 buf_meet, vec2 [] tupple, boolean good_tupple_is, boolean jump_is) {
   if(!good_tupple_is) {
-    println("BAD", tupple[0],tupple[1],"buf_meet",buf_meet,"------------------------------------ AU SECOURS");
     jump_is = true;
   } else {
     if(buf_meet.equals(-1) || jump_is) {  
@@ -137,7 +166,6 @@ boolean adjust_string_web(ArrayList<R_Line2D> web_string, R_Line2D line, vec2 bu
       }
       jump_is = false;
     } else {
-      println("SET");
       line.set(buf_meet,tupple[1]);
       web_string.add(line);
       buf_meet.set(tupple[1]);
@@ -206,26 +234,13 @@ void main_branch_impl(int index, float px, float py, float dir, float power, flo
   }
 }
 
-void show_branch(ArrayList<R_Line2D>[] list, int what) {
+void show_branch(ArrayList<R_Line2D>[] list) {
   noFill();
   stroke(r.WHITE);
   strokeWeight(1);
-  if(what == -1) {
-    for(int i = 0 ; i < list.length ; i++) {
-      // for(int k = 0 ; k < list[i].size() ; k++) {
-      //   R_Line2D line = list[i].get(k);
-      //   line.show();
-      // }
-      for(R_Line2D line : list[i]) {
-        line.show();
-      }
-    }
-  } else if(what > -1 && what < list.length) {
-    for(int i = 0 ; i < list.length ; i++) {
-      list[i].get(what).show();
-      // for(int k = 0 ; k < list[i].size() ; k++) {
-      //   list[i].get(k).show();
-      // }
+  for(int i = 0 ; i < list.length ; i++) {
+    for(R_Line2D line : list[i]) {
+      line.show();
     }
   }
 }
