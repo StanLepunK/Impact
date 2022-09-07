@@ -4,7 +4,7 @@
  * by extension that can simulate the spider web too
  * This algorithm make a part of the project "Éclat d'Ukraine"
  * 
- * v 0.1.0
+ * v 0.1.1
  * copyleft(c) 2022-2022
  * by Stan le Punk aka Stanislas Marçais
  * 
@@ -28,6 +28,8 @@ public class R_Impact extends Rope {
 	private int length_circle_branch = 250;
 	private float resistance = 50;
 
+	private float growth_fact_spiral = 1;
+
 	private int base = 5;
 	private int num_branch = base;
 	private int num_circle = base;
@@ -45,6 +47,14 @@ public class R_Impact extends Rope {
     this.num_iter = base;
 	}
 
+	////////////////////////////////
+	// SETTING
+	/////////////////////////////////
+
+	public void growth_factor_spiral(float growth) {
+		this.growth_fact_spiral = abs(growth);
+	}
+
 	public void mode_spiral(int num_branch, int num_circle, int num_iter) {
 		this.mode = SPIRAL;
 		this.num_branch = num_branch;
@@ -59,14 +69,44 @@ public class R_Impact extends Rope {
 		this.num_iter = num_iter;
 	}
 
+
+	//////////////////////////////
+	// GETING
+	//////////////////////////////
+
+	public int get_num_branch() {
+		return this.num_branch;
+	}
+
+	public int get_num_circle() {
+		return this.num_circle;
+	}
+
+	public int get_num_iter() {
+		return this.num_iter;
+	}
+
+	public int [] get_size_main() {
+		int [] size = new int[num_branch];
+		for(int i = 0 ; i < num_branch ; i++) {
+			size[i] = main_branch[i].size();
+		}
+		return size;
+	}
+
+
+	///////////////////////////
+	// BUILD
+	///////////////////////////
+
 	public void build(int x, int y) {
 		build_main_branch(x,y);
   	build_circle_branches(x,y);
 	}
 
-	//////////////
-	// MAIN BRANCH
-	//////////////
+	/////////////////////
+	// BUILD MAIN BRANCH
+	/////////////////////
 
 
 	public void build_main_branch(int x, int y) {
@@ -82,7 +122,6 @@ public class R_Impact extends Rope {
 	}
 
 	private void main_branch_impl(int index, float px, float py, float angle) {
-		// float ref_power = power;
 		float len = length_main_branch;
 		float range_jit = TAU / num_branch * 0.1;
 		float ax = px;
@@ -110,7 +149,7 @@ public class R_Impact extends Rope {
 
 
 	//////////////////////////
-	// CIRCLE BRANCHES
+	// BUILD CIRCLE BRANCHES
 	//////////////////////////
 
 	private void build_circle_branches(int x, int y) {
@@ -134,20 +173,15 @@ public class R_Impact extends Rope {
 	private void circle_branch_impl(ArrayList<R_Line2D> web_string, vec2 offset, float dist) {
 		float start_angle = 0;
 
-		////////////////////////////////////////////////////////////////////////////////////
-		// peut-être il faudrait passer directement la valeur d'angle plutot que la calculer
-		///////////////////////////////////////////////////////////////////////////////////
 		float step_angle = TAU / num_branch;
 		vec2 ang_set = new vec2(start_angle, step_angle);
-		float fact_growth = 0.4;
 		vec2 buf_meet = new vec2(-1);
 		int count = 0;
 		boolean jump_is = false;
 		float buf_dist = dist;
 
 	  while(count < num_iter) {
-	  	println("count",count);
-			R_Line2D line = draw_string_web(ang_set, offset, buf_dist, fact_growth);
+			R_Line2D line = draw_string_web(ang_set, offset, buf_dist);
 			// here we catch the meeting point with the main branches
 			vec2 [] tupple = meet_point(line, true);
 			boolean good_tupple_is = false;
@@ -183,11 +217,40 @@ public class R_Impact extends Rope {
 		show_branch(circle_branch);
 	}
 
+	public void show_main() {
+		show_branch(main_branch);
+	}
+
+	public void show_circle() {
+		show_branch(circle_branch);
+	}
+
+
 	private void show_branch(ArrayList<R_Line2D>[] list) {
 		for(int i = 0 ; i < list.length ; i++) {
 			for(R_Line2D line : list[i]) {
-				line.show();
+				if(!line.mute_is()) {
+					line.show();
+				}
 			}
+		}
+	}
+
+	public void set_mute_main(int main_index, int line_index, boolean state) {
+		if(main_index >= 0 && line_index >= 0 && main_index < main_branch.length && line_index < main_branch[main_index].size()) {
+			main_branch[main_index].get(line_index).mute(state);
+		} else {
+			print_err("class R_Impact set_mute_main(int main_index, int line_index, boolean state): There is no list matching with main_index:",main_index, "or line_index:", line_index);
+			pa.exit();
+		}
+	}
+
+	public void set_mute_circle(int circle_index, int line_index, boolean state) {
+		if(circle_index >= 0 && line_index >= 0 && circle_index < circle_branch.length && line_index < circle_branch[circle_index].size()) {
+			circle_branch[circle_index].get(line_index).mute(state);
+		} else {
+			print_err("class R_Impact set_mute_circle(int circle_index, int line_index, boolean state): There is no list matching with circle_index:",circle_index, "or line_index:", line_index);
+			pa.exit();
 		}
 	}
 
@@ -197,7 +260,7 @@ public class R_Impact extends Rope {
 	// ALGO CIRCLE BRANCH
 	/////////////////////////
 
-	private R_Line2D draw_string_web(vec2 ang_set, vec2 offset, float dist, float fact_growth) {
+	private R_Line2D draw_string_web(vec2 ang_set, vec2 offset, float dist) {
 		float final_angle = ang_set.x();
 		float ref_dist = dist;
 		float ax = sin(final_angle) * dist + offset.x();
@@ -205,12 +268,13 @@ public class R_Impact extends Rope {
 		ang_set.x(ang_set.x() + ang_set.y());
 		final_angle = ang_set.x();
 		if(mode == SPIRAL) {
-			dist += (fact_growth*8);
+			dist += growth_fact_spiral;
 		}
 		float bx = sin(final_angle) * dist + offset.x();
 		float by = cos(final_angle) * dist + offset.y();
-		R_Line2D line = new R_Line2D(this.pa , ax, ay, bx, by);
-		line.change(fact_growth, fact_growth);
+		R_Line2D line = new R_Line2D(this.pa, ax, ay, bx, by);
+		// increase the size of line to meet the main branches and find the meeting point to next step
+		line.change(0.5, 0.5);
 		line.set(line.a(),line.b());
 		return line;
 	}

@@ -5,14 +5,9 @@ R_Impact imp;
 void setup() {
 	size(500,500);
 	imp = new R_Impact(this);
-	int num_branch = 12;
-	int num_circle = 12;
-	int num_iter = 12;
-	// imp.mode_line(num_branch,num_circle,num_iter);
 
-	num_circle = 1;
-	num_iter = 80;
-	// imp.mode_spiral(num_branch,num_circle,num_iter);
+
+
 	imp.build(width/2, height/2);
 
 }
@@ -27,5 +22,40 @@ void draw() {
 }
 
 void keyPressed() {
+	float choice = random(1);
+	set_impact();
+	if(choice < 0.5) {
+		set_spiral();
+	}
+	
 	imp.build(width/2, height/2);
+	set_mute();
+}
+
+void set_spiral() {
+	int num_branch = 12;
+	int num_circle = 1;
+	int num_iter = 300;
+	imp.growth_factor_spiral(random(0.5,4));
+	imp.mode_spiral(num_branch,num_circle,num_iter);
+	
+}
+
+void set_mute() {
+	int [] list_size = imp.get_size_main();
+	for(int i = 0 ; i < imp.get_num_branch() ; i++) {
+		for(int k = 0 ; k < list_size[i] ; k++) {
+			float choice = random(1);
+			if(choice < 0.5) {
+				imp.set_mute_main(i, k, true);
+			}
+		}
+	}
+}
+
+void set_impact() {
+	int num_branch = 12;
+	int num_circle = 12;
+	int num_iter = 12;
+	imp.mode_line(num_branch,num_circle,num_iter);
 }
