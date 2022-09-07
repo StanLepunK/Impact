@@ -19,8 +19,6 @@ int num_circle = 1;
 int num_iter = 1; // work with r.SPIRAL mode when the num of iter is upper to the num of branches
 
 
-
-
 void setup() {
   size(600,600,P2D);
   background(r.BLACK);
@@ -88,8 +86,12 @@ void build_main_branch(int x, int y, int num, float power, float resistance) {
 
 void build_circle_branches(int x, int y, int num_circle, int num_branch, int num_iter, float power, int mode) {
   circle_branch = new ArrayList[num_circle];
+
+  /////////////////////////////////////////////////
+  // A CHANGER, PAS BON cette histoire de distance
+  /////////////////////////////////////////////////
   float dist = 0;
-  float dist_step = power / num_branch; // bizarre
+  float dist_step = power / num_branch; 
   dist_step *= 1.2;
 
   for(int i = 0 ; i < num_circle ; i++) {
@@ -101,6 +103,10 @@ void build_circle_branches(int x, int y, int num_circle, int num_branch, int num
 
 void circle_branch_impl(ArrayList<R_Line2D> web_string, vec2 offset, int num_iter, int num_branch, float dist, int mode) {
   float start_angle = 0;
+
+  ////////////////////////////////////////////////////////////////////////////////////
+  // peut-être il faudrait passer directement la valeur d'angle plutot que la calculer
+  ///////////////////////////////////////////////////////////////////////////////////
   float step_angle = TAU / num_branch;
   vec2 ang_set = new vec2(start_angle, step_angle);
   float fact_growth = 0.4;
