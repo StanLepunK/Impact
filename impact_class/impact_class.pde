@@ -8,7 +8,7 @@ void setup() {
 	int num_branch = 12;
 	int num_circle = 12;
 	int num_iter = 12;
-	imp.mode_line(num_branch,num_circle,num_iter);
+	// imp.mode_line(num_branch,num_circle,num_iter);
 
 	num_circle = 1;
 	num_iter = 80;

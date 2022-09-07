@@ -11,7 +11,8 @@
  * 
  * 
  * */
- import rope.core.Rope;
+
+import rope.core.Rope;
 import rope.costume.R_Line2D;
 import rope.vector.vec2;
 
@@ -145,20 +146,27 @@ public class R_Impact extends Rope {
 		float buf_dist = dist;
 
 	  while(count < num_iter) {
+	  	println("count",count);
 			R_Line2D line = draw_string_web(ang_set, offset, buf_dist, fact_growth);
-
 			// here we catch the meeting point with the main branches
 			vec2 [] tupple = meet_point(line, true);
 			boolean good_tupple_is = false;
 			if(tupple[0] != null && tupple[1] != null) {
 				good_tupple_is = true;
+				if((count+1)%num_branch == 0 && mode == SPIRAL) {
+					vec2 swap = tupple[0];
+					tupple[0] = tupple[1];
+					tupple[1] = swap;
+				}
 			}
 			jump_is = adjust_string_web(web_string, line, buf_meet, tupple, good_tupple_is, jump_is);
 			// end part
+
 			count++;
 			if(mode == SPIRAL) {
 				buf_dist = dist(line.b(),offset);
 			}
+
 			if(mode == LINE && count%num_branch == 0 && count <= web_string.size()) {
 				int which_one = count - num_branch;
 				close_string_web(web_string, which_one);
