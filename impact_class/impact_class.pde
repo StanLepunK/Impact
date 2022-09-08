@@ -34,10 +34,11 @@ void keyPressed() {
 
 void set_spiral() {
 	int num_branch = 12;
+	int iter_branch = 12;
 	int num_circle = 1;
-	int num_iter = 300;
+	int iter_circle = 300;
 	imp.growth_factor_spiral(random(0.5,4));
-	imp.mode_spiral(num_branch,num_circle,num_iter);
+	imp.mode_spiral(num_branch, iter_branch, num_circle, iter_circle);
 	
 }
 
@@ -55,7 +56,9 @@ void set_mute() {
 
 void set_impact() {
 	int num_branch = 12;
+	int iter_branch = 12;
 	int num_circle = 12;
-	int num_iter = 12;
-	imp.mode_line(num_branch,num_circle,num_iter);
+	int iter_circle = 12;
+
+	imp.mode_line(num_branch, iter_branch, num_circle, iter_circle);
 }
