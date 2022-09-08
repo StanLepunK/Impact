@@ -72,7 +72,28 @@ public class R_Impact extends Rope {
 		return this;
 	}
 
-		// SET DATA MAIN
+	// SET MUTE
+	///////////////////
+
+	public void set_mute_main(int main_index, int line_index, boolean state) {
+		if(main_index >= 0 && line_index >= 0 && main_index < main.length && line_index < main[main_index].size()) {
+			main[main_index].get(line_index).mute(state);
+		} else {
+			print_err("class R_Impact set_mute_main(int main_index, int line_index, boolean state): There is no list matching with main_index:",main_index, "or line_index:", line_index);
+			pa.exit();
+		}
+	}
+
+	public void set_mute_circle(int circle_index, int line_index, boolean state) {
+		if(circle_index >= 0 && line_index >= 0 && circle_index < circle.length && line_index < circle[circle_index].size()) {
+			circle[circle_index].get(line_index).mute(state);
+		} else {
+			print_err("class R_Impact set_mute_circle(int circle_index, int line_index, boolean state): There is no list matching with circle_index:",circle_index, "or line_index:", line_index);
+			pa.exit();
+		}
+	}
+
+	// SET DATA MAIN
 	///////////////////
 	public R_Impact set_num_main(int num) {
 		this.data_main.x(num);
@@ -121,12 +142,20 @@ public class R_Impact extends Rope {
 	// GETING
 	//////////////////////////////
 
-	public vec4 get_data_main() {
-		return this.data_main;
+	public int get_mode() {
+		return this.mode;
+	}
+
+	public float get_growth_spiral() {
+		return this.growth_fact_spiral;
 	}
 
 	// GET DATA MAIN
 	///////////////////
+
+	public vec4 get_data_main() {
+		return this.data_main;
+	}
 
 	public int get_num_main() {
 		return (int)this.data_main.x();
@@ -167,9 +196,32 @@ public class R_Impact extends Rope {
 
 
 	public int [] get_size_main() {
-		int [] size = new int[get_num_main()];
-		for(int i = 0 ; i < get_num_main() ; i++) {
-			size[i] = main[i].size();
+		return get_size_impl(main, get_num_main());
+		// int [] size = new int[get_num_main()];
+		// for(int i = 0 ; i < get_num_main() ; i++) {
+		// 	if(main[i] != null)
+		// 	size[i] = main[i].size();
+		// }
+		// return size;
+	}
+
+	public int [] get_size_circle() {
+		return get_size_impl(circle, get_num_circle());
+		// int [] size = new int[get_num_circle()];
+		// for(int i = 0 ; i < get_num_circle() ; i++) {
+		// 	size[i] = circle[i].size();
+		// }
+		// return size;
+	}
+
+	private int [] get_size_impl(ArrayList<R_Line2D>[] list, int len) {
+		int [] size = new int[len];
+		for(int i = 0 ; i < len ; i++) {
+			if(list != null && i < list.length) {
+				size[i] = list[i].size();
+			}	else {
+				size[i] = 0;
+			}
 		}
 		return size;
 	}
@@ -241,15 +293,21 @@ public class R_Impact extends Rope {
 	  /////////////////////////////////////////////////
 		float dist = 0;
 		float dist_step = get_growth_circle() / get_num_main(); 
-		dist_step *= 1.2;
+		// dist_step *= 1.2;
+		// println("dist_step",dist_step);
 
 		for(int i = 0 ; i < get_num_circle() ; i++) {
 			circle[i] = new ArrayList<R_Line2D>();
-			dist += dist_step;
+			// float fact = i + 1.0; // that work but to far from the center
+			float fact = i + 0.4; // that work but to far from the center
+
+			dist = (dist_step * fact);
+			println("dist", dist, "dist_step", dist_step);
+			// println("-------------------------------------------");
+			// println("CIRCLE", i);
 			circle_impl(circle[i], new vec2(x,y), dist);
 		}
 	}
-
 
 	private void circle_impl(ArrayList<R_Line2D> web_string, vec2 offset, float dist) {
 		float start_angle = 0;
@@ -262,12 +320,15 @@ public class R_Impact extends Rope {
 		float buf_dist = dist;
 
 	  while(count < get_iter_circle()) {
+	  	// println("count", count);
+	  	// println("dist", dist);
 			R_Line2D line = draw_string_web(ang_set, offset, buf_dist);
 			// here we catch the meeting point with the main branches
 			vec2 [] tupple = meet_point(line, true);
 			boolean good_tupple_is = false;
 			if(tupple[0] != null && tupple[1] != null) {
 				good_tupple_is = true;
+				// the moment where the turn is done and it's time to go to next level
 				if((count+1)%get_num_main() == 0 && mode == SPIRAL) {
 					vec2 swap = tupple[0];
 					tupple[0] = tupple[1];
@@ -275,7 +336,6 @@ public class R_Impact extends Rope {
 				}
 			}
 			jump_is = adjust_string_web(web_string, line, buf_meet, tupple, good_tupple_is, jump_is);
-			// end part
 
 			count++;
 			if(mode == SPIRAL) {
@@ -290,51 +350,6 @@ public class R_Impact extends Rope {
 	}
 
 
-	/////////////////////////////
-	// SHOW
-	////////////////////////////
-	public void show() {
-		show_impl(main);
-		show_impl(circle);
-	}
-
-	public void show_main() {
-		show_impl(main);
-	}
-
-	public void show_circle() {
-		show_impl(circle);
-	}
-
-
-	private void show_impl(ArrayList<R_Line2D>[] list) {
-		for(int i = 0 ; i < list.length ; i++) {
-			for(R_Line2D line : list[i]) {
-				if(!line.mute_is()) {
-					line.show();
-				}
-			}
-		}
-	}
-
-	public void set_mute_main(int main_index, int line_index, boolean state) {
-		if(main_index >= 0 && line_index >= 0 && main_index < main.length && line_index < main[main_index].size()) {
-			main[main_index].get(line_index).mute(state);
-		} else {
-			print_err("class R_Impact set_mute_main(int main_index, int line_index, boolean state): There is no list matching with main_index:",main_index, "or line_index:", line_index);
-			pa.exit();
-		}
-	}
-
-	public void set_mute_circle(int circle_index, int line_index, boolean state) {
-		if(circle_index >= 0 && line_index >= 0 && circle_index < circle.length && line_index < circle[circle_index].size()) {
-			circle[circle_index].get(line_index).mute(state);
-		} else {
-			print_err("class R_Impact set_mute_circle(int circle_index, int line_index, boolean state): There is no list matching with circle_index:",circle_index, "or line_index:", line_index);
-			pa.exit();
-		}
-	}
-
 
 
 	/////////////////////////
@@ -343,13 +358,14 @@ public class R_Impact extends Rope {
 
 	private R_Line2D draw_string_web(vec2 ang_set, vec2 offset, float dist) {
 		float final_angle = ang_set.x();
-		float ref_dist = dist;
+		// float ref_dist = dist;
 		float ax = sin(final_angle) * dist + offset.x();
 		float ay = cos(final_angle) * dist + offset.y();
 		ang_set.x(ang_set.x() + ang_set.y());
 		final_angle = ang_set.x();
 		if(mode == SPIRAL) {
-			dist += growth_fact_spiral;
+			dist += get_growth_spiral();
+			// println("dist", dist, "get_growth_spiral()",get_growth_spiral());
 		}
 		float bx = sin(final_angle) * dist + offset.x();
 		float by = cos(final_angle) * dist + offset.y();
@@ -388,23 +404,59 @@ public class R_Impact extends Rope {
 	}
 
 	private vec2 [] meet_point(R_Line2D line, boolean two_points_is) {
-	  vec2 [] meet = new vec2[2];
-	  for(int i = 0; i < main.length ; i++) {
-	    for(R_Line2D buff_line : main[i]) {
-	      if(meet[0] == null) {
-	        meet[0] = buff_line.intersection(line);
-	        if(two_points_is && meet[0] != null) {
-	          break;
-	        }
-	      }
-	      if(meet[0] != null && meet[1] == null) {
-	        meet[1] = buff_line.intersection(line);
-	      }
-	      if(meet[0] != null && meet[1] != null) {
-	        return meet;
-	      }
-	    }
-	  }
-	  return meet;
+		vec2 [] meet = new vec2[2];
+		for(int i = 0; i < main.length ; i++) {
+			for(R_Line2D buff_line : main[i]) {
+				if(meet[0] == null) {
+					meet[0] = buff_line.intersection(line);
+					if(two_points_is && meet[0] != null) {
+						break;
+					}
+				}
+				if(meet[0] != null && meet[1] == null) {
+					meet[1] = buff_line.intersection(line);
+				}
+				if(meet[0] != null && meet[1] != null) {
+					return meet;
+				}
+			}
+		}
+		return meet;
 	}
+
+
+
+
+	/////////////////////////////
+	// SHOW
+	////////////////////////////
+	public void show() {
+		show_impl(main);
+		show_impl(circle);
+	}
+
+	public void show_main() {
+		show_impl(main);
+	}
+
+	public void show_circle() {
+		show_impl(circle);
+	}
+
+
+	private void show_impl(ArrayList<R_Line2D>[] list) {
+		for(int i = 0 ; i < list.length ; i++) {
+			for(R_Line2D line : list[i]) {
+				if(!line.mute_is()) {
+					line.show();
+				}
+			}
+		}
+	}
+
+	
+
+
+
+	
 }
