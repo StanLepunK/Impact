@@ -15,90 +15,161 @@
 import rope.core.Rope;
 import rope.costume.R_Line2D;
 import rope.vector.vec2;
-import rope.vector.ivec2;
+import rope.vector.vec3;
+import rope.vector.vec4;
 
 
 public class R_Impact extends Rope {
 	PApplet pa;
-	private ArrayList<R_Line2D>[] main_branch;
-	private ArrayList<R_Line2D>[] circle_branch;
+	private ArrayList<R_Line2D>[] main;
+	private ArrayList<R_Line2D>[] circle;
 
 	private int mode = LINE;
 
-	private int length_main_branch = 250;
-	private int length_circle_branch = 250;
-	private float resistance = 50;
 
 	private float growth_fact_spiral = 1;
 
 	private int base = 5;
-	private ivec2 data_branch = new ivec2(base);
-	private ivec2 data_circle = new ivec2(base);
+	private vec4 data_main = new vec4();
+	private vec3 data_circle = new vec3();
 	
 	public R_Impact(PApplet pa) {
 		this.pa = pa;
+		float growth = sqrt(pow(this.pa.width,2) + pow(this.pa.height,2))/this.base;
+		// It's very small value for the result, there is something weird
+		float main_growth_angle = PI * 0.02;
+		data_main.set(this.base, this.base, growth, main_growth_angle);
+		data_circle.set(this.base, this.base, growth);
+		
 	}
 
 	public R_Impact(PApplet pa, int base) {
 		this.pa = pa;
 		this.base = base;
-		data_branch.set(this.base);
-		data_circle.set(this.base);
+		float growth = sqrt(pow(this.pa.width,2) + pow(this.pa.height,2))/this.base;
+		// It's very small value for the result, there is something weird
+		float main_growth_angle = PI * 0.02;
+		data_main.set(this.base, this.base, growth, main_growth_angle);
+		data_circle.set(this.base, this.base, growth);
 	}
 
 	////////////////////////////////
 	// SETTING
 	/////////////////////////////////
 
-	public void growth_factor_spiral(float growth) {
+	public R_Impact growth_factor_spiral(float growth) {
 		this.growth_fact_spiral = abs(growth);
+		return this;
 	}
 
-	public void mode_spiral(int num_branch, int iter_branch, int num_circle,  int iter_circle) {
+	public R_Impact spiral() {
 		this.mode = SPIRAL;
-		data_branch.set(num_branch, iter_branch);
-		data_circle.set(num_circle, iter_circle);
+		return this;
 	}
 
-	public void mode_line(int num_branch, int iter_branch, int num_circle,  int iter_circle) {
+	public R_Impact normal() {
 		this.mode = LINE;
-		data_branch.set(num_branch, iter_branch);
-		data_circle.set(num_circle, iter_circle);
+		return this;
 	}
+
+		// SET DATA MAIN
+	///////////////////
+	public R_Impact set_num_main(int num) {
+		this.data_main.x(num);
+		return this;
+	}
+
+	public R_Impact set_iter_main(int iter) {
+		this.data_main.y(iter);
+		return this;
+	}
+
+	public R_Impact set_growth_main(float growth) {
+		this.data_main.z(growth);
+		return this;
+	}
+
+	public R_Impact set_angle_main(float angle) {
+		this.data_main.w(angle);
+		return this;
+	}
+
+
+	// SET DATA CIRCLE
+	///////////////////
+
+
+	public R_Impact set_num_circle(int num) {
+		this.data_circle.x(num);
+		return this;
+	}
+
+	public R_Impact set_iter_circle(int iter) {
+		this.data_circle.y(iter);
+		return this;
+	}
+
+	public R_Impact set_growth_circle(float growth) {
+		this.data_circle.z(growth);
+		return this;
+	}
+
+
 
 
 	//////////////////////////////
 	// GETING
 	//////////////////////////////
 
-	public ivec2 get_data_branch() {
-		return this.data_branch;
+	public vec4 get_data_main() {
+		return this.data_main;
 	}
 
-	public ivec2 get_data_circle() {
+	// GET DATA MAIN
+	///////////////////
+
+	public int get_num_main() {
+		return (int)this.data_main.x();
+	}
+
+	public int get_iter_main() {
+		return (int)this.data_main.y();
+	}
+
+	public float get_growth_main() {
+		return this.data_main.z();
+	}
+
+	public float get_angle_main() {
+		return this.data_main.w();
+	}
+
+
+	// GET DATA CIRCLE
+	///////////////////
+
+	public vec3 get_data_circle() {
 		return this.data_circle;
 	}
 
-	public int get_num_branch() {
-		return this.data_branch.x();
-	}
-
 	public int get_num_circle() {
-		return this.data_circle.x();
+		return (int)this.data_circle.x();
 	}
 
 	public int get_iter_circle() {
-		return this.data_circle.y();
+		return (int)this.data_circle.y();
 	}
 
-	public int get_iter_branch() {
-		return this.data_branch.y();
+	public float get_growth_circle() {
+		return this.data_circle.z();
 	}
+
+
 
 	public int [] get_size_main() {
-		int [] size = new int[get_num_branch()];
-		for(int i = 0 ; i < get_num_branch() ; i++) {
-			size[i] = main_branch[i].size();
+		int [] size = new int[get_num_main()];
+		for(int i = 0 ; i < get_num_main() ; i++) {
+			size[i] = main[i].size();
 		}
 		return size;
 	}
@@ -109,8 +180,8 @@ public class R_Impact extends Rope {
 	///////////////////////////
 
 	public void build(int x, int y) {
-		build_main_branch(x,y);
-  	build_circle_branches(x,y);
+		build_main(x,y);
+  	build_circle(x,y);
 	}
 
 	/////////////////////
@@ -118,39 +189,40 @@ public class R_Impact extends Rope {
 	/////////////////////
 
 
-	public void build_main_branch(int x, int y) {
-		main_branch = new ArrayList[get_num_branch()];
-		float angle_step = TAU / get_num_branch();
+	public void build_main(int x, int y) {
+		main = new ArrayList[get_num_main()];
+		float angle_step = TAU / get_num_main();
 		float angle = 0;
 
-		for(int i = 0 ; i < get_num_branch() ; i++) {
-			main_branch[i] = new ArrayList<R_Line2D>();
-			main_branch_impl(i, x, y, angle);
+		for(int i = 0 ; i < get_num_main() ; i++) {
+			main[i] = new ArrayList<R_Line2D>();
+			main_impl(i, x, y, angle);
 			angle += angle_step;
 		}
 	}
 
-	private void main_branch_impl(int index, float px, float py, float angle) {
-		float len = length_main_branch;
-		float range_jit = TAU / get_num_branch() * 0.1;
+	private void main_impl(int index, float px, float py, float angle) {
+		float range_jit = TAU / get_num_main() * 0.1;
 		float ax = px;
 		float ay = py;
 		float bx = 0;
 		float by = 0;
 
-		while(len > 0) {
+		float dist = 0;
+		for(int i = 0 ; i < get_iter_main() ; i++) {
 			// distance
-			float jit_distance = random(-resistance, resistance);
-			len -= (resistance + jit_distance);
-			float dist = length_main_branch - len;
+			float buf_dist = random(get_growth_main()/10,get_growth_main());
+			dist += buf_dist;
 			// direction
-			float jit_direction = random(-range_jit, range_jit);
-			float x = sin(angle + jit_direction) * dist;
-			float y = cos(angle + jit_direction) * dist;
+			float range = get_angle_main();
+			float dir = random(-range, range);
+			float final_angle = angle + dir;
+			float x = sin(final_angle) * dist;
+			float y = cos(final_angle) * dist;
 			bx = x + px;
 			by = y + py;
 			R_Line2D line = new R_Line2D(this.pa, ax, ay, bx, by);
-			main_branch[index].add(line);
+			main[index].add(line);
 			ax = bx;
 			ay = by;
 		}
@@ -161,28 +233,28 @@ public class R_Impact extends Rope {
 	// BUILD CIRCLE BRANCHES
 	//////////////////////////
 
-	private void build_circle_branches(int x, int y) {
-	  circle_branch = new ArrayList[get_num_circle()];
+	private void build_circle(int x, int y) {
+	  circle = new ArrayList[get_num_circle()];
 
 	  /////////////////////////////////////////////////
 	  // A CHANGER, PAS BON cette histoire de distance
 	  /////////////////////////////////////////////////
 		float dist = 0;
-		float dist_step = length_circle_branch / get_num_branch(); 
+		float dist_step = get_growth_circle() / get_num_main(); 
 		dist_step *= 1.2;
 
 		for(int i = 0 ; i < get_num_circle() ; i++) {
-			circle_branch[i] = new ArrayList<R_Line2D>();
+			circle[i] = new ArrayList<R_Line2D>();
 			dist += dist_step;
-			circle_branch_impl(circle_branch[i], new vec2(x,y), dist);
+			circle_impl(circle[i], new vec2(x,y), dist);
 		}
 	}
 
 
-	private void circle_branch_impl(ArrayList<R_Line2D> web_string, vec2 offset, float dist) {
+	private void circle_impl(ArrayList<R_Line2D> web_string, vec2 offset, float dist) {
 		float start_angle = 0;
 
-		float step_angle = TAU / get_num_branch();
+		float step_angle = TAU / get_num_main();
 		vec2 ang_set = new vec2(start_angle, step_angle);
 		vec2 buf_meet = new vec2(-1);
 		int count = 0;
@@ -196,7 +268,7 @@ public class R_Impact extends Rope {
 			boolean good_tupple_is = false;
 			if(tupple[0] != null && tupple[1] != null) {
 				good_tupple_is = true;
-				if((count+1)%get_num_branch() == 0 && mode == SPIRAL) {
+				if((count+1)%get_num_main() == 0 && mode == SPIRAL) {
 					vec2 swap = tupple[0];
 					tupple[0] = tupple[1];
 					tupple[1] = swap;
@@ -210,8 +282,8 @@ public class R_Impact extends Rope {
 				buf_dist = dist(line.b(),offset);
 			}
 
-			if(mode == LINE && count%get_num_branch() == 0 && count <= web_string.size()) {
-				int which_one = count - get_num_branch();
+			if(mode == LINE && count%get_num_main() == 0 && count <= web_string.size()) {
+				int which_one = count - get_num_main();
 				close_string_web(web_string, which_one);
 			}
 	  }
@@ -222,20 +294,20 @@ public class R_Impact extends Rope {
 	// SHOW
 	////////////////////////////
 	public void show() {
-		show_branch(main_branch);
-		show_branch(circle_branch);
+		show_impl(main);
+		show_impl(circle);
 	}
 
 	public void show_main() {
-		show_branch(main_branch);
+		show_impl(main);
 	}
 
 	public void show_circle() {
-		show_branch(circle_branch);
+		show_impl(circle);
 	}
 
 
-	private void show_branch(ArrayList<R_Line2D>[] list) {
+	private void show_impl(ArrayList<R_Line2D>[] list) {
 		for(int i = 0 ; i < list.length ; i++) {
 			for(R_Line2D line : list[i]) {
 				if(!line.mute_is()) {
@@ -246,8 +318,8 @@ public class R_Impact extends Rope {
 	}
 
 	public void set_mute_main(int main_index, int line_index, boolean state) {
-		if(main_index >= 0 && line_index >= 0 && main_index < main_branch.length && line_index < main_branch[main_index].size()) {
-			main_branch[main_index].get(line_index).mute(state);
+		if(main_index >= 0 && line_index >= 0 && main_index < main.length && line_index < main[main_index].size()) {
+			main[main_index].get(line_index).mute(state);
 		} else {
 			print_err("class R_Impact set_mute_main(int main_index, int line_index, boolean state): There is no list matching with main_index:",main_index, "or line_index:", line_index);
 			pa.exit();
@@ -255,8 +327,8 @@ public class R_Impact extends Rope {
 	}
 
 	public void set_mute_circle(int circle_index, int line_index, boolean state) {
-		if(circle_index >= 0 && line_index >= 0 && circle_index < circle_branch.length && line_index < circle_branch[circle_index].size()) {
-			circle_branch[circle_index].get(line_index).mute(state);
+		if(circle_index >= 0 && line_index >= 0 && circle_index < circle.length && line_index < circle[circle_index].size()) {
+			circle[circle_index].get(line_index).mute(state);
 		} else {
 			print_err("class R_Impact set_mute_circle(int circle_index, int line_index, boolean state): There is no list matching with circle_index:",circle_index, "or line_index:", line_index);
 			pa.exit();
@@ -317,8 +389,8 @@ public class R_Impact extends Rope {
 
 	private vec2 [] meet_point(R_Line2D line, boolean two_points_is) {
 	  vec2 [] meet = new vec2[2];
-	  for(int i = 0; i < main_branch.length ; i++) {
-	    for(R_Line2D buff_line : main_branch[i]) {
+	  for(int i = 0; i < main.length ; i++) {
+	    for(R_Line2D buff_line : main[i]) {
 	      if(meet[0] == null) {
 	        meet[0] = buff_line.intersection(line);
 	        if(two_points_is && meet[0] != null) {
