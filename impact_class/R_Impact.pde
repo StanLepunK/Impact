@@ -197,21 +197,10 @@ public class R_Impact extends Rope {
 
 	public int [] get_size_main() {
 		return get_size_impl(main, get_num_main());
-		// int [] size = new int[get_num_main()];
-		// for(int i = 0 ; i < get_num_main() ; i++) {
-		// 	if(main[i] != null)
-		// 	size[i] = main[i].size();
-		// }
-		// return size;
 	}
 
 	public int [] get_size_circle() {
 		return get_size_impl(circle, get_num_circle());
-		// int [] size = new int[get_num_circle()];
-		// for(int i = 0 ; i < get_num_circle() ; i++) {
-		// 	size[i] = circle[i].size();
-		// }
-		// return size;
 	}
 
 	private int [] get_size_impl(ArrayList<R_Line2D>[] list, int len) {
@@ -232,31 +221,56 @@ public class R_Impact extends Rope {
 	///////////////////////////
 
 	public void build(int x, int y) {
-		build_main(x,y);
-  	build_circle(x,y);
+		vec2 pos = new vec2(x,y);
+		build_main(pos);
+  	
+  	// hack algo to avoid the bug center when the spiral don't start
+  	float start_value = 0;
+  	if(mode == SPIRAL) {
+  		boolean spiral_is_good = false;
+  		vec2 area = new vec2(2);
+  		int threshold_critic = get_num_main() * 2;
+	  	while(!spiral_is_good) {
+				int threshold = 0;
+	  		build_circle(pos,start_value);
+	  		for(int i = 0 ; i < get_num_circle() ; i++) {
+	  			for(R_Line2D line : circle[i]) {
+						if(line.a().compare(pos,area)) {
+	  					threshold++;
+	  				}
+	  			}
+	  		}
+	  		if(threshold < threshold_critic) {
+	  			spiral_is_good = true;
+	  		}
+	  		start_value += 0.05;
+			}
+			return;
+  	}
+  	build_circle(pos, 0);	
 	}
+
 
 	/////////////////////
 	// BUILD MAIN BRANCH
 	/////////////////////
 
-
-	public void build_main(int x, int y) {
+	public void build_main(vec2 pos) {
 		main = new ArrayList[get_num_main()];
 		float angle_step = TAU / get_num_main();
 		float angle = 0;
 
 		for(int i = 0 ; i < get_num_main() ; i++) {
 			main[i] = new ArrayList<R_Line2D>();
-			main_impl(i, x, y, angle);
+			main_impl(i, pos, angle);
 			angle += angle_step;
 		}
 	}
 
-	private void main_impl(int index, float px, float py, float angle) {
+	private void main_impl(int index, vec2 pos, float angle) {
 		float range_jit = TAU / get_num_main() * 0.1;
-		float ax = px;
-		float ay = py;
+		float ax = pos.x();
+		float ay = pos.y();
 		float bx = 0;
 		float by = 0;
 
@@ -271,8 +285,8 @@ public class R_Impact extends Rope {
 			float final_angle = angle + dir;
 			float x = sin(final_angle) * dist;
 			float y = cos(final_angle) * dist;
-			bx = x + px;
-			by = y + py;
+			bx = x + pos.x();
+			by = y + pos.y();
 			R_Line2D line = new R_Line2D(this.pa, ax, ay, bx, by);
 			main[index].add(line);
 			ax = bx;
@@ -285,7 +299,7 @@ public class R_Impact extends Rope {
 	// BUILD CIRCLE BRANCHES
 	//////////////////////////
 
-	private void build_circle(int x, int y) {
+	private void build_circle(vec2 pos, float start_value) {
 	  circle = new ArrayList[get_num_circle()];
 
 	  /////////////////////////////////////////////////
@@ -299,13 +313,13 @@ public class R_Impact extends Rope {
 		for(int i = 0 ; i < get_num_circle() ; i++) {
 			circle[i] = new ArrayList<R_Line2D>();
 			// float fact = i + 1.0; // that work but to far from the center
-			float fact = i + 0.4; // that work but to far from the center
+			float fact = i + start_value; // that work but to far from the center
 
 			dist = (dist_step * fact);
-			println("dist", dist, "dist_step", dist_step);
+			// println("dist", dist, "dist_step", dist_step);
 			// println("-------------------------------------------");
 			// println("CIRCLE", i);
-			circle_impl(circle[i], new vec2(x,y), dist);
+			circle_impl(circle[i], pos, dist);
 		}
 	}
 
