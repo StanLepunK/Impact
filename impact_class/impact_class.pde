@@ -28,6 +28,9 @@ void draw() {
 	imp.show_heart();
 	stroke(r.RED);
 	imp.show_fail();
+
+	stroke(r.WHITE);
+	imp.show_bug();
 }
 
 void keyPressed() {

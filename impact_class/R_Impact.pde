@@ -393,8 +393,6 @@ public class R_Impact extends Rope {
 					tupple[0] = tupple[1];
 					tupple[1] = swap;
 				}
-			} else {
-				fail.add(line);
 			}
 			jump_is = adjust_string_web(web_string, line, buf_meet, tupple, good_tupple_is, jump_is);
 
@@ -438,21 +436,33 @@ public class R_Impact extends Rope {
 	private boolean adjust_string_web(ArrayList<R_Line2D> web_string, R_Line2D line, vec2 buf_meet, vec2 [] tupple, boolean good_tupple_is, boolean jump_is) {
 		if(!good_tupple_is) {
 			jump_is = true;
-			// if(test == null) {
-			// 	test = new ArrayList<R_Line2D>();
-			// }
-			// test.add(line);
+			fail.add(line);
 	  } else {
 			if(buf_meet.equals(-1) || jump_is) {  
 				line.set(tupple[0],tupple[1]);
 				web_string.add(line);
 				buf_meet.set(tupple[1].x(),tupple[1].y());
 				jump_is = false;
+				if(line.a().compare(line.b(),new vec2(10))) {
+					println("fail 1", line, "----------------------------------");
+				}
 			} else {
 				line.set(buf_meet,tupple[1]);
+				// if(buf_meet.compare(tupple[1],new vec2(2))) {
+				if(line.a().compare(line.b(),new vec2(10))) {
+					println("buf_meet", buf_meet);
+					println("tupple  ", tupple[0], tupple[1]);
+					println("FAIL added line", line);
+					R_Line2D fail_line = new R_Line2D(this.pa,tupple[0], tupple[1]);
+					println("FAIL fail line", fail_line);
+					fail.add(fail_line);
+				}
+
 				web_string.add(line);
 				buf_meet.set(tupple[1]);
+				
 			}
+			
 		}
 		return jump_is;
 	}
@@ -468,14 +478,6 @@ public class R_Impact extends Rope {
 
 
 	private vec2 [] meet_point(R_Line2D line, boolean two_points_is) {
-		vec2 [] ret = meet_point_impl(line, two_points_is);
-		// if(ret[0] == null || ret[1] == null) {
-		// 		println("nouveau test", ret[0], ret[1]);
-		// }
-		return ret;
-	}
-
-	private vec2 [] meet_point_impl(R_Line2D line, boolean two_points_is) {
 		vec2 [] meet = new vec2[2];
 		ArrayList<ArrayList> buf_list = new ArrayList<ArrayList>();
 		for(int i = 0; i < main.length ; i++) {
@@ -580,15 +582,41 @@ public class R_Impact extends Rope {
 		}
 	}
 
-
 	private void show_lines_impl(ArrayList<R_Line2D> lines) {
-		for(R_Line2D line : lines) {
+		for(R_Line2D line : lines) {		
 			if(use_mute_is()) {
 				if(!line.mute_is()) {
 					line.show();
 				}
 			} else {
 				line.show();
+			}
+		}
+	}
+
+	// DEBUGGER
+	///////////
+
+
+	public void show_bug() {
+		show_bug_impl(main);
+		show_bug_impl(circle);
+		show_lines_bug_impl(heart);
+		show_lines_bug_impl(fail);
+	}
+
+	private void show_bug_impl(ArrayList<R_Line2D>[] list) {
+		for(int i = 0 ; i < list.length ; i++) {
+			show_lines_bug_impl(list[i]);
+		}
+	}
+
+
+
+	private void show_lines_bug_impl(ArrayList<R_Line2D> lines) {
+		for(R_Line2D line : lines) {
+			if(line.a().compare(line.b(),new vec2(10))) {
+				circle(line.a().x(),line.a().y(), 10);
 			}
 		}
 	}
