@@ -20,7 +20,14 @@ void draw() {
 	noFill();
 	stroke(255);
 	strokeWeight(1);
-	imp.show();
+	// imp.show();
+	imp.show_main();
+	stroke(r.CYAN);
+	imp.show_circle();
+	stroke(r.GREEN);
+	imp.show_heart();
+	stroke(r.RED);
+	imp.show_fail();
 }
 
 void keyPressed() {
@@ -95,6 +102,7 @@ void set_impact_classic() {
 	int num_circle = 12;
 	int iter_circle = num_main;
 	float heart = random(1);
+	// heart = 0;
 	float growth_circle = random(width/20,width/2);
 	imp.normal();
 	imp.set_num_main(num_main).set_iter_main(iter_main).set_growth_main(growth_main).set_angle_main(angle_main).set_heart_main(heart);

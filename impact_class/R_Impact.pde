@@ -25,6 +25,7 @@ public class R_Impact extends Rope {
 	private ArrayList<R_Line2D>[] main;
 	private ArrayList<R_Line2D>[] circle;
 	private ArrayList<R_Line2D> heart;
+	private ArrayList<R_Line2D> fail;
 
 	private int mode = LINE;
 
@@ -356,6 +357,7 @@ public class R_Impact extends Rope {
 
 	private void build_circle(vec2 pos, float start_value) {
 	  circle = new ArrayList[get_num_circle()];
+	  fail = new ArrayList<R_Line2D>();
 
 		float dist = 0;
 		float dist_step = get_growth_circle() / get_num_main(); 
@@ -391,6 +393,8 @@ public class R_Impact extends Rope {
 					tupple[0] = tupple[1];
 					tupple[1] = swap;
 				}
+			} else {
+				fail.add(line);
 			}
 			jump_is = adjust_string_web(web_string, line, buf_meet, tupple, good_tupple_is, jump_is);
 
@@ -415,14 +419,12 @@ public class R_Impact extends Rope {
 
 	private R_Line2D draw_string_web(vec2 ang_set, vec2 offset, float dist) {
 		float final_angle = ang_set.x();
-		// float ref_dist = dist;
 		float ax = sin(final_angle) * dist + offset.x();
 		float ay = cos(final_angle) * dist + offset.y();
 		ang_set.x(ang_set.x() + ang_set.y());
 		final_angle = ang_set.x();
 		if(mode == SPIRAL) {
 			dist += get_growth_spiral();
-			// println("dist", dist, "get_growth_spiral()",get_growth_spiral());
 		}
 		float bx = sin(final_angle) * dist + offset.x();
 		float by = cos(final_angle) * dist + offset.y();
@@ -436,6 +438,10 @@ public class R_Impact extends Rope {
 	private boolean adjust_string_web(ArrayList<R_Line2D> web_string, R_Line2D line, vec2 buf_meet, vec2 [] tupple, boolean good_tupple_is, boolean jump_is) {
 		if(!good_tupple_is) {
 			jump_is = true;
+			// if(test == null) {
+			// 	test = new ArrayList<R_Line2D>();
+			// }
+			// test.add(line);
 	  } else {
 			if(buf_meet.equals(-1) || jump_is) {  
 				line.set(tupple[0],tupple[1]);
@@ -460,10 +466,25 @@ public class R_Impact extends Rope {
 		web_string.add(line);
 	}
 
+
 	private vec2 [] meet_point(R_Line2D line, boolean two_points_is) {
+		vec2 [] ret = meet_point_impl(line, two_points_is);
+		// if(ret[0] == null || ret[1] == null) {
+		// 		println("nouveau test", ret[0], ret[1]);
+		// }
+		return ret;
+	}
+
+	private vec2 [] meet_point_impl(R_Line2D line, boolean two_points_is) {
 		vec2 [] meet = new vec2[2];
+		ArrayList<ArrayList> buf_list = new ArrayList<ArrayList>();
 		for(int i = 0; i < main.length ; i++) {
-			for(R_Line2D buff_line : main[i]) {
+			buf_list.add(main[i]);
+		}
+		// buf_list.add(heart);
+
+		for(ArrayList<R_Line2D> list : buf_list) {
+			for(R_Line2D buff_line : list) {
 				if(meet[0] == null) {
 					meet[0] = buff_line.intersection(line);
 					if(two_points_is && meet[0] != null) {
@@ -476,10 +497,53 @@ public class R_Impact extends Rope {
 				if(meet[0] != null && meet[1] != null) {
 					return meet;
 				}
-			}
+			}		
 		}
 		return meet;
 	}
+
+
+	// private vec2 [] meet_point_main(R_Line2D line, boolean two_points_is) {
+	// 	vec2 [] meet = new vec2[2];
+	// 	for(int i = 0; i < main.length ; i++) {
+	// 		for(R_Line2D buff_line : main[i]) {
+	// 			if(meet[0] == null) {
+	// 				meet[0] = buff_line.intersection(line);
+	// 				if(two_points_is && meet[0] != null) {
+	// 					break;
+	// 				}
+	// 			}
+	// 			if(meet[0] != null && meet[1] == null) {
+	// 				meet[1] = buff_line.intersection(line);
+	// 			}
+	// 			if(meet[0] != null && meet[1] != null) {
+	// 				return meet;
+	// 			}
+	// 		}
+
+	// 	}
+	// 	return meet;
+	// }
+
+	// private vec2 [] meet_point_heart(R_Line2D line, boolean two_points_is) {
+	// 	vec2 [] meet = new vec2[2];
+	// 	for(R_Line2D buff_line : heart) {
+	// 		if(meet[0] == null) {
+	// 			meet[0] = buff_line.intersection(line);
+	// 			if(two_points_is && meet[0] != null) {
+	// 				break;
+	// 			}
+	// 		}
+	// 		if(meet[0] != null && meet[1] == null) {
+	// 			meet[1] = buff_line.intersection(line);
+	// 		}
+	// 		if(meet[0] != null && meet[1] != null) {
+	// 			return meet;
+	// 		}
+	// 	}
+	// 	return meet;
+	// }
+
 
 
 
@@ -502,27 +566,22 @@ public class R_Impact extends Rope {
 	}
 
 	public void show_heart() {
-		show_lines(heart);
+		show_lines_impl(heart);
+	}
+
+	public void show_fail() {
+		show_lines_impl(fail);
 	}
 
 
 	private void show_impl(ArrayList<R_Line2D>[] list) {
 		for(int i = 0 ; i < list.length ; i++) {
-			show_lines(list[i]);
-			// for(R_Line2D line : list[i]) {
-			// 	if(use_mute_is()) {
-			// 		if(!line.mute_is()) {
-			// 			line.show();
-			// 		}
-			// 	} else {
-			// 		line.show();
-			// 	}
-			// }
+			show_lines_impl(list[i]);
 		}
 	}
 
 
-	private void show_lines(ArrayList<R_Line2D> lines) {
+	private void show_lines_impl(ArrayList<R_Line2D> lines) {
 		for(R_Line2D line : lines) {
 			if(use_mute_is()) {
 				if(!line.mute_is()) {
