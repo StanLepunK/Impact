@@ -17,20 +17,24 @@ import rope.costume.R_Line2D;
 import rope.vector.vec2;
 import rope.vector.vec3;
 import rope.vector.vec4;
+import rope.vector.vec5;
 
 
 public class R_Impact extends Rope {
 	PApplet pa;
 	private ArrayList<R_Line2D>[] main;
 	private ArrayList<R_Line2D>[] circle;
+	private ArrayList<R_Line2D> heart;
 
 	private int mode = LINE;
+
+	private boolean use_mute_is = false;
 
 
 	private float growth_fact_spiral = 1;
 
 	private int base = 5;
-	private vec4 data_main = new vec4();
+	private vec5 data_main = new vec5();
 	private vec3 data_circle = new vec3();
 	
 	public R_Impact(PApplet pa) {
@@ -38,7 +42,8 @@ public class R_Impact extends Rope {
 		float growth = sqrt(pow(this.pa.width,2) + pow(this.pa.height,2))/this.base;
 		// It's very small value for the result, there is something weird
 		float main_growth_angle = PI * 0.02;
-		data_main.set(this.base, this.base, growth, main_growth_angle);
+		float heart = 0;
+		data_main.set(this.base, this.base, growth, main_growth_angle, heart);
 		data_circle.set(this.base, this.base, growth);
 		
 	}
@@ -49,7 +54,8 @@ public class R_Impact extends Rope {
 		float growth = sqrt(pow(this.pa.width,2) + pow(this.pa.height,2))/this.base;
 		// It's very small value for the result, there is something weird
 		float main_growth_angle = PI * 0.02;
-		data_main.set(this.base, this.base, growth, main_growth_angle);
+		float heart = 0;
+		data_main.set(this.base, this.base, growth, main_growth_angle, heart);
 		data_circle.set(this.base, this.base, growth);
 	}
 
@@ -72,7 +78,7 @@ public class R_Impact extends Rope {
 		return this;
 	}
 
-	// SET MUTE
+	// MUTE
 	///////////////////
 
 	public void set_mute_main(int main_index, int line_index, boolean state) {
@@ -93,25 +99,43 @@ public class R_Impact extends Rope {
 		}
 	}
 
+	public void use_mute(boolean is) {
+		this.use_mute_is = is;
+	}
+
+	public boolean use_mute_is() {
+		return use_mute_is;
+	}
+
 	// SET DATA MAIN
 	///////////////////
 	public R_Impact set_num_main(int num) {
-		this.data_main.x(num);
+		this.data_main.a(num);
 		return this;
 	}
 
 	public R_Impact set_iter_main(int iter) {
-		this.data_main.y(iter);
+		this.data_main.b(iter);
 		return this;
 	}
 
 	public R_Impact set_growth_main(float growth) {
-		this.data_main.z(growth);
+		this.data_main.c(growth);
 		return this;
 	}
 
 	public R_Impact set_angle_main(float angle) {
-		this.data_main.w(angle);
+		this.data_main.d(angle);
+		return this;
+	}
+
+
+	public R_Impact set_heart_main(float norm_size) {
+		norm_size = abs(norm_size);
+		if(norm_size > 1.0f) {
+			norm_size = 1.0f;
+		}
+		data_main.e(norm_size);
 		return this;
 	}
 
@@ -153,24 +177,28 @@ public class R_Impact extends Rope {
 	// GET DATA MAIN
 	///////////////////
 
-	public vec4 get_data_main() {
+	public vec5 get_data_main() {
 		return this.data_main;
 	}
 
 	public int get_num_main() {
-		return (int)this.data_main.x();
+		return (int)this.data_main.a();
 	}
 
 	public int get_iter_main() {
-		return (int)this.data_main.y();
+		return (int)this.data_main.b();
 	}
 
 	public float get_growth_main() {
-		return this.data_main.z();
+		return this.data_main.c();
 	}
 
 	public float get_angle_main() {
-		return this.data_main.w();
+		return this.data_main.d();
+	}
+
+	public float get_heart_main() {
+		return this.data_main.e();
 	}
 
 
@@ -193,7 +221,8 @@ public class R_Impact extends Rope {
 		return this.data_circle.z();
 	}
 
-
+	// GET SIZE
+	////////////////////////
 
 	public int [] get_size_main() {
 		return get_size_impl(main, get_num_main());
@@ -223,6 +252,7 @@ public class R_Impact extends Rope {
 	public void build(int x, int y) {
 		vec2 pos = new vec2(x,y);
 		build_main(pos);
+		build_heart();
   	
   	// hack algo to avoid the bug center when the spiral don't start
   	float start_value = 0;
@@ -248,6 +278,7 @@ public class R_Impact extends Rope {
 			return;
   	}
   	build_circle(pos, 0);	
+
 	}
 
 
@@ -267,8 +298,23 @@ public class R_Impact extends Rope {
 		}
 	}
 
+	public void build_heart() {
+		heart = new ArrayList<R_Line2D>();
+		for(int i = 1 ; i < main.length ; i++) {
+			vec2 a = main[i -1].get(0).a();
+			vec2 b = main[i].get(0).a();
+			R_Line2D line = new R_Line2D(this.pa, a, b);
+			heart.add(line);
+		}
+		vec2 a = main[main.length -1].get(0).a();
+		vec2 b = main[0].get(0).a();
+		R_Line2D line = new R_Line2D(this.pa, a, b);
+		heart.add(line);
+	}
+
 	private void main_impl(int index, vec2 pos, float angle) {
 		float range_jit = TAU / get_num_main() * 0.1;
+
 		float ax = pos.x();
 		float ay = pos.y();
 		float bx = 0;
@@ -288,11 +334,20 @@ public class R_Impact extends Rope {
 			bx = x + pos.x();
 			by = y + pos.y();
 			R_Line2D line = new R_Line2D(this.pa, ax, ay, bx, by);
+			if(i == 0 && get_heart_main() > 0) {
+				line.change(-get_heart_main(),0);
+				// to make the changement for ever !!!
+				line.set(line.a(),line.b());
+			}
 			main[index].add(line);
 			ax = bx;
 			ay = by;
 		}
 	}
+
+
+
+
 
 
 	//////////////////////////
@@ -445,8 +500,9 @@ public class R_Impact extends Rope {
 	// SHOW
 	////////////////////////////
 	public void show() {
-		show_impl(main);
-		show_impl(circle);
+		show_main();
+		show_circle();
+		show_heart();
 	}
 
 	public void show_main() {
@@ -457,20 +513,36 @@ public class R_Impact extends Rope {
 		show_impl(circle);
 	}
 
+	public void show_heart() {
+		show_lines(heart);
+	}
+
 
 	private void show_impl(ArrayList<R_Line2D>[] list) {
 		for(int i = 0 ; i < list.length ; i++) {
-			for(R_Line2D line : list[i]) {
-				if(!line.mute_is()) {
-					line.show();
-				}
-			}
+			show_lines(list[i]);
+			// for(R_Line2D line : list[i]) {
+			// 	if(use_mute_is()) {
+			// 		if(!line.mute_is()) {
+			// 			line.show();
+			// 		}
+			// 	} else {
+			// 		line.show();
+			// 	}
+			// }
 		}
 	}
 
-	
 
-
-
-	
+	private void show_lines(ArrayList<R_Line2D> lines) {
+		for(R_Line2D line : lines) {
+			if(use_mute_is()) {
+				if(!line.mute_is()) {
+					line.show();
+				}
+			} else {
+				line.show();
+			}
+		}
+	}
 }
