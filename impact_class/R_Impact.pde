@@ -357,30 +357,20 @@ public class R_Impact extends Rope {
 	private void build_circle(vec2 pos, float start_value) {
 	  circle = new ArrayList[get_num_circle()];
 
-	  /////////////////////////////////////////////////
-	  // A CHANGER, PAS BON cette histoire de distance
-	  /////////////////////////////////////////////////
 		float dist = 0;
 		float dist_step = get_growth_circle() / get_num_main(); 
-		// dist_step *= 1.2;
-		// println("dist_step",dist_step);
 
 		for(int i = 0 ; i < get_num_circle() ; i++) {
 			circle[i] = new ArrayList<R_Line2D>();
-			// float fact = i + 1.0; // that work but to far from the center
 			float fact = i + start_value; // that work but to far from the center
 
 			dist = (dist_step * fact);
-			// println("dist", dist, "dist_step", dist_step);
-			// println("-------------------------------------------");
-			// println("CIRCLE", i);
 			circle_impl(circle[i], pos, dist);
 		}
 	}
 
 	private void circle_impl(ArrayList<R_Line2D> web_string, vec2 offset, float dist) {
 		float start_angle = 0;
-
 		float step_angle = TAU / get_num_main();
 		vec2 ang_set = new vec2(start_angle, step_angle);
 		vec2 buf_meet = new vec2(-1);
@@ -389,8 +379,6 @@ public class R_Impact extends Rope {
 		float buf_dist = dist;
 
 	  while(count < get_iter_circle()) {
-	  	// println("count", count);
-	  	// println("dist", dist);
 			R_Line2D line = draw_string_web(ang_set, offset, buf_dist);
 			// here we catch the meeting point with the main branches
 			vec2 [] tupple = meet_point(line, true);
