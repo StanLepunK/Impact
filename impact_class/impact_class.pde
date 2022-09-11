@@ -2,6 +2,7 @@
 
 R_Impact imp;
 import rope.core.Rope;
+boolean show_error_is = true;
 
 Rope r = new Rope();
 
@@ -22,29 +23,32 @@ void draw() {
 	strokeWeight(1);
 	// imp.show();
 	imp.show_main();
-	stroke(r.CYAN);
+	stroke(r.YELLOW);
 	imp.show_circle();
 	stroke(r.GREEN);
 	imp.show_heart();
-	stroke(r.RED);
-	imp.show_fail();
 
-	stroke(r.WHITE);
-	imp.show_bug();
+	if(show_error_is) {
+		stroke(r.RED);
+		imp.show_fail();
+		stroke(r.WHITE);
+		imp.show_bug();
+	}
 }
 
 void keyPressed() {
 	if(key == 'n') {
-		int choice = floor(random(3));
-		choice = 0;
+		int choice = floor(random(4));
+		// choice = 1;
 		switch(choice) {
-			case 0: set_impact_classic(); break;
-			case 1: set_impact(); break;
-			case 2: set_spiral(); break;
+			case 0: set_impact_pentagon(); break;
+			case 1: set_impact_classic(); break;
+			case 2: set_impact(); break;
+			case 3: set_spiral(); break;
 			default: set_impact_classic(); break;
 		}	
 		imp.build(width/2, height/2);
-		print_setting();
+		// print_setting();
 	}
 
 	if(key == 'h') {
@@ -58,6 +62,11 @@ void keyPressed() {
 		} else {
 			imp.use_mute(true);
 		}
+	}
+
+	if(key == 'e') {
+		show_error_is = !show_error_is;
+
 	}
 }
 
@@ -94,6 +103,12 @@ void set_mute_circle() {
 
 // SET BUILD
 //////////////////
+void set_impact_pentagon() {
+	float heart = random(1);
+	imp.normal();
+	imp.set_heart_main(heart);
+}
+
 
 void set_impact_classic() {
 	// main
@@ -177,6 +192,11 @@ void print_setting() {
 	// println("main iteration by branch");
 	// println(imp.get_size_main());
 	println("----------------------------------");
-	println("circle iteration by ring");
-	println(imp.get_size_circle());
+	// println("circle iteration by ring");
+	// println(imp.get_size_circle());
+	for(int i = 0 ; i < imp.get_num_circle() ; i++) {
+		for(R_Line2D line : imp.get_circle(i)) {
+			println(i, line);
+		}
+	}
 }
