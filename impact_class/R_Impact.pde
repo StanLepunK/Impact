@@ -595,6 +595,136 @@ public class R_Impact extends Rope {
 	}
 
 
+	///////////////////////////
+	// PIXELS
+	///////////////////////////
+
+
+	// SET PIXELS
+	///////////////////////////
+
+	public void set_pixels(float normal_value, int... colour) {
+		set_pixels_main(normal_value, colour);
+		set_pixels_circle(normal_value, colour);
+		set_pixels_heart(normal_value, colour);
+	}
+
+	public void set_pixels_main(float normal_value, int... colour) {
+		set_pixels_list_impl(main, normal_value, colour);
+	}
+
+	public void set_pixels_circle(float normal_value, int... colour) {
+		set_pixels_list_impl(circle, normal_value, colour);
+	}
+
+	public void set_pixels_heart(float normal_value, int... colour) {
+		set_pixels_lines_impl(heart, normal_value, colour);
+	}
+
+	public void set_pixels_fail(float normal_value, int... colour) {
+		set_pixels_lines_impl(fail, normal_value, colour);
+	}
+
+	private void set_pixels_list_impl(ArrayList<R_Line2D>[] list, float normal_value, int... colour) {
+		for(int i = 0 ; i < list.length ; i++) {
+			set_pixels_lines_impl(list[i], normal_value, colour);
+		}
+	}
+
+	private void set_pixels_lines_impl(ArrayList<R_Line2D> lines, float normal_value, int... colour) {
+		for(R_Line2D line : lines) {
+			line.set_pixels(normal_value, colour);
+		}
+	}
+
+	// SHOW PIXELS STATIC
+	///////////////////////////
+
+	public void show_pixels() {
+		show_pixels_main();
+		show_pixels_circle();
+		show_pixels_heart();
+	}
+
+	public void show_pixels_main() {
+		show_pixels_list_impl(main);
+	}
+
+	public void show_pixels_circle() {
+		show_pixels_list_impl(circle);
+	}
+
+	public void show_pixels_heart() {
+		show_pixels_lines_impl(heart);
+	}
+
+	public void show_pixels_fail() {
+		show_pixels_lines_impl(fail);
+	}
+
+	private void show_pixels_list_impl(ArrayList<R_Line2D>[] list) {
+		for(int i = 0 ; i < list.length ; i++) {
+			show_pixels_lines_impl(list[i]);
+		}
+	}
+
+	private void show_pixels_lines_impl(ArrayList<R_Line2D> lines) {
+		for(R_Line2D line : lines) {
+			if(use_mute_is()) {
+				if(!line.mute_is()) {
+					line.show_pixels();
+				}
+			} else {
+				line.show_pixels();
+			}
+		}
+	}
+
+
+	// SHOW PIXELS DYNAMIC
+	///////////////////////////
+
+	public void show_pixels(float normal_value, int... colour) {
+		show_pixels_main(normal_value, colour);
+		show_pixels_circle(normal_value, colour);
+		show_pixels_heart(normal_value, colour);
+	}
+
+	public void show_pixels_main(float normal_value, int... colour) {
+		show_pixels_list_impl(main, normal_value, colour);
+	}
+
+	public void show_pixels_circle(float normal_value, int... colour) {
+		show_pixels_list_impl(circle, normal_value, colour);
+	}
+
+	public void show_pixels_heart(float normal_value, int... colour) {
+		show_pixels_lines_impl(heart, normal_value, colour);
+	}
+
+	public void show_pixels_fail(float normal_value, int... colour) {
+		show_pixels_lines_impl(fail, normal_value, colour);
+	}
+
+	private void show_pixels_list_impl(ArrayList<R_Line2D>[] list, float normal_value, int... colour) {
+		for(int i = 0 ; i < list.length ; i++) {
+			show_pixels_lines_impl(list[i], normal_value, colour);
+		}
+	}
+
+	private void show_pixels_lines_impl(ArrayList<R_Line2D> lines, float normal_value, int... colour) {
+		for(R_Line2D line : lines) {
+			if(use_mute_is()) {
+				if(!line.mute_is()) {
+					line.show_pixels(normal_value, colour);
+				}
+			} else {
+				line.show_pixels(normal_value, colour);
+			}
+		}
+	}
+
+
 
 
 
@@ -608,11 +738,11 @@ public class R_Impact extends Rope {
 	}
 
 	public void show_main() {
-		show_impl(main);
+		show_list_impl(main);
 	}
 
 	public void show_circle() {
-		show_impl(circle);
+		show_list_impl(circle);
 	}
 
 	public void show_heart() {
@@ -623,7 +753,7 @@ public class R_Impact extends Rope {
 		show_lines_impl(fail);
 	}
 
-	private void show_impl(ArrayList<R_Line2D>[] list) {
+	private void show_list_impl(ArrayList<R_Line2D>[] list) {
 		for(int i = 0 ; i < list.length ; i++) {
 			show_lines_impl(list[i]);
 		}

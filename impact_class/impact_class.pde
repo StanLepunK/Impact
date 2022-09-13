@@ -3,21 +3,77 @@
 R_Impact imp;
 import rope.core.Rope;
 boolean show_error_is = true;
+boolean use_pixels_is = false;
 
 Rope r = new Rope();
 
 void setup() {
-	size(500,500);
+	size(800,800,P2D);
 	imp = new R_Impact(this);
 	// print_setting();
 	imp.build(width/2, height/2);
+	imp.set_pixels(0.3, r.RED);
+	set_mute_circle();
 
 }
 
 
 void draw() {
-	// println(frameCount);
-	background(0);
+	println("frameRate", (int)frameRate);
+	// background(0);
+	bg(r.BLACK, 10.0f);
+	if(use_pixels_is) {
+		show_lines_pixel();
+	} else {
+		show_lines();
+	}
+}
+
+void keyPressed() {
+	if(key == 'n') {
+		int choice = floor(random(4));
+		// choice = 1;
+		switch(choice) {
+			case 0: set_impact_pentagon(); break;
+			case 1: set_impact_classic(); break;
+			case 2: set_impact(); break;
+			case 3: set_spiral(); break;
+			default: set_impact_classic(); break;
+		}	
+		imp.build(width/2, height/2);
+		imp.set_pixels(0.3, r.RED);
+		set_mute_circle();
+		// print_setting();
+	}
+
+
+	if(key == 'm') {
+		if(imp.use_mute_is()) {
+			imp.use_mute(false);
+		} else {
+			imp.use_mute(true);
+		}
+	}
+
+	if(key == 'e') {
+		show_error_is = !show_error_is;
+	}
+
+	if(key == 'p') {
+		use_pixels_is =!use_pixels_is;
+	}
+}
+
+// SHOW
+////////////////
+void bg(int colour, float alpha) {
+	noStroke();
+	fill(colour, alpha);
+	rect(0,0,width, height);
+}
+
+
+void show_lines() {
 	noFill();
 	stroke(255);
 	strokeWeight(1);
@@ -36,39 +92,18 @@ void draw() {
 	}
 }
 
-void keyPressed() {
-	if(key == 'n') {
-		int choice = floor(random(4));
-		// choice = 1;
-		switch(choice) {
-			case 0: set_impact_pentagon(); break;
-			case 1: set_impact_classic(); break;
-			case 2: set_impact(); break;
-			case 3: set_spiral(); break;
-			default: set_impact_classic(); break;
-		}	
-		imp.build(width/2, height/2);
-		// print_setting();
-	}
-
-	if(key == 'h') {
-		set_mute_circle();
-		println("NEW MUTE SETTING");
-	}
-
-	if(key == 'm') {
-		if(imp.use_mute_is()) {
-			imp.use_mute(false);
-		} else {
-			imp.use_mute(true);
-		}
-	}
-
-	if(key == 'e') {
-		show_error_is = !show_error_is;
-
-	}
+// SHOW PIXEL
+/////////////
+void show_lines_pixel() {
+	imp.show_pixels_main(0.1, r.CYAN, r.CYAN, r.MAGENTA);
+	imp.show_pixels_circle(0.1, r.MAGENTA, r.MAGENTA ,r.YELLOW);
+	imp.show_pixels_heart(0.1, r.YELLOW, r.YELLOW, r.YELLOW, r.MAGENTA);
+	// imp.show_pixels();
+	// imp.show_pixels_main();
+	// imp.show_pixels_circle();
+	// imp.show_pixels_heart();
 }
+
 
 // SET MUTE
 /////////////////
