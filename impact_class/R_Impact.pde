@@ -14,6 +14,7 @@
 
 import rope.core.Rope;
 import rope.costume.R_Line2D;
+
 import rope.vector.vec2;
 import rope.vector.vec3;
 import rope.vector.vec4;
@@ -26,6 +27,7 @@ public class R_Impact extends Rope {
 	private ArrayList<R_Line2D>[] circle;
 	private ArrayList<R_Line2D> heart;
 	private ArrayList<R_Line2D> fail;
+
 
 	private int mode = LINE;
 
@@ -402,14 +404,16 @@ public class R_Impact extends Rope {
 			ArrayList<R_Line2D> working_list = new ArrayList<R_Line2D>();
 			ArrayList<R_Line2D> remove_list = new ArrayList<R_Line2D>();
 			// list of vec2 point of the heart
-			vec2 [] polygon = new vec2[get_num_main()];
-			for(int i = 0 ; i < polygon.length ; i++) {
-				polygon[i] = heart.get(i).a().copy();
-			}
+			vec2 [] polygon = get_heart_polygon();
+			// for(int i = 0 ; i < polygon.length ; i++) {
+			// 	polygon[i] = heart.get(i).a().copy();
+			// }
 			// check all the lines web string point
 			for(R_Line2D line : circle_lines) {
 				boolean a_is = in_polygon(polygon, line.a());
 				boolean b_is = in_polygon(polygon, line.b());
+				// boolean a_is = in_polygon(polygon, line.a());
+				// boolean b_is = in_polygon(polygon, line.b());
 				if(a_is && b_is) {
 					remove_list.add(line);
 				} else if(!a_is && b_is) {
@@ -445,6 +449,14 @@ public class R_Impact extends Rope {
 				}
 			}
 		}
+	}
+
+	public vec2[] get_heart_polygon() {
+		vec2 [] polygon = new vec2[get_num_main()];
+			for(int i = 0 ; i < polygon.length ; i++) {
+				polygon[i] = heart.get(i).a().copy();
+			}
+		return polygon;
 	}
 
 	private void circle_impl(ArrayList<R_Line2D> circle_lines, vec2 offset, float dist) {
@@ -530,22 +542,6 @@ public class R_Impact extends Rope {
 		return jump_is;
 	}
 
-	private void add_err(R_Line2D line, vec2 buf_meet, vec2 [] tupple, String mess, boolean print_is) {
-		int marge_error = 5;
-		if(line.a().compare(line.b(),new vec2(marge_error))) {
-			R_Line2D fail_line = new R_Line2D(this.pa,tupple[0], tupple[1]);
-			fail.add(fail_line);
-			if(print_is) {
-				println("-------------------------------------------------------");
-				println(mess);
-				println("buf_meet", buf_meet);
-				println("tupple  ", tupple[0], tupple[1]);
-				println("ADDED FAIL LINE", fail_line);
-				println("ligne en usage", line);
-			}	
-		}
-	}
-
 
 	private void close_string_web(ArrayList<R_Line2D> circle_lines, int index) {
 		if(index < circle_lines.size()) {
@@ -556,7 +552,6 @@ public class R_Impact extends Rope {
 			circle_lines.add(line);
 		}
 	}
-
 
 	private vec2 [] meet_point(vec2 pos, R_Line2D line, boolean two_points_is) {
 		// the temporary list to work
@@ -593,6 +588,28 @@ public class R_Impact extends Rope {
 			}		
 		}
 		return meet;
+	}
+
+
+
+	/////////////////////////
+	// ERROR
+	////////////////////////////
+
+	private void add_err(R_Line2D line, vec2 buf_meet, vec2 [] tupple, String mess, boolean print_is) {
+		int marge_error = 5;
+		if(line.a().compare(line.b(),new vec2(marge_error))) {
+			R_Line2D fail_line = new R_Line2D(this.pa,tupple[0], tupple[1]);
+			fail.add(fail_line);
+			if(print_is) {
+				println("-------------------------------------------------------");
+				println(mess);
+				println("buf_meet", buf_meet);
+				println("tupple  ", tupple[0], tupple[1]);
+				println("ADDED FAIL LINE", fail_line);
+				println("ligne en usage", line);
+			}	
+		}
 	}
 
 
