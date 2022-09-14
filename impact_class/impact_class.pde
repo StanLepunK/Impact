@@ -14,6 +14,7 @@ void setup() {
 	imp.build(width/2, height/2);
 	imp.set_pixels(0.3, r.RED);
 	set_mute_circle();
+	imp.pixel_mode(2);
 
 }
 

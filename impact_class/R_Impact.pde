@@ -30,6 +30,7 @@ public class R_Impact extends Rope {
 	private int mode = LINE;
 
 	private boolean use_mute_is = false;
+	private int mode_pixel_x = 1;
 
 	private float growth_fact_spiral = 1;
 
@@ -598,7 +599,13 @@ public class R_Impact extends Rope {
 	///////////////////////////
 	// PIXELS
 	///////////////////////////
+	public void pixel_mode(int mode) {
+		this.mode_pixel_x = mode;
+	}
 
+	private int get_pixel_mode() {
+		return this.mode_pixel_x;
+	}
 
 	// SET PIXELS
 	///////////////////////////
@@ -713,6 +720,14 @@ public class R_Impact extends Rope {
 	}
 
 	private void show_pixels_lines_impl(ArrayList<R_Line2D> lines, float normal_value, int... colour) {
+		switch(get_pixel_mode()) {
+			case 1: show_pixels_lines_impl_x1(lines, normal_value, colour); break;
+			case 2: show_pixels_lines_impl_x2(lines, normal_value, colour); break;
+			default: show_pixels_lines_impl_x1(lines, normal_value, colour); break;
+		}
+	}
+
+	private void show_pixels_lines_impl_x1(ArrayList<R_Line2D> lines, float normal_value, int... colour) {
 		for(R_Line2D line : lines) {
 			if(use_mute_is()) {
 				if(!line.mute_is()) {
@@ -720,6 +735,18 @@ public class R_Impact extends Rope {
 				}
 			} else {
 				line.show_pixels(normal_value, colour);
+			}
+		}
+	}
+
+	private void show_pixels_lines_impl_x2(ArrayList<R_Line2D> lines, float normal_value, int... colour) {
+		for(R_Line2D line : lines) {
+			if(use_mute_is()) {
+				if(!line.mute_is()) {
+					line.show_pixels_x2(normal_value, colour);
+				}
+			} else {
+				line.show_pixels_x2(normal_value, colour);
 			}
 		}
 	}
