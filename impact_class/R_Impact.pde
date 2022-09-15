@@ -28,6 +28,7 @@ public class R_Impact extends Rope {
 	private ArrayList<R_Line2D> heart;
 	private ArrayList<R_Line2D> fail;
 
+	private vec2 pos;
 
 	private int mode = LINE;
 
@@ -42,6 +43,7 @@ public class R_Impact extends Rope {
 	
 	public R_Impact(PApplet pa) {
 		this.pa = pa;
+		pos = new vec2();
 		float growth = sqrt(pow(this.pa.width,2) + pow(this.pa.height,2))/this.base;
 		// It's very small value for the result, there is something weird
 		float main_growth_angle = PI * 0.02;
@@ -53,6 +55,7 @@ public class R_Impact extends Rope {
 	public R_Impact(PApplet pa, int base) {
 		this.pa = pa;
 		this.base = base;
+		pos = new vec2();
 		float growth = sqrt(pow(this.pa.width,2) + pow(this.pa.height,2))/this.base;
 		// It's very small value for the result, there is something weird
 		float main_growth_angle = PI * 0.02;
@@ -167,6 +170,10 @@ public class R_Impact extends Rope {
 	// GETING
 	//////////////////////////////
 
+	public vec2 pos() {
+		return this.pos;
+	}
+
 	public int get_mode() {
 		return this.mode;
 	}
@@ -277,8 +284,9 @@ public class R_Impact extends Rope {
 	///////////////////////////
 
 	public void build(int x, int y) {
-		vec2 pos = new vec2(x,y);
-		build_main(pos);
+		// vec2 pos = new vec2(x,y);
+		this.pos.set(x,y);
+		build_main();
 		build_heart();
   	
   	// hack algo to avoid the bug center when the spiral don't start
@@ -289,10 +297,10 @@ public class R_Impact extends Rope {
   		int threshold_critic = get_num_main() * 2;
 	  	while(!spiral_is_good) {
 				int threshold = 0;
-	  		build_circle(pos,start_value);
+	  		build_circle(start_value);
 	  		for(int i = 0 ; i < get_num_circle() ; i++) {
 	  			for(R_Line2D line : circle[i]) {
-						if(line.a().compare(pos,area)) {
+						if(line.a().compare(this.pos,area)) {
 	  					threshold++;
 	  				}
 	  			}
@@ -304,7 +312,7 @@ public class R_Impact extends Rope {
 			}
 			return;
   	}
-  	build_circle(pos, 0);	
+  	build_circle(0);	
 
 	}
 
@@ -313,14 +321,14 @@ public class R_Impact extends Rope {
 	// BUILD MAIN BRANCH
 	/////////////////////
 
-	public void build_main(vec2 pos) {
+	public void build_main() {
 		main = new ArrayList[get_num_main()];
 		float angle_step = TAU / get_num_main();
 		float angle = 0;
 
 		for(int i = 0 ; i < get_num_main() ; i++) {
 			main[i] = new ArrayList<R_Line2D>();
-			main_impl(i, pos, angle);
+			main_impl(i, angle);
 			angle += angle_step;
 		}
 	}
@@ -339,7 +347,7 @@ public class R_Impact extends Rope {
 		heart.add(line);
 	}
 
-	private void main_impl(int index, vec2 pos, float angle) {
+	private void main_impl(int index, float angle) {
 		float range_jit = TAU / get_num_main() * 0.1;
 
 		float ax = pos.x();
@@ -358,8 +366,8 @@ public class R_Impact extends Rope {
 			float final_angle = angle + dir;
 			float x = sin(final_angle) * dist;
 			float y = cos(final_angle) * dist;
-			bx = x + pos.x();
-			by = y + pos.y();
+			bx = x + this.pos.x();
+			by = y + this.pos.y();
 			R_Line2D line = new R_Line2D(this.pa, ax, ay, bx, by);
 			if(i == 0 && get_heart_main() > 0) {
 				line.change(-get_heart_main(),0);
@@ -381,7 +389,7 @@ public class R_Impact extends Rope {
 	// BUILD CIRCLE BRANCHES
 	//////////////////////////
 
-	private void build_circle(vec2 pos, float start_value) {
+	private void build_circle(float start_value) {
 	  circle = new ArrayList[get_num_circle()];
 	  fail = new ArrayList<R_Line2D>();
 
@@ -393,7 +401,7 @@ public class R_Impact extends Rope {
 			float fact = i + start_value; // that work but to far from the center
 
 			dist = (dist_step * fact);
-			circle_impl(circle[i], pos, dist);
+			circle_impl(circle[i], dist);
 			sort_circle(circle[i]);
 		}
 	}
@@ -451,7 +459,7 @@ public class R_Impact extends Rope {
 		}
 	}
 
-	public vec2[] get_heart_polygon() {
+	public vec2 [] get_heart_polygon() {
 		vec2 [] polygon = new vec2[get_num_main()];
 			for(int i = 0 ; i < polygon.length ; i++) {
 				polygon[i] = heart.get(i).a().copy();
@@ -459,7 +467,7 @@ public class R_Impact extends Rope {
 		return polygon;
 	}
 
-	private void circle_impl(ArrayList<R_Line2D> circle_lines, vec2 offset, float dist) {
+	private void circle_impl(ArrayList<R_Line2D> circle_lines, float dist) {
 		float start_angle = 0;
 		float step_angle = TAU / get_num_main();
 		vec2 ang_set = new vec2(start_angle, step_angle);
@@ -468,9 +476,9 @@ public class R_Impact extends Rope {
 		float buf_dist = dist;
 
 	  for(int count = 0 ; count < get_iter_circle();  count++){
-			R_Line2D line = draw_string_web(ang_set, offset, buf_dist);
+			R_Line2D line = draw_string_web(ang_set, buf_dist);
 			// here we catch the meeting point with the main branches
-			vec2 [] tupple = meet_point(offset, line, true);
+			vec2 [] tupple = meet_point(line, true);
 			boolean good_tupple_is = false;
 			if(tupple[0] != null && tupple[1] != null) {
 				good_tupple_is = true;
@@ -484,7 +492,7 @@ public class R_Impact extends Rope {
 			jump_is = adjust_string_web(circle_lines, line, buf_meet, tupple, good_tupple_is, jump_is);
 
 			if(mode == SPIRAL) {
-				buf_dist = dist(line.b(),offset);
+				buf_dist = dist(line.b(),this.pos);
 			}
 
 			// close the circle line
@@ -503,17 +511,17 @@ public class R_Impact extends Rope {
 	// ALGO CIRCLE BRANCH
 	/////////////////////////
 
-	private R_Line2D draw_string_web(vec2 ang_set, vec2 offset, float dist) {
+	private R_Line2D draw_string_web(vec2 ang_set, float dist) {
 		float final_angle = ang_set.x();
-		float ax = sin(final_angle) * dist + offset.x();
-		float ay = cos(final_angle) * dist + offset.y();
+		float ax = sin(final_angle) * dist + this.pos.x();
+		float ay = cos(final_angle) * dist + this.pos.y();
 		ang_set.x(ang_set.x() + ang_set.y());
 		final_angle = ang_set.x();
 		if(mode == SPIRAL) {
 			dist += get_growth_spiral();
 		}
-		float bx = sin(final_angle) * dist + offset.x();
-		float by = cos(final_angle) * dist + offset.y();
+		float bx = sin(final_angle) * dist + this.pos.x();
+		float by = cos(final_angle) * dist + this.pos.y();
 		R_Line2D line = new R_Line2D(this.pa, ax, ay, bx, by);
 		// increase the size of line to meet the main branches and find the meeting point to next step
 		line.change(0.5, 0.5);
@@ -553,14 +561,14 @@ public class R_Impact extends Rope {
 		}
 	}
 
-	private vec2 [] meet_point(vec2 pos, R_Line2D line, boolean two_points_is) {
+	private vec2 [] meet_point( R_Line2D line, boolean two_points_is) {
 		// the temporary list to work
 		ArrayList<ArrayList> buf_list = new ArrayList<ArrayList>();
 		for(int i = 0; i < main.length ; i++) {
 			ArrayList<R_Line2D> temp = new ArrayList<R_Line2D>();
 			// put the first point to center of the impact
 			R_Line2D temp_line_first = main[i].get(0);
-			temp_line_first.a(pos.x(),pos.y());
+			temp_line_first.a(this.pos.x(), this.pos.y());
 			temp.add(temp_line_first.copy());
 			for(int k = 1 ; k < main[i].size(); k++) {
 				R_Line2D temp_line_next = main[i].get(k).copy();
