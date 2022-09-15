@@ -124,12 +124,16 @@ void set_mute_circle() {
 //////////////////
 void set_impact_pentagon() {
 	float heart = random(1);
+	if(heart < 0.2) heart = 0;
 	imp.normal();
 	imp.set_heart_main(heart);
 }
 
 
 void set_impact_classic() {
+	// heart
+	float heart = random(1);
+	if(heart < 0.2) heart = 0;
 	// main
 	int num_main = 12;
 	int iter_main = 18;
@@ -138,15 +142,17 @@ void set_impact_classic() {
 	// circle
 	int num_circle = 12;
 	int iter_circle = num_main;
-	float heart = random(1);
-	// heart = 0;
 	float growth_circle = random(width/20,width/2);
 	imp.normal();
-	imp.set_num_main(num_main).set_iter_main(iter_main).set_growth_main(growth_main).set_angle_main(angle_main).set_heart_main(heart);
+	imp.set_heart_main(heart);
+	imp.set_num_main(num_main).set_iter_main(iter_main).set_growth_main(growth_main).set_angle_main(angle_main);
 	imp.set_num_circle(num_circle).set_iter_circle(iter_circle).set_growth_circle(growth_circle);
 }
 
 void set_impact() {
+	// heart
+	float heart = random(1);
+	if(heart < 0.2) heart = 0;
 	// main
 	int num_main = int(random(5,27));
 	int iter_main = int(random(5,27));
@@ -157,12 +163,16 @@ void set_impact() {
 	int iter_circle = int(random(5,num_main));
 	float growth_circle = random(width/20,width/2);
 	imp.normal();
+	imp.set_heart_main(heart);
 	imp.set_num_main(num_main).set_iter_main(iter_main).set_growth_main(growth_main).set_angle_main(angle_main);
 	imp.set_num_circle(num_circle).set_iter_circle(iter_circle).set_growth_circle(growth_circle);
 }
 
 
 void set_spiral() {
+	// heart
+	float heart = random(1);
+	if(heart < 0.2) heart = 0;
 	// main 
 	int num_main = int(random(5,27));
 	int iter_main = int(random(5,27));
@@ -178,6 +188,7 @@ void set_spiral() {
 	imp.growth_factor_spiral(factor_spiral_growth);
 
 	imp.spiral();
+	imp.set_heart_main(heart);
 	imp.set_num_main(num_main).set_iter_main(iter_main).set_growth_main(growth_main).set_angle_main(angle_main);
 	imp.set_num_circle(num_circle).set_iter_circle(iter_circle).set_growth_circle(growth_circle);
 }

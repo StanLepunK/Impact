@@ -3,7 +3,6 @@
 R_Impact imp;
 import rope.core.Rope;
 
-
 Rope r = new Rope();
 
 void setup() {
@@ -15,9 +14,9 @@ void setup() {
 
 
 void draw() {
-	println("frameRate", (int)frameRate);
-	// background(0);
-	bg(r.BLACK, 10.0f);
+	float alpha_bg = map(abs(sin(frameCount * 0.002)),0,1, 0,20);
+	bg(r.BLACK, alpha_bg);
+	// println("frameRate", (int)frameRate, "alpha bg",alpha_bg);
 	impact_draw();
 	show_impact_cloud();
 

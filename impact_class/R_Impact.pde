@@ -335,16 +335,19 @@ public class R_Impact extends Rope {
 
 	public void build_heart() {
 		heart = new ArrayList<R_Line2D>();
-		for(int i = 1 ; i < main.length ; i++) {
-			vec2 a = main[i -1].get(0).a();
-			vec2 b = main[i].get(0).a();
+		if(get_heart_main() > 0 ) {
+			for(int i = 1 ; i < main.length ; i++) {
+				vec2 a = main[i -1].get(0).a();
+				vec2 b = main[i].get(0).a();
+				R_Line2D line = new R_Line2D(this.pa, a, b);
+				heart.add(line);
+			}
+			vec2 a = main[main.length -1].get(0).a();
+			vec2 b = main[0].get(0).a();
 			R_Line2D line = new R_Line2D(this.pa, a, b);
 			heart.add(line);
 		}
-		vec2 a = main[main.length -1].get(0).a();
-		vec2 b = main[0].get(0).a();
-		R_Line2D line = new R_Line2D(this.pa, a, b);
-		heart.add(line);
+		
 	}
 
 	private void main_impl(int index, float angle) {
@@ -460,10 +463,13 @@ public class R_Impact extends Rope {
 	}
 
 	public vec2 [] get_heart_polygon() {
+		if(heart.size() == 0) {
+			return null;
+		}
 		vec2 [] polygon = new vec2[get_num_main()];
-			for(int i = 0 ; i < polygon.length ; i++) {
-				polygon[i] = heart.get(i).a().copy();
-			}
+		for(int i = 0 ; i < polygon.length ; i++) {
+			polygon[i] = heart.get(i).a().copy();
+		}
 		return polygon;
 	}
 
