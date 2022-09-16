@@ -9,22 +9,29 @@ void setup() {
 	size(800,800,P2D);
 	imp = new R_Impact(this);
 	impact_setup(imp);
-	add_cloud_points(imp);
+	vectorize_build(imp);
+
 }
 
 
 void draw() {
-	float alpha_bg = map(abs(sin(frameCount * 0.002)),0,1, 0,20);
-	bg(r.BLACK, alpha_bg);
+	// float alpha_bg = map(abs(sin(frameCount * 0.002)),0,1, 0,20);
+	// bg(r.BLACK, alpha_bg);
+	background(r.BLACK);
 	// println("frameRate", (int)frameRate, "alpha bg",alpha_bg);
-	impact_draw();
-	show_impact_cloud();
+	vectorize_show();
+	// impact_draw();
+	// show_impact_cloud();
+
+
 
 }
 
 void keyPressed() {
 	impact_keypressed();
-	add_cloud_points(imp);
+	vectorize_build(imp);
+	// add_cloud_points(imp);
+	// build_polygon_impact(imp);
 }
 
 // SHOW
