@@ -20,8 +20,11 @@ void draw() {
 	background(r.BLACK);
 	// println("frameRate", (int)frameRate, "alpha bg",alpha_bg);
 	vectorize_show();
-	// impact_draw();
-	// show_impact_cloud();
+	if(show_struc_is) {
+		impact_draw();
+		show_impact_cloud();
+	}
+
 
 
 

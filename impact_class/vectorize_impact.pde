@@ -78,7 +78,6 @@ void build_polygon_impact(R_Impact imp) {
 			}
 		}
 	}
-	println("combien d'itération:", count_info);
 }
 
 void create_polygon(R_Line2DX l1, R_Line2DX l2, ArrayList<R_Line2DX> main_a, ArrayList<R_Line2DX> main_b) {
@@ -86,9 +85,7 @@ void create_polygon(R_Line2DX l1, R_Line2DX l2, ArrayList<R_Line2DX> main_a, Arr
 	shape.add_points(l1.a(), l1.b());
 	add_points_go(l1.b(),l2.b(), main_b, shape);
 	shape.add_points(l2.b(), l2.a());
-	add_points_return(l2.a(),l1.b(), main_a, shape);
-	
-	// shape.add_points(l1.a(), l1.b(), l2.b(), l2.a()); // OK
+	add_points_return(l2.a(),l1.a(), main_a, shape);
 	imp_shapes.add(shape);
 }
 
@@ -106,12 +103,13 @@ void add_points_go(vec2 a, vec2 b, ArrayList<R_Line2DX> lines, R_Shape shape) {
 			last = i;
 		}
 	}
-
+	
 	if(first < last) {
+		int count = 0;
 		for(int i = first ; i < last ; i++) {
-			// vec2 buf = lines.get(i).a(); // may be the choice of the point is not the good one
 			vec2 buf = lines.get(i).b();
 			shape.add_point(buf.x(), buf.y());
+			count++;
 		}
 	}
 }
@@ -120,7 +118,7 @@ void add_points_return(vec2 a, vec2 b, ArrayList<R_Line2DX> lines, R_Shape shape
 	float marge = 3;
 	int first = 0;
 	int last = 0;
-	for(int i = lines.size() -1 ; i >= 0 ; i--) {
+	for(int i = 0 ; i < lines.size() ; i++) {
 		if(r.in_line(lines.get(i).a(),lines.get(i).b(), a, marge)) {
 			first = i;
 		}
@@ -129,13 +127,16 @@ void add_points_return(vec2 a, vec2 b, ArrayList<R_Line2DX> lines, R_Shape shape
 		}
 	}
 
+	
 	if(first > last) {
-		for(int i = first ; i < last ; i--) {
-			// vec2 buf = lines.get(i).b(); // may be the choice of the point is not the good one
+		int count = 0;
+		for(int i = first ; i > last ; i--) {
 			vec2 buf = lines.get(i).a();
 			shape.add_point(buf.x(), buf.y());
+			count++;
 		}
 	}
+	
 }
 
 
@@ -173,9 +174,7 @@ void show_impact_cloud() {
 
 void add_points(ArrayList<R_Line2DX> list, R_Impact imp, int family) {
 	float marge = 3;
-	// r.print_err("------------------------------");
 	for(R_Line2DX line : list) {
-		// r.print_err("line id",line.id_a(), line.id_b());
 		// check the center
 		boolean a_is = imp.pos().compare(line.a(), new vec2(marge));
 		boolean b_is = imp.pos().compare(line.b(), new vec2(marge));

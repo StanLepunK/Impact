@@ -347,7 +347,6 @@ public class R_Impact extends Rope {
 			R_Line2DX line = new R_Line2DX(this.pa, a, b);
 			heart.add(line);
 		}
-		
 	}
 
 	private void main_impl(int index, float angle) {
