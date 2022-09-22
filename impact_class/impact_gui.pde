@@ -1,6 +1,6 @@
 boolean show_error_is = true;
 boolean use_pixels_is = false;
-boolean show_struc_is = true;
+
 
 void impact_keypressed() {
 	if(key == 'n') {
@@ -34,8 +34,20 @@ void impact_keypressed() {
 		use_pixels_is =!use_pixels_is;
 	}
 
-	if(key == 's') {
-		show_struc_is = !show_struc_is;
+	if(key == 'w') { // indesign or photoshop
+		inc_struc();
 	}
+}
 
+
+int which_struc = 0;
+void inc_struc() {
+	which_struc++;
+	if(which_struc > 3) {
+		which_struc = 0;
+	}
+}
+
+int which_struc() {
+	return which_struc;
 }

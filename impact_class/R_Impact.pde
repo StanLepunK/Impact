@@ -344,6 +344,9 @@ public class R_Impact extends Rope {
 			}
 			vec2 a = main[main.length -1].get(0).a();
 			vec2 b = main[0].get(0).a();
+
+			// vec2 a = main[0].get(0).a();
+			// vec2 b = main[main.length -1].get(0).a();
 			R_Line2DX line = new R_Line2DX(this.pa, a, b);
 			heart.add(line);
 		}
@@ -415,9 +418,6 @@ public class R_Impact extends Rope {
 			ArrayList<R_Line2DX> remove_list = new ArrayList<R_Line2DX>();
 			// list of vec2 point of the heart
 			vec2 [] polygon = get_heart_polygon();
-			// for(int i = 0 ; i < polygon.length ; i++) {
-			// 	polygon[i] = heart.get(i).a().copy();
-			// }
 			// check all the lines web string point
 			for(R_Line2DX line : circle_lines) {
 				boolean a_is = in_polygon(polygon, line.a());

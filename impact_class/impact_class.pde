@@ -19,12 +19,14 @@ void draw() {
 	// bg(r.BLACK, alpha_bg);
 	background(r.BLACK);
 	// println("frameRate", (int)frameRate, "alpha bg",alpha_bg);
-	vectorize_show();
-	if(show_struc_is) {
-		impact_draw();
-		show_impact_cloud();
+	switch(which_struc()) {
+		case 0 : vectorize_show(); impact_draw(); break;
+		case 1 : vectorize_show(); break;
+		case 2 : vectorize_show(); impact_draw(); show_impact_cloud(); break;
+		case 3 : vectorize_show(); show_impact_cloud(); break;
+		case 4 : impact_draw(); show_impact_cloud(); break;
+		default : vectorize_show(); impact_draw(); show_impact_cloud(); break;
 	}
-
 
 
 
@@ -33,8 +35,6 @@ void draw() {
 void keyPressed() {
 	impact_keypressed();
 	vectorize_build(imp);
-	// add_cloud_points(imp);
-	// build_polygon_impact(imp);
 }
 
 // SHOW
