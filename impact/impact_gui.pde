@@ -1,4 +1,4 @@
-boolean show_error_is = true;
+boolean show_error_is = false;
 boolean use_pixels_is = false;
 
 

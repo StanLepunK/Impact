@@ -284,7 +284,6 @@ public class R_Impact extends Rope {
 	///////////////////////////
 
 	public void build(int x, int y) {
-		// vec2 pos = new vec2(x,y);
 		this.pos.set(x,y);
 		build_main();
 		build_heart();

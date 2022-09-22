@@ -67,6 +67,7 @@ void add_cloud_points(R_Impact imp) {
 
 void build_polygon_impact(R_Impact imp) {
 	println("NEW BUILD POLYGON====================================");
+	println("circle total",imp.get_num_circle());
 	ArrayList<vec2>poly = new ArrayList<vec2>();
 	// clear polygon
 	imp_shapes_circle.clear();
@@ -89,7 +90,7 @@ void build_polygon_impact(R_Impact imp) {
 }
 
 // POLYGON HEART
-void build_single_polygon_from_heart(int m_index, int main1, int main2) {
+void build_single_polygon_from_heart(int index_m, int main1, int main2) {
 	boolean heart_is = false;
 	R_Line2DX lh = null;
 	R_Line2DX lc = null;
@@ -102,46 +103,39 @@ void build_single_polygon_from_heart(int m_index, int main1, int main2) {
 
 	// REGULAR
 	boolean bingo_is = false;
-	for(int k = 1 ; k < imp.get_num_circle() ; k ++) { // why k must be 1 ????
-		if(imp.get_heart().size() > 0 && m_index < imp.get_heart().size()) {
-			// println("HEART main index",m_index);
-			lh = imp.get_heart().get(m_index);
+	for(int index_c = 1 ; index_c < imp.get_num_circle() ; index_c++) { // why k must be 1 ????
+		if(imp.get_heart().size() > 0 && index_m < imp.get_heart().size()) {
+			lh = imp.get_heart().get(index_m);
 		}
 
-		if(imp.get_circle(k) != null && imp.get_circle(k).size() > 0 && m_index < imp.get_circle(k).size()) {
-			// il faut retrouver l'indexation par rapport au main
-			for(int index_line_circle = 0 ; index_line_circle < imp.get_circle(k).size() ; index_line_circle++) {
-				lc = imp.get_circle(k).get(index_line_circle);
-				if(lc.id_a() == m_index) { // break temporary
+		if(imp.get_circle(index_c) != null && imp.get_circle(index_c).size() > 0) {
+			for(int index_lc = 0 ; index_lc < imp.get_circle(index_c).size() ; index_lc++) {
+				lc = imp.get_circle(index_c).get(index_lc);
+				if(lc.id_a() == index_m) { // break temporary
 				// if(lc.id_a() == m_index && !lc.mute_is()) { // break temporary
-					println("BINGO", "lc id", lc.id_a(), "m_index", m_index, k);
+					println("BINGO main", index_m, "circle", index_c, "id", lc.id_a(), "coord", lc);
 					bingo_is = true;
 					break; 
 				}
 			}
-			// lc = imp.get_circle(k).get(m_index); // m_index is not good
-			// println("CIRCLE REG main",m_index, "circle", k, lc.mute_is());
-			
 		}
 		if(bingo_is) {
 			bingo_is = false;
 			break;
 		}
-
 	}
 
 	// algo is here
-	if(lh != null && lc != null) {
+	if(lc != null) {
 		// println("main", m_index, "heart", lh, "circle",lc);
-		create_polygon_from_heart(lh, lc, imp.get_main(main1), imp.get_main(main2));
+		create_polygon_center(lh, lc, imp.get_main(main1), imp.get_main(main2));
 	}
-	
 }
 
-void create_polygon_from_heart(R_Line2DX lh, R_Line2DX lc, ArrayList<R_Line2DX> main_a, ArrayList<R_Line2DX> main_b) {
+void create_polygon_center(R_Line2DX lh, R_Line2DX lc, ArrayList<R_Line2DX> main_a, ArrayList<R_Line2DX> main_b) {
 	R_Shape shape = new R_Shape(this);
 	float marge = 3;
-	
+	println("root lc to create polygon", lc);
 	shape.add_points(lc.a(), lc.b()); // may be need to switch if that's meet main a or main b
 	shape.add_point(imp.pos().x(), imp.pos().y()); // test point to center impact
 
