@@ -16,10 +16,12 @@ void build_single_polygon_from_heart(int im_0, int im_1) {
 			for(int index_lc = 0 ; index_lc < imp.get_circle(index_c).size() ; index_lc++) {
 				lc = imp.get_circle(index_c).get(index_lc);
 				if(lc.id_a() == im_0 || lc.id_b() == im_1) { // break temporary
-					println("BINGO main", im_0, "id", lc.id_a(), lc.id_b(),"circle", index_c,  "coord", lc);
+					// println("BINGO im_0", im_0, "id a", lc.id_a(), "im_1", im_1, "id b", lc.id_b(),"circle", index_c,  "coord", lc);
+					println("BINGO im_0", im_0, "id a", lc.id_a(), "im_1", im_1, "id b", lc.id_b(),"circle", index_c);
 					bingo_is = true;
 					break; 
 				}
+				lc = null;
 			}
 		}
 		if(bingo_is) {
