@@ -13,7 +13,7 @@ void polygon_build(R_Impact imp) {
 void polygon_show() {
 	stroke(r.YELLOW);
 	fill(r.MAGENTA);
-	// show_polygon_from(imp_shapes_circle);
+	show_polygon_from(imp_shapes_circle);
 	show_polygon_from(imp_shapes_heart);
 }
 

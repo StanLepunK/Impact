@@ -17,7 +17,7 @@ void build_single_polygon_from_heart(int im_0, int im_1) {
 				lc = imp.get_circle(index_c).get(index_lc);
 				if(lc.id_a() == im_0 || lc.id_b() == im_1) { // break temporary
 					// println("BINGO im_0", im_0, "id a", lc.id_a(), "im_1", im_1, "id b", lc.id_b(),"circle", index_c,  "coord", lc);
-					println("BINGO im_0", im_0, "id a", lc.id_a(), "im_1", im_1, "id b", lc.id_b(),"circle", index_c);
+					// println("BINGO im_0", im_0, "id a", lc.id_a(), "im_1", im_1, "id b", lc.id_b(),"circle", index_c);
 					bingo_is = true;
 					break; 
 				}
@@ -32,58 +32,35 @@ void build_single_polygon_from_heart(int im_0, int im_1) {
 
 	// algo is here
 	if(lc != null) {
-		// println("main", m_index, "heart", lh, "circle",lc);
 		create_polygon_center(lh, lc, imp.get_main(im_0), imp.get_main(im_1));
 	}
 }
 
 
-
-
 void create_polygon_center(R_Line2DX lh, R_Line2DX lc, ArrayList<R_Line2DX> main_a, ArrayList<R_Line2DX> main_b) {
 	R_Shape shape = new R_Shape(this);
 	float marge = 3;
-	println("root lc to create polygon", lc);
+	// println("root lc to create polygon", lc);
 	shape.add_points(lc.a(), lc.b()); // may be need to switch if that's meet main a or main b
-	shape.add_point(imp.pos().x(), imp.pos().y()); // test point to center impact
+	println("lh", lh);
 
-	// check if lc meet any main a or b
-	boolean lc_a_is = false;
-	boolean lc_b_is = false;
-	boolean main_a_is = false;
-	boolean main_b_is = false;
-	// check main a
-	for(int i = 1 ; i < main_a.size() ; i++) { // avoid the first element because the heart is active
-		R_Line2DX lm_a = main_a.get(i);
-		lc_a_is = r.in_line(lm_a.a(), lm_a.b(), lc.a(), marge);
-		lc_b_is = r.in_line(lm_a.a(), lm_a.b(), lc.b(), marge);
-		if(lc_a_is || lc_b_is) {
-			main_a_is = true;
-			// shape.add_points(lm_a.a(), lh.a());
-			// shape.add_points(lm_a.a(), lh.b()); // reverse the starting point heart
-			break;
+	if(lh != null) {
+		boolean bingo_is = false;
+		for(R_Line2DX lb : main_b) {
+			if(r.in_line(lb.a(),lb.b(), lc.a(), marge) || r.in_line(lb.a(),lb.b(), lc.b(), marge)) {
+				shape.add_points(lh.b());
+				break;
+			}	
 		}
-	}
-
-	// check main b
-	for(int i = 1 ; i < main_b.size() ; i++) { // avoid the first element because the heart is active
-		R_Line2DX lm_b = main_b.get(i);
-		lc_a_is = r.in_line(lm_b.a(), lm_b.b(), lc.a(), marge);
-		lc_b_is = r.in_line(lm_b.a(), lm_b.b(), lc.b(), marge);
-		if(lc_a_is || lc_b_is) {
-			main_b_is = true;
-			// shape.add_points(lm_b.a(), lh.b());
-			// shape.add_points(lm_b.a(), lh.a()); // reverse the starting point heart
-			break;
+		for(R_Line2DX la : main_a) {
+			if(r.in_line(la.a(),la.b(), lc.a(), marge) || r.in_line(la.a(),la.b(), lc.b(), marge)) {
+				shape.add_points(lh.a());
+				break;
+			}	
 		}
+	} else {
+		shape.add_point(imp.pos().x(), imp.pos().y()); // test point to center impact
 	}
-
-	// if there a meeting
-
-	
-
-
-
-	// algo is here
 	imp_shapes_heart.add(shape);
 }
+

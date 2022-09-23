@@ -1,4 +1,11 @@
-
+/**
+*
+* Create a broken network like an bullet impact or spider web
+* Stanislas Marçais alias Stan le Punk / Knupel
+* v 0.1.0
+* 2022-2022 copyleft (l)
+* 
+*/
 
 R_Impact imp;
 import rope.core.Rope;
