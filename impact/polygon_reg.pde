@@ -13,7 +13,7 @@ void polygon_build(R_Impact imp) {
 void polygon_show() {
 	stroke(r.YELLOW);
 	fill(r.MAGENTA);
-	show_polygon_from(imp_shapes_circle);
+	// show_polygon_from(imp_shapes_circle);
 	show_polygon_from(imp_shapes_heart);
 }
 
@@ -67,7 +67,6 @@ void add_cloud_points(R_Impact imp) {
 
 void build_polygon_impact(R_Impact imp) {
 	println("NEW BUILD POLYGON====================================");
-	println("circle total",imp.get_num_circle());
 	ArrayList<vec2>poly = new ArrayList<vec2>();
 	// clear polygon
 	imp_shapes_circle.clear();
@@ -86,7 +85,8 @@ void build_polygon_impact(R_Impact imp) {
 		build_single_basic_polygon_from_circle(im_0, im_1);
 		build_single_polygon_from_heart(im_0, im_1);
 	}
-	println("there is",imp_shapes_heart.size(),"polygons");
+	// println("there is",imp_shapes_circle.size(),"basic polygons");
+	println("there is",imp_shapes_heart.size(),"heart polygons");
 }
 
 

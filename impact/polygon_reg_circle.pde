@@ -1,23 +1,23 @@
 // POLYGON CIRCLE
 void build_single_basic_polygon_from_circle(int im_0, int im_1) {
-	boolean done_is = false;
+	boolean bingo_is = false;
 	int max_circle = imp.get_num_circle();
 	for(int k = 0 ; k < max_circle ; k++) {
-		done_is = false;
+		bingo_is = false;
 		for(R_Line2DX lc1 : imp.get_circle(k)) {
 			if(lc1.id_a() == im_0 && !lc1.mute_is()) {
 				for(int m = k + 1 ; m < max_circle ;m++) {
 					for(R_Line2DX lc2 : imp.get_circle(m)) {
 						if(lc2.id_a() == im_0 && !lc2.mute_is()) {
 							create_polygon_circle(lc1, lc2, imp.get_main(im_0), imp.get_main(im_1));
-							done_is = true;
+							bingo_is = true;
 							break;
 						}
 					}
-					if(done_is) break;
+					if(bingo_is) break;
 				}
 			}
-			if(done_is) break;
+			if(bingo_is) break;
 		}
 	}
 }
