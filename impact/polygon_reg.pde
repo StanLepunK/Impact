@@ -13,7 +13,7 @@ void polygon_build(R_Impact imp) {
 void polygon_show() {
 	
 	
-	// show_polygon_from(imp_shapes_circle);
+	show_polygon_from(imp_shapes_circle);
 	show_polygon_from(imp_shapes_heart);
 }
 
@@ -39,7 +39,7 @@ void show_polygon_from(ArrayList<R_Shape> list) {
 ///////////
 
 
-
+/////////////////////
 // ANNEXE BUILD POINT
 //////////////////////
 
@@ -67,7 +67,7 @@ void add_cloud_points(R_Impact imp) {
 	}
 }
 
-
+///////////////////////
 // ANNEXE BUILD POLYGON
 ////////////////////////
 
@@ -97,6 +97,42 @@ void build_polygon_impact(R_Impact imp) {
 
 
 
+
+// POLYGON CIRCLE
+////////////////////
+void build_single_basic_polygon_from_circle(int im_0, int im_1) {
+	boolean bingo_is = false;
+	int max_circle = imp.get_num_circle();
+	for(int k = 0 ; k < max_circle ; k++) {
+		bingo_is = false;
+		for(R_Line2DX lc1 : imp.get_circle(k)) {
+			if(lc1.id_a() == im_0 && !lc1.mute_is()) {
+				for(int m = k + 1 ; m < max_circle ;m++) {
+					for(R_Line2DX lc2 : imp.get_circle(m)) {
+						if(lc2.id_a() == im_0 && !lc2.mute_is()) {
+							create_polygon_circle(lc1, lc2, imp.get_main(im_0), imp.get_main(im_1));
+							bingo_is = true;
+							break;
+						}
+					}
+					if(bingo_is) break;
+				}
+			}
+			if(bingo_is) break;
+		}
+	}
+}
+
+
+void create_polygon_circle(R_Line2DX lc1, R_Line2DX lc2, ArrayList<R_Line2DX> main_a, ArrayList<R_Line2DX> main_b) {
+	R_Shape shape = new R_Shape(this);
+	shape.id(r.BLUE);
+	shape.add_points(lc1.a(), lc1.b());
+	shape.add_points(lc2.b(), lc2.a());
+	add_points_go(main_b, shape);
+	add_points_return(main_a, shape);
+	imp_shapes_circle.add(shape);
+}
 
 
 
@@ -137,6 +173,8 @@ void show_impact_cloud() {
 // UTILS
 ///////////////////
 
+// ADD POINT CLASSIC
+////////////////////
 void add_points(ArrayList<R_Line2DX> list, R_Impact imp, int family) {
 	float marge = 3;
 	for(R_Line2DX line : list) {
@@ -148,6 +186,62 @@ void add_points(ArrayList<R_Line2DX> list, R_Impact imp, int family) {
 			imp_pts.add(a);
 			vec3 b = new vec3(line.b().x(), line.b().y(), family);
 			imp_pts.add(b);
+		}
+	}
+}
+
+// ADD POINT POLYGON
+////////////////////
+void add_points_go(ArrayList<R_Line2DX> lines, R_Shape shape) {
+	int index = 1;
+	vec3 a = shape.get_point(index);
+	vec3 b = shape.get_point(shape.get_summits() -2);
+	println("b",b);
+	float marge = 3;
+	int first = 0;
+	int last = 0;
+	for(int i = 0 ; i < lines.size() ; i++) {
+		if(r.in_line(lines.get(i).a(),lines.get(i).b(), a.xy(), marge)) {
+			first = i;
+		}
+		if(r.in_line(lines.get(i).a(),lines.get(i).b(), b.xy(), marge)) {
+			last = i;
+		}
+	}
+	
+	if(first < last) {
+		for(int i = first ; i < last ; i++) {
+			vec2 buf = lines.get(i).b();
+			index++;
+			shape.add_point(index, buf.x(), buf.y());
+		}
+	}
+}
+
+
+void add_points_return(ArrayList<R_Line2DX> lines, R_Shape shape) {
+	int index = shape.get_summits() -1;
+	vec3 a = shape.get_point(index);
+	vec3 b = shape.get_point(0);
+	float marge = 3;
+	int first = 0;
+	int last = 0;
+	for(int i = 0 ; i < lines.size() ; i++) {
+		if(r.in_line(lines.get(i).a(),lines.get(i).b(), a.xy(), marge)) {
+			first = i;
+		}
+		if(r.in_line(lines.get(i).a(),lines.get(i).b(), b.xy(), marge)) {
+			last = i;
+		}
+	}
+
+	if(first > last) {
+		int count = 0;
+		for(int i = first ; i > last ; i--) {
+			vec2 buf = lines.get(i).a();
+			index++;
+			shape.add_point(index, buf.x(), buf.y());
+			count++;
 		}
 	}
 }

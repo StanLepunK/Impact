@@ -46,6 +46,7 @@ void create_polygon_center(R_Line2DX lh, R_Line2DX lc, R_Line2DX prev_lc, ArrayL
 	R_Shape shape = new R_Shape(this);
 	float marge = 3;
 	shape.add_points(lc.a(), lc.b()); // may be need to switch if that's meet main a or main b
+	// add_points_go(lc1.b(),lc2.b(), main_b, shape);
 	if(lh != null) {
 		boolean bingo_is = false;
 		for(R_Line2DX lb : main_b) {
