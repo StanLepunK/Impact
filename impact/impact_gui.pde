@@ -10,7 +10,7 @@ void impact_keypressed() {
 			case 0: set_impact_pentagon(); break;
 			case 1: set_impact_classic(); break;
 			case 2: set_impact(); break;
-			case 3: set_spiral(); break;
+			// case 3: set_spiral(); break;
 			default: set_impact_classic(); break;
 		}
 		impact_build();

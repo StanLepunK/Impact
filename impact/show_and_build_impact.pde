@@ -4,6 +4,7 @@
 void impact_setup(R_Impact imp) {
 	impact_build();	
 	imp.pixel_mode(2);
+	imp.use_mute(true);
 	// print_setting();
 }
 

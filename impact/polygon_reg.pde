@@ -11,14 +11,20 @@ void polygon_build(R_Impact imp) {
 
 
 void polygon_show() {
-	stroke(r.YELLOW);
-	fill(r.MAGENTA);
+	
+	
 	// show_polygon_from(imp_shapes_circle);
 	show_polygon_from(imp_shapes_heart);
 }
 
 void show_polygon_from(ArrayList<R_Shape> list) {
+	stroke(r.YELLOW);
 	for(R_Shape shape : list) {
+		if(shape.id()!= 0) {
+			fill(shape.id());
+		} else {
+			fill(r.MAGENTA);
+		}
 		beginShape();
 		for(int i = 0 ; i < shape.get_summits() ; i++) {
 			vertex(shape.get_x(i), shape.get_y(i));

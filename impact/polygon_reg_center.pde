@@ -19,7 +19,7 @@ void build_single_polygon_from_heart(int im_0, int im_1) {
 				lc = imp.get_circle(index_c).get(index_lc);
 				if(r.all(!lc.mute_is(), r.any(lc.id_a() == im_0, lc.id_b() == im_1))) {
 					create_polygon_center(lh, lc, prev_lc, imp.get_main(im_0), imp.get_main(im_1));
-					println("circle", index_c, "index line", index_lc);
+					// println("circle", index_c, "index line", index_lc);
 					prev_lc = lc.copy();
 					bingo_is = true;
 					break; 
@@ -50,30 +50,66 @@ void create_polygon_center(R_Line2DX lh, R_Line2DX lc, R_Line2DX prev_lc, ArrayL
 		boolean bingo_is = false;
 		for(R_Line2DX lb : main_b) {
 			if(r.in_line(lb.a(),lb.b(), lc.a(), marge) || r.in_line(lb.a(),lb.b(), lc.b(), marge)) {
-				// find the other point before add the last
 				if(prev_lc == null) {
-					shape.add_points(lh.b());
+					add_point_first_level_polygon_center(shape, lh, lc, lh.b());
 				} else {
-					shape.add_points(prev_lc.b(),prev_lc.a());
+					add_points_next_level_polygon_center(shape, lh, lc, prev_lc);
 				}
-				
+				bingo_is = true;
 				break;
 			}	
 		}
-		for(R_Line2DX la : main_a) {
-			if(r.in_line(la.a(),la.b(), lc.a(), marge) || r.in_line(la.a(),la.b(), lc.b(), marge)) {
-				// find the other point before add the last
-				if(prev_lc == null) {
-					shape.add_points(lh.a());
-				} else {
-					shape.add_points(prev_lc.b(),prev_lc.a());
-				}
-				break;
-			}	
-		}
+		if(!bingo_is) {
+			for(R_Line2DX la : main_a) {
+				if(r.in_line(la.a(),la.b(), lc.a(), marge) || r.in_line(la.a(),la.b(), lc.b(), marge)) {
+					if(prev_lc == null) {
+						add_point_first_level_polygon_center(shape, lh, lc, lh.a());
+					} else {
+						add_points_next_level_polygon_center(shape, lh, lc, prev_lc);
+					}
+					break;
+				}	
+			}
+		}	
 	} else {
-		shape.add_point(imp.pos().x(), imp.pos().y()); // test point to center impact
+		shape.add_point(imp.pos().x(), imp.pos().y());
 	}
+	println("shape summit", shape.get_summits());
 	imp_shapes_heart.add(shape);
+}
+
+void add_point_first_level_polygon_center(R_Shape shape, R_Line2DX lh, R_Line2DX lc, vec2 point) {
+	float marge = 3;
+	boolean a_is = r.in_line(lh.a(),lh.b(), lc.a(), marge);
+	boolean b_is = r.in_line(lh.a(),lh.b(), lc.b(), marge);
+	if(r.all(!a_is, !b_is)) {
+		shape.add_points(lh.b(),lh.a());
+	} else {
+		shape.add_points(point);
+	}
+}
+
+void add_points_next_level_polygon_center(R_Shape shape, R_Line2DX lh, R_Line2DX lc, R_Line2DX prev_lc) {
+	float marge = 3;
+	boolean a_prev_is = false;
+	boolean b_prev_is = false;
+	boolean a_is = r.in_line(lh.a(),lh.b(), lc.a(), marge);
+	boolean b_is = r.in_line(lh.a(),lh.b(), lc.b(), marge);
+
+	if(r.all(!a_is, !b_is)) {
+		a_prev_is = r.in_line(lh.a(),lh.b(), prev_lc.a(), marge);
+		b_prev_is = r.in_line(lh.a(),lh.b(), prev_lc.b(), marge);
+		if(a_prev_is) {
+			shape.id(r.CYAN);
+			shape.add_points(prev_lc.b(), prev_lc.a(), lh.a());
+			return;
+		}
+		if(b_prev_is) {
+			shape.id(r.GREEN);
+			shape.add_points(lh.b(), prev_lc.b(), prev_lc.a());
+			return;
+		}
+	}
+	shape.add_points(prev_lc.b(),prev_lc.a());
 }
 
