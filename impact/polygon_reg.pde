@@ -11,8 +11,6 @@ void polygon_build(R_Impact imp) {
 
 
 void polygon_show() {
-	
-	
 	show_polygon_from(imp_shapes_circle);
 	show_polygon_from(imp_shapes_heart);
 }
@@ -129,8 +127,8 @@ void create_polygon_circle(R_Line2DX lc1, R_Line2DX lc2, ArrayList<R_Line2DX> ma
 	shape.id(r.BLUE);
 	shape.add_points(lc1.a(), lc1.b());
 	shape.add_points(lc2.b(), lc2.a());
-	add_points_go(main_b, shape);
-	add_points_return(main_a, shape);
+	add_points_go(main_b, shape, false);
+	add_points_return(main_a, shape, false);
 	imp_shapes_circle.add(shape);
 }
 
@@ -192,26 +190,39 @@ void add_points(ArrayList<R_Line2DX> list, R_Impact imp, int family) {
 
 // ADD POINT POLYGON
 ////////////////////
-void add_points_go(ArrayList<R_Line2DX> lines, R_Shape shape) {
-	int index = 1;
-	vec3 a = shape.get_point(index);
-	vec3 b = shape.get_point(shape.get_summits() -2);
-	println("b",b);
+void add_points_go(ArrayList<R_Line2DX> lms, R_Shape shape, boolean swap_is) {
 	float marge = 3;
 	int first = 0;
 	int last = 0;
-	for(int i = 0 ; i < lines.size() ; i++) {
-		if(r.in_line(lines.get(i).a(),lines.get(i).b(), a.xy(), marge)) {
+	int index = 1;
+	int index_next = shape.get_summits() -2;
+	vec3 a = shape.get_point(index);
+	vec3 b = shape.get_point(index_next);
+
+	for(int i = 0 ; i < lms.size() ; i++) {
+		if(r.in_line(lms.get(i).a(),lms.get(i).b(), a.xy(), marge)) {
 			first = i;
 		}
-		if(r.in_line(lines.get(i).a(),lines.get(i).b(), b.xy(), marge)) {
+		if(r.in_line(lms.get(i).a(),lms.get(i).b(), b.xy(), marge)) {
 			last = i;
 		}
 	}
-	
+
+	// the most of cases
 	if(first < last) {
 		for(int i = first ; i < last ; i++) {
-			vec2 buf = lines.get(i).b();
+			vec2 buf = lms.get(i).b();
+			index++;
+			shape.add_point(index, buf.x(), buf.y());
+		}
+	}
+	// it's for the center, because the order is reverse
+	else if(first > last) {
+		int count = first;
+		for(int i = last ; i < first ; i++) {
+			// reverse the order to put the point where this nust be
+			count--;
+			vec2 buf = lms.get(count).b();
 			index++;
 			shape.add_point(index, buf.x(), buf.y());
 		}
@@ -219,29 +230,41 @@ void add_points_go(ArrayList<R_Line2DX> lines, R_Shape shape) {
 }
 
 
-void add_points_return(ArrayList<R_Line2DX> lines, R_Shape shape) {
-	int index = shape.get_summits() -1;
-	vec3 a = shape.get_point(index);
-	vec3 b = shape.get_point(0);
+void add_points_return(ArrayList<R_Line2DX> lms, R_Shape shape, boolean swap_is) {
 	float marge = 3;
 	int first = 0;
 	int last = 0;
-	for(int i = 0 ; i < lines.size() ; i++) {
-		if(r.in_line(lines.get(i).a(),lines.get(i).b(), a.xy(), marge)) {
+	int index = shape.get_summits() -1;
+	int index_next = 0;
+	vec3 a = shape.get_point(index);
+	vec3 b = shape.get_point(index_next);
+
+	for(int i = 0 ; i < lms.size() ; i++) {
+		if(r.in_line(lms.get(i).a(),lms.get(i).b(), a.xy(), marge)) {
 			first = i;
 		}
-		if(r.in_line(lines.get(i).a(),lines.get(i).b(), b.xy(), marge)) {
+		if(r.in_line(lms.get(i).a(),lms.get(i).b(), b.xy(), marge)) {
 			last = i;
 		}
 	}
-
+	
+	// the most of cases
 	if(first > last) {
-		int count = 0;
 		for(int i = first ; i > last ; i--) {
-			vec2 buf = lines.get(i).a();
+			vec2 buf = lms.get(i).a();
 			index++;
 			shape.add_point(index, buf.x(), buf.y());
+		}
+	}
+	// it's for the center, because the order is reverse
+	else if(last > first) {
+		int count = first;
+		for(int i = last ; i > first ; i--) {
+			// reverse the order to put the point where this nust be
 			count++;
+			vec2 buf = lms.get(count).a();
+			index++;
+			shape.add_point(index, buf.x(), buf.y());
 		}
 	}
 }
