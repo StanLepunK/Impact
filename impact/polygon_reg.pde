@@ -1,8 +1,12 @@
 import rope.vector.vec3;
 import rope.mesh.R_Shape;
-ArrayList<vec3> imp_pts = new ArrayList<vec3>();
+
+// Polygon list
 ArrayList<R_Shape> imp_shapes_circle = new ArrayList<R_Shape>();
 ArrayList<R_Shape> imp_shapes_heart = new ArrayList<R_Shape>();
+ArrayList<R_Shape> imp_shapes_rest = new ArrayList<R_Shape>();
+// help point list
+ArrayList<vec3> imp_pts = new ArrayList<vec3>();
 
 void polygon_build(R_Impact imp) {
 	add_cloud_points(imp);
@@ -10,26 +14,7 @@ void polygon_build(R_Impact imp) {
 }
 
 
-void polygon_show() {
-	show_polygon_from(imp_shapes_circle);
-	show_polygon_from(imp_shapes_heart);
-}
 
-void show_polygon_from(ArrayList<R_Shape> list) {
-	stroke(r.YELLOW);
-	for(R_Shape shape : list) {
-		if(shape.id()!= 0) {
-			fill(shape.id());
-		} else {
-			fill(r.MAGENTA);
-		}
-		beginShape();
-		for(int i = 0 ; i < shape.get_summits() ; i++) {
-			vertex(shape.get_x(i), shape.get_y(i));
-		}
-		endShape(CLOSE);
-	}
-}
 
 
 //////////
@@ -37,9 +22,10 @@ void show_polygon_from(ArrayList<R_Shape> list) {
 ///////////
 
 
-/////////////////////
-// ANNEXE BUILD POINT
-//////////////////////
+//////////////////////////////
+// ANNEXE HELP 
+// BUILD POINT
+///////////////////////////////
 
 void add_cloud_points(R_Impact imp) {
 	imp_pts.clear();
@@ -75,12 +61,12 @@ void build_polygon_impact(R_Impact imp) {
 	// clear polygon
 	imp_shapes_circle.clear();
 	imp_shapes_heart.clear();
+	imp_shapes_rest.clear();
 
 	int count_info = 0;
 	int max_main = imp.get_num_main();
 	// main branch by main branch
 	for(int m_index = 0 ; m_index < max_main ; m_index++) {
-		// println("------------- MAIN ---------------------------",m_index);
 		int im_0 = m_index;
 		int im_1 = m_index+1;
 		if(im_1 == max_main) {
@@ -88,9 +74,50 @@ void build_polygon_impact(R_Impact imp) {
 		}
 		build_single_basic_polygon_from_circle(im_0, im_1);
 		build_single_polygon_from_heart(im_0, im_1);
+		build_single_polygon_rest(im_0, im_1);
 	}
-	// println("there is",imp_shapes_circle.size(),"basic polygons");
+	println("there is",imp_shapes_circle.size(),"basic polygons");
 	println("there is",imp_shapes_heart.size(),"heart polygons");
+	println("there is",imp_shapes_rest.size(),"rest polygons");
+}
+
+
+// POLYGON REST
+/////////////////
+void build_single_polygon_rest(int im_0, int im_1) {
+	R_Shape shape = new R_Shape(this);
+	shape.id(r.BLOOD);
+
+	// find the last circle elem not mute and add it
+	int max_circle = imp.get_num_circle()-1;
+	boolean bingo_is = false;
+	// go from the max to minimum
+	for(int k = max_circle ; k >= 0 ; k--) {
+		for(R_Line2DX lc : imp.get_circle(k)) {
+			
+			if(lc.id_a() == im_0 && !lc.mute_is()) {
+				// println(lc, index_main, lc.id_a());
+				create_polygon_rest(lc, shape, imp.get_main(im_0), imp.get_main(im_1));
+				bingo_is = true;
+				break;
+
+			}
+		}
+		if(bingo_is) {
+			break;
+		}
+	}
+	imp_shapes_rest.add(shape);
+
+}
+
+void create_polygon_rest(R_Line2DX lc, R_Shape shape, ArrayList<R_Line2DX> main_a, ArrayList<R_Line2DX> main_b) {
+	R_Line2DX lm_0 = main_a.get(main_a.size() -1);
+	R_Line2DX lm_1 = main_b.get(main_b.size() -1);
+	shape.add_points(lm_0.b(), lm_1.b());
+	shape.add_points(lc.b(), lc.a());
+	add_points_go(main_b, shape, false);
+	add_points_return(main_a, shape, false);
 }
 
 
@@ -136,34 +163,7 @@ void create_polygon_circle(R_Line2DX lc1, R_Line2DX lc2, ArrayList<R_Line2DX> ma
 
 
 
-////////////////////:
-// ANNEXE SHOW
-///////////////////
 
-void show_impact_cloud() {
-	noFill();
-	stroke(r.WHITE);
-	for(vec3 p : imp_pts) {
-		switch((int)p.z()) {
-			case 0:
-				stroke(r.CYAN);
-				circle(p.x(), p.y(), 15);
-				break;
-			case 1:
-				stroke(r.MAGENTA);
-				circle(p.x(), p.y(), 15);
-				break;
-			case 2:
-				stroke(r.YELLOW);
-				circle(p.x(), p.y(), 15);
-				break;
-			default:
-				stroke(r.WHITE);
-				circle(p.x(), p.y(), 15);
-				break;
-		}
-	}
-}
 
 
 
@@ -247,7 +247,7 @@ void add_points_return(ArrayList<R_Line2DX> lms, R_Shape shape, boolean swap_is)
 			last = i;
 		}
 	}
-	
+
 	// the most of cases
 	if(first > last) {
 		for(int i = first ; i > last ; i--) {
@@ -265,6 +265,70 @@ void add_points_return(ArrayList<R_Line2DX> lms, R_Shape shape, boolean swap_is)
 			vec2 buf = lms.get(count).a();
 			index++;
 			shape.add_point(index, buf.x(), buf.y());
+		}
+	}
+}
+
+
+
+
+
+
+
+
+
+
+////////////////////:
+// SHOW
+///////////////////
+
+
+
+void show_polygon() {
+	show_polygon_from(imp_shapes_circle);
+	show_polygon_from(imp_shapes_heart);
+	show_polygon_from(imp_shapes_rest);
+}
+
+void show_polygon_from(ArrayList<R_Shape> list) {
+	stroke(r.YELLOW);
+	for(R_Shape shape : list) {
+		if(shape.id()!= 0) {
+			fill(shape.id());
+		} else {
+			fill(r.MAGENTA);
+		}
+		beginShape();
+		for(int i = 0 ; i < shape.get_summits() ; i++) {
+			vertex(shape.get_x(i), shape.get_y(i));
+		}
+		endShape(CLOSE);
+	}
+}
+
+
+
+void show_impact_cloud() {
+	noFill();
+	stroke(r.WHITE);
+	for(vec3 p : imp_pts) {
+		switch((int)p.z()) {
+			case 0:
+				stroke(r.CYAN);
+				circle(p.x(), p.y(), 15);
+				break;
+			case 1:
+				stroke(r.MAGENTA);
+				circle(p.x(), p.y(), 15);
+				break;
+			case 2:
+				stroke(r.YELLOW);
+				circle(p.x(), p.y(), 15);
+				break;
+			default:
+				stroke(r.WHITE);
+				circle(p.x(), p.y(), 15);
+				break;
 		}
 	}
 }

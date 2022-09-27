@@ -27,12 +27,12 @@ void draw() {
 	background(r.BLACK);
 	// println("frameRate", (int)frameRate, "alpha bg",alpha_bg);
 	switch(which_struc()) {
-		case 0 : polygon_show(); impact_draw(); break;
-		case 1 : polygon_show(); break;
-		case 2 : polygon_show(); impact_draw(); show_impact_cloud(); break;
-		case 3 : polygon_show(); show_impact_cloud(); break;
+		case 0 : show_polygon(); impact_draw(); break;
+		case 1 : show_polygon(); break;
+		case 2 : show_polygon(); impact_draw(); show_impact_cloud(); break;
+		case 3 : show_polygon(); show_impact_cloud(); break;
 		case 4 : impact_draw(); show_impact_cloud(); break;
-		default : polygon_show(); impact_draw(); show_impact_cloud(); break;
+		default : show_polygon(); impact_draw(); show_impact_cloud(); break;
 	}
 
 
