@@ -42,8 +42,9 @@ void impact_keypressed() {
 
 int which_struc = 0;
 void inc_struc() {
+	int max = 6;
 	which_struc++;
-	if(which_struc > 3) {
+	if(which_struc > max) {
 		which_struc = 0;
 	}
 }

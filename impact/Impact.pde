@@ -24,15 +24,17 @@ void setup() {
 void draw() {
 	// float alpha_bg = map(abs(sin(frameCount * 0.002)),0,1, 0,20);
 	// bg(r.BLACK, alpha_bg);
-	background(r.BLACK);
+	background(r.GRIS[1]);
 	// println("frameRate", (int)frameRate, "alpha bg",alpha_bg);
 	switch(which_struc()) {
-		case 0 : show_polygon(); impact_draw(); break;
-		case 1 : show_polygon(); break;
-		case 2 : show_polygon(); impact_draw(); show_impact_cloud(); break;
-		case 3 : show_polygon(); show_impact_cloud(); break;
-		case 4 : impact_draw(); show_impact_cloud(); break;
-		default : show_polygon(); impact_draw(); show_impact_cloud(); break;
+		case 0 : show_polygon(1); impact_draw(); break;
+		case 1 : show_polygon(1); break;
+		case 2 : show_polygon(0); break;
+		case 3 : show_polygon(-1); break;
+		case 4 : show_polygon(1); impact_draw(); show_impact_cloud(); break;
+		case 5 : show_polygon(1); show_impact_cloud(); break;
+		case 6 : impact_draw(); show_impact_cloud(); break;
+		default : show_polygon(1); impact_draw(); show_impact_cloud(); break;
 	}
 
 

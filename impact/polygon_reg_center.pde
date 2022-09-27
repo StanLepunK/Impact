@@ -7,7 +7,8 @@ void build_single_polygon_from_heart(int im_0, int im_1) {
 	R_Line2DX lc = null;
 	R_Line2DX prev_lc = null;
 	int max_circle = imp.get_num_circle();
-
+	// THE PURE HEART
+	create_polygon_heart();
 	// REGULAR
 	boolean bingo_is = false;
 	for(int index_c = 0 ; index_c < max_circle ; index_c++) {
@@ -44,9 +45,18 @@ boolean break_if(R_Line2DX lh, R_Line2DX lc) {
 	return !r.any(r.in_line(lh.a(),lh.b(), lc.a(),marge), r.in_line(lh.a(),lh.b(), lc.b(),marge));
 }
 
+void create_polygon_heart() {
+	R_Shape shape = new R_Shape(this);
+	shape.id(r.GRIS[1]);
+	for(R_Line2DX lh : imp.get_heart()) {
+		shape.add_points(lh.a());
+	}
+	imp_shapes_heart.add(shape);
+}
 
 void create_polygon_center(R_Line2DX lh, R_Line2DX lc, R_Line2DX prev_lc, ArrayList<R_Line2DX> main_a, ArrayList<R_Line2DX> main_b) {
 	R_Shape shape = new R_Shape(this);
+	shape.id(r.GRIS[11]);
 	float marge = 3;
 	shape.add_points(lc.a(), lc.b()); // may be need to switch if that's meet main a or main b
 	if(lh != null) {
@@ -78,8 +88,8 @@ void create_polygon_center(R_Line2DX lh, R_Line2DX lc, R_Line2DX prev_lc, ArrayL
 		shape.add_point(imp.pos().x(), imp.pos().y());
 	}
 
-	add_points_go(main_b, shape, true);
-	add_points_return(main_a, shape, true);
+	add_points_go(main_b, shape);
+	add_points_return(main_a, shape);
 	imp_shapes_heart.add(shape);
 }
 
@@ -105,12 +115,12 @@ void add_points_next_level_polygon_center(R_Shape shape, R_Line2DX lh, R_Line2DX
 		a_prev_is = r.in_line(lh.a(),lh.b(), prev_lc.a(), marge);
 		b_prev_is = r.in_line(lh.a(),lh.b(), prev_lc.b(), marge);
 		if(a_prev_is) {
-			shape.id(r.CYAN);
+			shape.id(r.GRIS[8]);
 			shape.add_points(prev_lc.b(), prev_lc.a(), lh.a());
 			return;
 		}
 		if(b_prev_is) {
-			shape.id(r.GREEN);
+			shape.id(r.GRIS[6]);
 			shape.add_points(lh.b(), prev_lc.b(), prev_lc.a());
 			return;
 		}

@@ -86,7 +86,7 @@ void build_polygon_impact(R_Impact imp) {
 /////////////////
 void build_single_polygon_rest(int im_0, int im_1) {
 	R_Shape shape = new R_Shape(this);
-	shape.id(r.BLOOD);
+	shape.id(r.GRIS[2]);
 
 	// find the last circle elem not mute and add it
 	int max_circle = imp.get_num_circle()-1;
@@ -116,8 +116,8 @@ void create_polygon_rest(R_Line2DX lc, R_Shape shape, ArrayList<R_Line2DX> main_
 	R_Line2DX lm_1 = main_b.get(main_b.size() -1);
 	shape.add_points(lm_0.b(), lm_1.b());
 	shape.add_points(lc.b(), lc.a());
-	add_points_go(main_b, shape, false);
-	add_points_return(main_a, shape, false);
+	add_points_go(main_b, shape);
+	add_points_return(main_a, shape);
 }
 
 
@@ -151,11 +151,11 @@ void build_single_basic_polygon_from_circle(int im_0, int im_1) {
 
 void create_polygon_circle(R_Line2DX lc1, R_Line2DX lc2, ArrayList<R_Line2DX> main_a, ArrayList<R_Line2DX> main_b) {
 	R_Shape shape = new R_Shape(this);
-	shape.id(r.BLUE);
+	shape.id(r.GRIS[4]);
 	shape.add_points(lc1.a(), lc1.b());
 	shape.add_points(lc2.b(), lc2.a());
-	add_points_go(main_b, shape, false);
-	add_points_return(main_a, shape, false);
+	add_points_go(main_b, shape);
+	add_points_return(main_a, shape);
 	imp_shapes_circle.add(shape);
 }
 
@@ -190,7 +190,7 @@ void add_points(ArrayList<R_Line2DX> list, R_Impact imp, int family) {
 
 // ADD POINT POLYGON
 ////////////////////
-void add_points_go(ArrayList<R_Line2DX> lms, R_Shape shape, boolean swap_is) {
+void add_points_go(ArrayList<R_Line2DX> lms, R_Shape shape) {
 	float marge = 3;
 	int first = 0;
 	int last = 0;
@@ -230,7 +230,7 @@ void add_points_go(ArrayList<R_Line2DX> lms, R_Shape shape, boolean swap_is) {
 }
 
 
-void add_points_return(ArrayList<R_Line2DX> lms, R_Shape shape, boolean swap_is) {
+void add_points_return(ArrayList<R_Line2DX> lms, R_Shape shape) {
 	float marge = 3;
 	int first = 0;
 	int last = 0;
@@ -284,14 +284,22 @@ void add_points_return(ArrayList<R_Line2DX> lms, R_Shape shape, boolean swap_is)
 
 
 
-void show_polygon() {
+void show_polygon(int mode) {
+	if(mode == -1) {
+		noStroke();
+		strokeWeight(0);
+	} else if(mode == 0) {
+		strokeWeight(2);
+		stroke(r.GRIS[13]);
+	} else {
+		stroke(r.YELLOW);
+	}
 	show_polygon_from(imp_shapes_circle);
 	show_polygon_from(imp_shapes_heart);
 	show_polygon_from(imp_shapes_rest);
 }
 
 void show_polygon_from(ArrayList<R_Shape> list) {
-	stroke(r.YELLOW);
 	for(R_Shape shape : list) {
 		if(shape.id()!= 0) {
 			fill(shape.id());
