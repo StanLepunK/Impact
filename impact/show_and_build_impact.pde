@@ -21,10 +21,11 @@ void impact_draw() {
 // ANNEXE
 
 void impact_build() {
-	imp.build(width/2, height/2);
+	imp.build_struct(width/2, height/2);
 	imp.set_pixels(0.3, r.RED);
 	set_mute_circle();
-	//imp.set_id_circle();
+	//set_mute_main();
+	imp.build_polygon();
 }
 
 
@@ -81,6 +82,7 @@ void set_mute_circle() {
 	for(int i = 0 ; i < imp.get_num_circle() ; i++) {
 		for(int k = 0 ; k < list_size[i] ; k++) {
 			float choice = random(1);
+			println("choice mute", choice);
 			imp.set_mute_circle(i, k, false);
 			if(choice < 0.5) {
 				imp.set_mute_circle(i, k, true);

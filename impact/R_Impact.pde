@@ -34,7 +34,7 @@ public class R_Impact extends Rope {
 	private ArrayList<R_Shape> imp_shapes_heart = new ArrayList<R_Shape>();
 	private ArrayList<R_Shape> imp_shapes_rest = new ArrayList<R_Shape>();
 	// POINT
-	private ArrayList<vec3> imp_pts = new ArrayList<vec3>();
+	private ArrayList<vec3> cloud = new ArrayList<vec3>();
 
 	private vec2 pos;
 
@@ -233,30 +233,60 @@ public class R_Impact extends Rope {
 		return size;
 	}
 
-	// GET LIST LINE
+	// GET LIST
 	/////////////////////
 
-	public ArrayList<R_Line2DX> get_main(int index) {
+	public ArrayList<R_Line2DX> get_main_line(int index) {
 		if(index >= 0 && index < main.length) {
 			return main[index];
 		}
 		return null;
 	}
 
-	public ArrayList<R_Line2DX> get_circle(int index) {
+	public ArrayList<R_Line2DX> get_circle_line(int index) {
 		if(index >= 0 && index < circle.length) {
 			return circle[index];
 		}
 		return null;
 	}
 
-	public ArrayList<R_Line2DX> get_heart() {
+	public ArrayList<R_Line2DX> get_heart_line() {
 		return heart;
 	}
 
-	public ArrayList<R_Line2DX> get_fail() {
+	public ArrayList<R_Line2DX> get_fail_line() {
 		return fail;
 	}
+
+	public ArrayList<vec3> get_cloud() {
+		return cloud;
+	}
+
+	public ArrayList<R_Shape> get_circle_polygon() {
+		return imp_shapes_circle;
+	}
+
+	public ArrayList<R_Shape> get_rest_polygon() {
+		return imp_shapes_rest;
+	}
+
+	public ArrayList<R_Shape> get_center_polygon() {
+		return imp_shapes_heart;
+	}
+
+	// may be need to be refactoring to arrayList or R_Shape
+	public vec2 [] get_heart_polygon() {
+		if(heart.size() == 0) {
+			return null;
+		}
+		vec2 [] polygon = new vec2[get_num_main()];
+		for(int i = 0 ; i < polygon.length ; i++) {
+			polygon[i] = heart.get(i).a().copy();
+		}
+		return polygon;
+	}
+
+
 
 
 
@@ -264,7 +294,11 @@ public class R_Impact extends Rope {
 	// BUILD
 	///////////////////////////
 
-	public void build(int x, int y) {
+	public void build_struct() {
+		build_struct(0,0);
+	}
+
+	public void build_struct(int x, int y) {
 		this.pos.set(x,y);
 		build_main();
 		build_heart();
@@ -293,11 +327,10 @@ public class R_Impact extends Rope {
 			return;
   	}
   	build_circle(0);
-		//
 		set_id_circle();
-		add_cloud_points();
-		build_polygon_impact();	
+		add_cloud_points();	
 	}
+
 
 
 	/////////////////////
@@ -437,16 +470,7 @@ public class R_Impact extends Rope {
 		}
 	}
 
-	public vec2 [] get_heart_polygon() {
-		if(heart.size() == 0) {
-			return null;
-		}
-		vec2 [] polygon = new vec2[get_num_main()];
-		for(int i = 0 ; i < polygon.length ; i++) {
-			polygon[i] = heart.get(i).a().copy();
-		}
-		return polygon;
-	}
+
 
 	private void circle_impl(ArrayList<R_Line2DX> circle_lines, float dist) {
 		float start_angle = 0;
@@ -579,33 +603,32 @@ public class R_Impact extends Rope {
 	//////////////////////////////////
 
 	private void add_cloud_points() {
-		imp_pts.clear();
+		cloud.clear();
 		int family = 0;
 		// main point
 		for(int i = 0 ; i < this.get_num_main() ; i++) {
 			family = 0;
-			add_points(this.get_main(i), imp, family);
+			add_points(this.get_main_line(i), imp, family);
 		}
-
 		// circle point
 		for(int i = 0 ; i < this.get_num_circle() ; i++) {
 			family = 1;
-			add_points(this.get_circle(i), imp, family);
+			add_points(this.get_circle_line(i), imp, family);
 		}
 		// heart
 		family = 2;
-		add_points(this.get_heart(), imp, family);
+		add_points(this.get_heart_line(), imp, family);
 		if(this.get_heart_polygon() != null) {
 			vec2 [] polygon = this.get_heart_polygon();
 		} else {
-			imp_pts.add(new vec3(this.pos().x(),this.pos().y(),family));
+			cloud.add(new vec3(this.pos().x(),this.pos().y(),family));
 		}
 	}
 
 	// BUILD POLYGON
 	///////////////////////////
 
-	private void build_polygon_impact() {
+	public void build_polygon() {
 		// println("NEW BUILD POLYGON====================================");
 		ArrayList<vec2>poly = new ArrayList<vec2>();
 		// clear polygon
@@ -643,10 +666,10 @@ public class R_Impact extends Rope {
 		boolean bingo_is = false;
 		// go from the max to minimum
 		for(int k = max_circle ; k >= 0 ; k--) {
-			for(R_Line2DX lc : this.get_circle(k)) {
-				
+			for(R_Line2DX lc : this.get_circle_line(k)) {
+				// println("lc.mute_is()",lc.mute_is());
 				if(lc.id_a() == im_0 && !lc.mute_is()) {
-					create_polygon_rest(lc, shape, this.get_main(im_0), this.get_main(im_1));
+					create_polygon_rest(lc, shape, this.get_main_line(im_0), this.get_main_line(im_1));
 					bingo_is = true;
 					break;
 
@@ -676,12 +699,12 @@ public class R_Impact extends Rope {
 		int max_circle = this.get_num_circle();
 		for(int k = 0 ; k < max_circle ; k++) {
 			bingo_is = false;
-			for(R_Line2DX lc1 : this.get_circle(k)) {
+			for(R_Line2DX lc1 : this.get_circle_line(k)) {
 				if(lc1.id_a() == im_0 && !lc1.mute_is()) {
 					for(int m = k + 1 ; m < max_circle ;m++) {
-						for(R_Line2DX lc2 : this.get_circle(m)) {
+						for(R_Line2DX lc2 : this.get_circle_line(m)) {
 							if(lc2.id_a() == im_0 && !lc2.mute_is()) {
-								create_polygon_circle(lc1, lc2, this.get_main(im_0), this.get_main(im_1));
+								create_polygon_circle(lc1, lc2, this.get_main_line(im_0), this.get_main_line(im_1));
 								bingo_is = true;
 								break;
 							}
@@ -719,14 +742,14 @@ public class R_Impact extends Rope {
 		// REGULAR
 		boolean bingo_is = false;
 		for(int index_c = 0 ; index_c < max_circle ; index_c++) {
-			if(this.get_heart().size() > 0 && im_0 < this.get_heart().size()) {
-				lh = this.get_heart().get(im_0);
+			if(this.get_heart_line().size() > 0 && im_0 < this.get_heart_line().size()) {
+				lh = this.get_heart_line().get(im_0);
 			}
-			if(this.get_circle(index_c) != null && this.get_circle(index_c).size() > 0) {
-				for(int index_lc = 0 ; index_lc < this.get_circle(index_c).size() ; index_lc++) {
-					lc = this.get_circle(index_c).get(index_lc);
+			if(this.get_circle_line(index_c) != null && this.get_circle_line(index_c).size() > 0) {
+				for(int index_lc = 0 ; index_lc < this.get_circle_line(index_c).size() ; index_lc++) {
+					lc = this.get_circle_line(index_c).get(index_lc);
 					if(r.all(!lc.mute_is(), r.any(lc.id_a() == im_0, lc.id_b() == im_1))) {
-						create_polygon_center(lh, lc, prev_lc, this.get_main(im_0), this.get_main(im_1));
+						create_polygon_center(lh, lc, prev_lc, this.get_main_line(im_0), this.get_main_line(im_1));
 						prev_lc = lc.copy();
 						bingo_is = true;
 						break; 
@@ -754,7 +777,7 @@ public class R_Impact extends Rope {
 	private void create_polygon_heart() {
 		R_Shape shape = new R_Shape(this.pa);
 		shape.id(r.GRIS[1]);
-		for(R_Line2DX lh : this.get_heart()) {
+		for(R_Line2DX lh : this.get_heart_line()) {
 			shape.add_points(lh.a());
 		}
 		imp_shapes_heart.add(shape);
@@ -847,9 +870,9 @@ public class R_Impact extends Rope {
 			boolean b_is = this.pos().compare(line.b(), new vec2(marge));
 			if(r.all((r.any(r.all(!a_is, !b_is, !line.mute_is()),!this.use_mute_is())),!a_is,!b_is)) { // that's work but too much complex
 				vec3 a = new vec3(line.a().x(), line.a().y(), family);
-				imp_pts.add(a);
+				cloud.add(a);
 				vec3 b = new vec3(line.b().x(), line.b().y(), family);
-				imp_pts.add(b);
+				cloud.add(b);
 			}
 		}
 	}
@@ -986,7 +1009,7 @@ public class R_Impact extends Rope {
 	}
 
 
-	
+
 
 	/////////////////////////////////
 	// ANNEXE
@@ -1021,7 +1044,7 @@ public class R_Impact extends Rope {
 			main[main_index].get(line_index).mute(state);
 		} else {
 			print_err("class R_Impact set_mute_main(int main_index, int line_index, boolean state): There is no list matching with main_index:",main_index, "or line_index:", line_index);
-			pa.exit();
+			this.pa.exit();
 		}
 	}
 
@@ -1030,7 +1053,7 @@ public class R_Impact extends Rope {
 			circle[circle_index].get(line_index).mute(state);
 		} else {
 			print_err("class R_Impact set_mute_circle(int circle_index, int line_index, boolean state): There is no list matching with circle_index:",circle_index, "or line_index:", line_index);
-			pa.exit();
+			this.pa.exit();
 		}
 	}
 
@@ -1039,7 +1062,7 @@ public class R_Impact extends Rope {
 	}
 
 	public boolean use_mute_is() {
-		return use_mute_is;
+		return this.use_mute_is;
 	}
 
 	// ERROR
@@ -1261,7 +1284,7 @@ public class R_Impact extends Rope {
 	public void show_cloud() {
 		noFill();
 		stroke(WHITE);
-		for(vec3 p : imp_pts) {
+		for(vec3 p : cloud) {
 			switch((int)p.z()) {
 				case 0:
 					stroke(CYAN);
