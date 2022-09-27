@@ -23,9 +23,15 @@ void impact_draw() {
 void impact_build() {
 	imp.build_struct(width/2, height/2);
 	imp.set_pixels(0.3, r.RED);
-	set_mute_circle();
+	impact_build_polygon();
+
+}
+
+void impact_build_polygon() {
+		set_mute_circle();
 	//set_mute_main();
 	imp.build_polygon();
+
 }
 
 

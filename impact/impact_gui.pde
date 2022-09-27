@@ -24,6 +24,7 @@ void impact_keypressed() {
 		} else {
 			imp.use_mute(true);
 		}
+		impact_build_polygon();
 	}
 
 	if(key == 'e') {
