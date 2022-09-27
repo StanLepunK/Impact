@@ -24,7 +24,7 @@ void impact_build() {
 	imp.build(width/2, height/2);
 	imp.set_pixels(0.3, r.RED);
 	set_mute_circle();
-	imp.set_id_circle();
+	//imp.set_id_circle();
 }
 
 
@@ -32,16 +32,16 @@ void show_lines() {
 	noFill();
 	stroke(255);
 	strokeWeight(1);
-	// imp.show();
-	imp.show_main();
+	// imp.show_line();
+	imp.show_line_main();
 	stroke(r.YELLOW);
-	imp.show_circle();
+	imp.show_line_circle();
 	stroke(r.GREEN);
-	imp.show_heart();
+	imp.show_line_heart();
 
 	if(show_error_is) {
 		stroke(r.RED);
-		imp.show_fail();
+		imp.show_line_fail();
 		stroke(r.WHITE);
 		imp.show_bug();
 	}
