@@ -312,7 +312,6 @@ public class R_Impact extends Rope {
 			return;
   	}
   	build_circle(0);	
-
 	}
 
 
@@ -320,7 +319,7 @@ public class R_Impact extends Rope {
 	// BUILD MAIN BRANCH
 	/////////////////////
 
-	public void build_main() {
+	private void build_main() {
 		main = new ArrayList[get_num_main()];
 		float angle_step = TAU / get_num_main();
 		float angle = 0;
@@ -332,7 +331,7 @@ public class R_Impact extends Rope {
 		}
 	}
 
-	public void build_heart() {
+	private void build_heart() {
 		heart = new ArrayList<R_Line2DX>();
 		if(get_heart_main() > 0 ) {
 			for(int i = 1 ; i < main.length ; i++) {
@@ -503,32 +502,6 @@ public class R_Impact extends Rope {
 	  }
 	}
 
-
-	// ID CIRCLE
-	///////////////////////
-
-	public void set_id_circle() {
-		for(int i = 0 ; i < circle.length ; i++) {
-			for(int k = 0 ; k < main.length ; k++) {
-				for(R_Line2DX lc : circle[i]) {
-					for(R_Line2DX lm : main[k]) {
-						float marge = 2;
-						if(in_line(lm.a(),lm.b(),lc.a(),marge)) {
-							lc.id_a(k);
-						}
-						if(in_line(lm.a(),lm.b(),lc.b(),marge)) {
-							lc.id_b(k);
-						}
-					}
-				}
-			}
-		}
-	}
-
-
-
-
-
 	// ALGO CIRCLE BRANCH
 	/////////////////////////
 
@@ -618,6 +591,32 @@ public class R_Impact extends Rope {
 		}
 		return meet;
 	}
+
+		// ID CIRCLE
+	///////////////////////
+
+	public void set_id_circle() {
+		for(int i = 0 ; i < circle.length ; i++) {
+			for(int k = 0 ; k < main.length ; k++) {
+				for(R_Line2DX lc : circle[i]) {
+					for(R_Line2DX lm : main[k]) {
+						float marge = 2;
+						if(in_line(lm.a(),lm.b(),lc.a(),marge)) {
+							lc.id_a(k);
+						}
+						if(in_line(lm.a(),lm.b(),lc.b(),marge)) {
+							lc.id_b(k);
+						}
+					}
+				}
+			}
+		}
+	}
+
+
+
+
+
 
 
 
@@ -800,9 +799,11 @@ public class R_Impact extends Rope {
 
 
 
-
 	/////////////////////////////
 	// SHOW
+	////////////////////////////
+
+	// SHOW LINE
 	////////////////////////////
 	public void show() {
 		show_main();
@@ -844,8 +845,8 @@ public class R_Impact extends Rope {
 		}
 	}
 
-	// DEBUGGER
-	///////////
+	// SHOW DEBUGGER
+	//////////////////
 
 	public void show_bug() {
 		show_bug_impl(main);
