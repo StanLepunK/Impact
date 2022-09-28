@@ -703,11 +703,11 @@ public class R_Impact extends Rope {
 		if(r.all(lc == null, lh == null)) what = 0;
 		else if(lc != null && lh == null) what = 1;
 		else if(lc == null && lh != null) what = 2;
-		else if(lc != null && lh != null) what = 3;		
-		else what = 4;
+		else if(lc != null && lh != null) what = 3;
 
 		switch(what) {
-			case 0 : shape.add_point(pos.x(), pos.y()); break;
+			// case 0 : double the center points to avoid the getting problem when we catch the point in the GO function
+			case 0 : shape.add_points(pos, pos); break; 
 			case 1 : shape.add_points(lc.b(), lc.a()); break;
 			case 2 : shape.add_points(lh.b(), lh.a()); break;
 			case 3 :
@@ -936,9 +936,8 @@ public class R_Impact extends Rope {
 				index++;
 				shape.add_point(index, buf.x(), buf.y());
 			}
-		}
-		// it's for the center, because the order is reverse
-		else if(first > last) {
+		}	else if(first > last) {
+			// it's for the center, because the order is reverse
 			int count = first;
 			for(int i = last ; i < first ; i++) {
 				// reverse the order to put the point where this nust be
@@ -975,9 +974,8 @@ public class R_Impact extends Rope {
 				index++;
 				shape.add_point(index, buf.x(), buf.y());
 			}
-		}
-		// it's for the center, because the order is reverse
-		else if(last > first) {
+		} else if(first < last) {
+			// it's for the center, because the order is reverse
 			int count = first;
 			for(int i = last ; i > first ; i--) {
 				// reverse the order to put the point where this nust be

@@ -5,6 +5,7 @@ boolean use_pixels_is = false;
 void impact_keypressed() {
 	if(key == 'n') {
 		int choice = floor(random(4));
+		boolean use_heart_is = false;
 		// choice = 1;
 		switch(choice) {
 			case 0: set_impact_pentagon(); break;
