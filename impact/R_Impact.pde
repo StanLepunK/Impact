@@ -39,6 +39,7 @@ public class R_Impact extends Rope {
 	private vec2 pos;
 
 	private int mode = LINE;
+	private float marge = 3; // use for in_line detection
 
 	private boolean use_mute_is = false;
 	private int mode_pixel_x = 1;
@@ -48,6 +49,8 @@ public class R_Impact extends Rope {
 	private int base = 5;
 	private vec5 data_main = new vec5();
 	private vec3 data_circle = new vec3();
+
+	
 	
 	public R_Impact(PApplet pa) {
 		this.pa = pa;
@@ -629,7 +632,7 @@ public class R_Impact extends Rope {
 	///////////////////////////
 
 	public void build_polygon() {
-		// println("NEW BUILD POLYGON====================================");
+		println("NEW BUILD POLYGON====================================");
 		ArrayList<vec2>poly = new ArrayList<vec2>();
 		// clear polygon
 		imp_shapes_circle.clear();
@@ -667,26 +670,60 @@ public class R_Impact extends Rope {
 		// go from the max to minimum
 		for(int k = max_circle ; k >= 0 ; k--) {
 			for(R_Line2DX lc : this.get_circle_line(k)) {
-				// println("lc.mute_is()",lc.mute_is());
-				if(lc.id_a() == im_0 && !lc.mute_is()) {
-					create_polygon_rest(lc, shape, this.get_main_line(im_0), this.get_main_line(im_1));
+				if(r.any(lc.id_a() == im_0,lc.id_b() == im_1) && !lc.mute_is()) {
+					create_polygon_rest(lc, shape, im_0, im_1);
 					bingo_is = true;
 					break;
-
 				}
 			}
 			if(bingo_is) {
 				break;
 			}
 		}
+		if(!bingo_is) {
+			create_polygon_rest(null, shape, im_0, im_1);		
+		}
+		
 		imp_shapes_rest.add(shape);
 	}
 
-	private void create_polygon_rest(R_Line2DX lc, R_Shape shape, ArrayList<R_Line2DX> main_a, ArrayList<R_Line2DX> main_b) {
-		R_Line2DX lm_0 = main_a.get(main_a.size() -1);
-		R_Line2DX lm_1 = main_b.get(main_b.size() -1);
-		shape.add_points(lm_0.b(), lm_1.b());
-		shape.add_points(lc.b(), lc.a());
+	private void create_polygon_rest(R_Line2DX lc, R_Shape shape, int im_0, int im_1) {
+		ArrayList<R_Line2DX> main_a = this.get_main_line(im_0);
+		ArrayList<R_Line2DX> main_b = this.get_main_line(im_1);
+
+		R_Line2DX lm_0_last = main_a.get(main_a.size() -1);
+		R_Line2DX lm_1_last = main_b.get(main_b.size() -1);
+		R_Line2DX lh = null;
+		if(this.get_heart_line().size() > 0) {
+			lh = this.get_heart_line().get(im_0);
+		}
+
+		shape.add_points(lm_0_last.b(), lm_1_last.b());
+		int what = 0;
+		if(r.all(lc == null, lh == null)) what = 0;
+		else if(lc != null && lh == null) what = 1;
+		else if(lc == null && lh != null) what = 2;
+		else if(lc != null && lh != null) what = 3;		
+		else what = 4;
+
+		switch(what) {
+			case 0 : shape.add_point(pos.x(), pos.y()); break;
+			case 1 : shape.add_points(lc.b(), lc.a()); break;
+			case 2 : shape.add_points(lh.b(), lh.a()); break;
+			case 3 :
+				boolean lc_is_a = r.in_line(lh.a(), lh.b(), lc.a(), marge);
+				boolean lc_is_b = r.in_line(lh.a(), lh.b(), lc.b(), marge);
+				if(lc_is_a) {
+					shape.add_points(lc.b(), lc.a(), lh.a());
+					break;
+				}
+				if(lc_is_b) {
+					shape.add_points(lh.b(), lc.b(), lc.a());
+					break;
+				}
+				shape.add_points(lc.b(), lc.a());
+				break;
+		}
 		add_points_go(main_b, shape);
 		add_points_return(main_a, shape);
 	}
@@ -770,7 +807,6 @@ public class R_Impact extends Rope {
 		if(r.any(lh == null)) {
 			return true;
 		}
-		float marge = 3;
 		return !r.any(r.in_line(lh.a(),lh.b(), lc.a(),marge), r.in_line(lh.a(),lh.b(), lc.b(),marge));
 	}
 
@@ -786,7 +822,6 @@ public class R_Impact extends Rope {
 	private void create_polygon_center(R_Line2DX lh, R_Line2DX lc, R_Line2DX prev_lc, ArrayList<R_Line2DX> main_a, ArrayList<R_Line2DX> main_b) {
 		R_Shape shape = new R_Shape(this.pa);
 		shape.id(r.GRIS[11]);
-		float marge = 3;
 		shape.add_points(lc.a(), lc.b()); // may be need to switch if that's meet main a or main b
 		if(lh != null) {
 			boolean bingo_is = false;
@@ -822,7 +857,6 @@ public class R_Impact extends Rope {
 	}
 
 	private void add_point_first_level_polygon_center(R_Shape shape, R_Line2DX lh, R_Line2DX lc, vec2 point) {
-		float marge = 3;
 		boolean a_is = r.in_line(lh.a(),lh.b(), lc.a(), marge);
 		boolean b_is = r.in_line(lh.a(),lh.b(), lc.b(), marge);
 		if(r.all(!a_is, !b_is)) {
@@ -833,7 +867,6 @@ public class R_Impact extends Rope {
 	}
 
 	private void add_points_next_level_polygon_center(R_Shape shape, R_Line2DX lh, R_Line2DX lc, R_Line2DX prev_lc) {
-		float marge = 3;
 		boolean a_prev_is = false;
 		boolean b_prev_is = false;
 		boolean a_is = r.in_line(lh.a(),lh.b(), lc.a(), marge);
@@ -863,7 +896,6 @@ public class R_Impact extends Rope {
 	////////////////////
 
 	private void add_points(ArrayList<R_Line2DX> list, R_Impact imp, int family) {
-		float marge = 3;
 		for(R_Line2DX line : list) {
 			// check the center
 			boolean a_is = this.pos().compare(line.a(), new vec2(marge));
@@ -881,7 +913,6 @@ public class R_Impact extends Rope {
 	////////////////////
 
 	private void add_points_go(ArrayList<R_Line2DX> lms, R_Shape shape) {
-		float marge = 3;
 		int first = 0;
 		int last = 0;
 		int index = 1;
@@ -921,7 +952,6 @@ public class R_Impact extends Rope {
 
 
 	private void add_points_return(ArrayList<R_Line2DX> lms, R_Shape shape) {
-		float marge = 3;
 		int first = 0;
 		int last = 0;
 		int index = shape.get_summits() -1;

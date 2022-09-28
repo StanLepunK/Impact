@@ -17,8 +17,38 @@ public class R_Line2DX extends R_Line2D {
 	}
 
 	/////////////////////
-	// ID
+	// SET ID
 	//////////////////////
+	
+	public R_Line2DX id(int a) {
+		this.id.set(a,-1,-1,-1,-1,-1);
+		return this;
+	}
+
+	public R_Line2DX id(int a, int b) {
+		this.id.set(a,b,-1,-1,-1,-1);
+		return this;
+	}
+
+	public R_Line2DX id(int a, int b, int c) {
+		this.id.set(a,b,c,-1,-1,-1);
+		return this;
+	}
+
+	public R_Line2DX id(int a, int b, int c, int d) {
+		this.id.set(a,b,c,d,-1,-1);
+		return this;
+	}
+
+	public R_Line2DX id(int a, int b, int c, int d, int e) {
+		this.id.set(a,b,c,d,e,-1);
+		return this;
+	}
+
+	public R_Line2DX id(int a, int b, int c, int d, int e, int f) {
+		this.id.set(a,b,c,d,e,f);
+		return this;
+	}
 
 	public R_Line2DX id_a(int id) {
 		this.id.a(id);
@@ -48,6 +78,14 @@ public class R_Line2DX extends R_Line2D {
 	public R_Line2DX id_f(int id) {
 		this.id.f(id);
 		return this;
+	}
+
+	///////////////////////
+	// GET ID
+	///////////////////////
+
+	public ivec6 id() {
+		return this.id;
 	}
 
 	public int id_a() {

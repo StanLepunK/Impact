@@ -88,7 +88,6 @@ void set_mute_circle() {
 	for(int i = 0 ; i < imp.get_num_circle() ; i++) {
 		for(int k = 0 ; k < list_size[i] ; k++) {
 			float choice = random(1);
-			println("choice mute", choice);
 			imp.set_mute_circle(i, k, false);
 			if(choice < 0.5) {
 				imp.set_mute_circle(i, k, true);
