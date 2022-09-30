@@ -36,21 +36,35 @@ void impact_keypressed() {
 		use_pixels_is =!use_pixels_is;
 	}
 
-	if(key == 'w') { // indesign or photoshop
-		inc_struc();
+	if(key == CODED) {
+		if(keyCode == UP) {
+			inc_display();
+		}
+
+		if(keyCode == DOWN) {
+			dec_display();
+		}
 	}
 }
 
 
-int which_struc = 0;
-void inc_struc() {
+int which_display = 0;
+void inc_display() {
 	int max = 6;
-	which_struc++;
-	if(which_struc > max) {
-		which_struc = 0;
+	which_display++;
+	if(which_display > max) {
+		which_display = 0;
 	}
 }
 
-int which_struc() {
-	return which_struc;
+void dec_display() {
+	int max = 6;
+	which_display--;
+	if(which_display < 0) {
+		which_display = max;
+	}
+}
+
+int which_display() {
+	return which_display;
 }

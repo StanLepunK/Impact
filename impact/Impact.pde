@@ -24,23 +24,21 @@ void draw() {
 	// bg(r.BLACK, alpha_bg);
 	background(r.GRIS[1]);
 	// println("frameRate", (int)frameRate, "alpha bg",alpha_bg);
-	switch(which_struc()) {
-		case 0 : imp.show_polygon(1); impact_draw(); break;
-		case 1 : imp.show_polygon(1); break;
-		case 2 : imp.show_polygon(0); break;
-		case 3 : imp.show_polygon(-1); break;
-		case 4 : imp.show_polygon(1); impact_draw(); imp.show_cloud(); break;
-		case 5 : imp.show_polygon(1); imp.show_cloud(); break;
+	switch(which_display()) {
+		case 0 : show_polygon(1); impact_draw(); break;
+		case 1 : impact_draw(); break;
+		case 2 : show_polygon(1); break;
+		case 3 : show_polygon(0); break;
+		case 4 : show_polygon(-1); break;
+		case 5 : show_polygon(1); impact_draw(); imp.show_cloud(); break;
 		case 6 : impact_draw(); imp.show_cloud(); break;
-		default : imp.show_polygon(1); impact_draw(); imp.show_cloud(); break;
+		default : show_polygon(1); impact_draw(); imp.show_cloud(); break;
 	}
-
-
-
 }
 
 void keyPressed() {
 	impact_keypressed();
+	//println("which_display()",which_display());
 }
 
 // Utils background with alpha

@@ -189,7 +189,7 @@ public class R_Impact extends Rope {
 		return this.data_main.d();
 	}
 
-	public float get_heart_main() {
+	public float get_heart_normal_radius() {
 		return this.data_main.e();
 	}
 
@@ -353,7 +353,7 @@ public class R_Impact extends Rope {
 
 	private void build_heart() {
 		heart = new ArrayList<R_Line2DX>();
-		if(get_heart_main() > 0 ) {
+		if(get_heart_normal_radius() > 0 ) {
 			for(int i = 1 ; i < main.length ; i++) {
 				vec2 a = main[i -1].get(0).a();
 				vec2 b = main[i].get(0).a();
@@ -389,8 +389,8 @@ public class R_Impact extends Rope {
 			bx = x + this.pos.x();
 			by = y + this.pos.y();
 			R_Line2DX line = new R_Line2DX(this.pa, ax, ay, bx, by);
-			if(i == 0 && get_heart_main() > 0) {
-				line.change(-get_heart_main(),0);
+			if(i == 0 && get_heart_normal_radius() > 0) {
+				line.change(-get_heart_normal_radius(),0);
 				// to make the changement for ever !!!
 				line.set(line.a(),line.b());
 			}
@@ -426,7 +426,7 @@ public class R_Impact extends Rope {
 	}
 
 	private void sort_circle(ArrayList<R_Line2DX> circle_lines) {
-		if(get_heart_main() > 0) {
+		if(get_heart_normal_radius() > 0) {
 			ArrayList<R_Line2DX> selected_list = new ArrayList<R_Line2DX>();
 			ArrayList<R_Line2DX> working_list = new ArrayList<R_Line2DX>();
 			ArrayList<R_Line2DX> remove_list = new ArrayList<R_Line2DX>();
@@ -820,49 +820,46 @@ public class R_Impact extends Rope {
 	}
 
 	private void create_polygon_center(R_Line2DX lh, R_Line2DX lc, R_Line2DX prev_lc, ArrayList<R_Line2DX> main_a, ArrayList<R_Line2DX> main_b) {
+		if(lc.a().compare(lc.b(), marge -2)) {
+			return;
+		}		
 		R_Shape shape = new R_Shape(this.pa);
-		shape.id(r.GRIS[11]);
+		
 		shape.add_points(lc.a(), lc.b()); // may be need to switch if that's meet main a or main b
 		if(lh != null) {
-			boolean bingo_is = false;
-			for(R_Line2DX lb : main_b) {
-				if(r.in_line(lb.a(),lb.b(), lc.a(), marge) || r.in_line(lb.a(),lb.b(), lc.b(), marge)) {
-					if(prev_lc == null) {
-						add_point_first_level_polygon_center(shape, lh, lc, lh.b());
-					} else {
-						add_points_next_level_polygon_center(shape, lh, lc, prev_lc);
-					}
-					bingo_is = true;
-					break;
-				}	
-			}
-			if(!bingo_is) {
-				for(R_Line2DX la : main_a) {
-					if(r.in_line(la.a(),la.b(), lc.a(), marge) || r.in_line(la.a(),la.b(), lc.b(), marge)) {
-						if(prev_lc == null) {
-							add_point_first_level_polygon_center(shape, lh, lc, lh.a());
-						} else {
-							add_points_next_level_polygon_center(shape, lh, lc, prev_lc);
-						}
-						break;
-					}	
-				}
+			if(prev_lc == null) {
+				vec2 point = get_point_line_heart(lh, lc, main_a, main_b);
+				add_point_first_level_polygon_center(shape, lh, lc, point);
+			} else {
+				add_points_next_level_polygon_center(shape, lh, lc, prev_lc);
 			}	
 		} else {
-			shape.add_point(this.pos().x(), this.pos().y());
+			shape.id(r.GRIS[14]);
+			// add double pos to avoir the "GO" bug when there only three points for the ArrayList acces on a square shape.
+			shape.add_points(pos, pos); 
 		}
 		add_points_go(main_b, shape);
 		add_points_return(main_a, shape);
 		imp_shapes_heart.add(shape);
 	}
+		private vec2 get_point_line_heart(R_Line2DX lh, R_Line2DX lc, ArrayList<R_Line2DX> main_a, ArrayList<R_Line2DX> main_b) {
+			float dist_a = r.dist(pos, lh.a());
+			float dist_b = r.dist(pos, lh.b());
+			if(dist_a < dist_b) {
+				return lh.a();
+			}
+			return lh.b();
+	}
 
-	private void add_point_first_level_polygon_center(R_Shape shape, R_Line2DX lh, R_Line2DX lc, vec2 point) {
+
+	private void add_point_first_level_polygon_center(R_Shape shape, R_Line2DX lh, R_Line2DX lc, vec2 lh_point) {
 		boolean a_is = r.in_line(lh.a(),lh.b(), lc.a(), marge);
 		boolean b_is = r.in_line(lh.a(),lh.b(), lc.b(), marge);
+		shape.id(r.GRIS[14]);
 		if(r.all(!a_is, !b_is)) {
 			shape.add_points(lh.b(),lh.a());
 		} else {
-			shape.add_points(point);
+			shape.add_points(lh_point);
 		}
 	}
 
@@ -871,7 +868,7 @@ public class R_Impact extends Rope {
 		boolean b_prev_is = false;
 		boolean a_is = r.in_line(lh.a(),lh.b(), lc.a(), marge);
 		boolean b_is = r.in_line(lh.a(),lh.b(), lc.b(), marge);
-
+		shape.id(r.GRIS[11]);
 		if(r.all(!a_is, !b_is)) {
 			a_prev_is = r.in_line(lh.a(),lh.b(), prev_lc.a(), marge);
 			b_prev_is = r.in_line(lh.a(),lh.b(), prev_lc.b(), marge);
@@ -1289,22 +1286,24 @@ public class R_Impact extends Rope {
 		show_polygon_from(imp_shapes_rest);
 	}
 
-	public void show_polygon_from(ArrayList<R_Shape> list) {
-		// println("list.size()", list.size());
+	private void show_polygon_from(ArrayList<R_Shape> list) {
 		for(R_Shape shape : list) {
-			if(shape.id()!= 0) {
-				fill(shape.id());
-			} else {
-				fill(MAGENTA);
+			if(shape.id() == r.GRIS[14]) {
+				if(shape.id()!= 0) {
+					fill(shape.id());
+				} else {
+					fill(MAGENTA);
+				}
+				beginShape();
+				for(int i = 0 ; i < shape.get_summits() ; i++) {
+					vertex(shape.get_x(i), shape.get_y(i));
+				}
+				endShape(CLOSE);
 			}
-			// println(" shape.get_summits()",  shape.get_summits());
-			beginShape();
-			for(int i = 0 ; i < shape.get_summits() ; i++) {
-				vertex(shape.get_x(i), shape.get_y(i));
-			}
-			endShape(CLOSE);
 		}
 	}
+
+
 
 	// SHOW POINT
 	//////////////////

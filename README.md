@@ -5,7 +5,7 @@ Impact est un algorithme pour réalisée une structure proche des impact de vitr
 le code est construit à l'aide de Processing et de la [librairie Rope](https://github.com/StanLepunK/Rope/blob/master/build_rope/Rope.zip)
 
 L'idée de l'algorithme est de créer une première structure principale en étoile à `n` branches plus ou moins irégulières. Ensuite ces branches sont reliées entre elles de façon régulière par `n` cercles concentriques. Il est possible une fois la sturcture terminées de retirer le centre de celle-ci afin de créer le trou de l'impacte et aussi de retirer certaines parties des cercles et des branches.
-À partir de cette structure principale construite en filaire, un autre algorythme est utilisé pour construire l'ensemble des polygones dessiné par la structure filaire.
+À partir de cette structure principale construite en filaire, un autre algorithme est utilisé pour construire l'ensemble des polygones dessiné par la structure filaire.
 
 L'ensemble des éléments sont stockés dans des listes accessibles. lignes, points et polygones.
 

@@ -1,6 +1,7 @@
 
 
 
+
 void impact_setup(R_Impact imp) {
 	impact_build();	
 	imp.pixel_mode(2);
@@ -18,8 +19,8 @@ void impact_draw() {
 
 
 
-// ANNEXE
-
+// BUILD
+/////////////////
 void impact_build() {
 	imp.build_struct(width/2, height/2);
 	imp.set_pixels(0.3, r.RED);
@@ -34,7 +35,17 @@ void impact_build_polygon() {
 
 }
 
+// SHOW
+////////////////////
 
+// SHOW POLYGON
+void show_polygon(int mode) {
+	imp.show_polygon(mode);
+}
+
+
+// SHOW LINE
+///////////////
 void show_lines() {
 	noFill();
 	stroke(255);
