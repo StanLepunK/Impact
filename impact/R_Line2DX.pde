@@ -3,7 +3,7 @@ import rope.pixo.R_Pix;
 import rope.vector.ivec6;
 
 public class R_Line2DX extends R_Line2D {
-	private ivec6 id = new ivec6(-1);
+	private ivec6 id = new ivec6(Integer.MIN_VALUE);
 	public R_Line2DX(PApplet pa) {
 		super(pa);
 	}
@@ -20,31 +20,6 @@ public class R_Line2DX extends R_Line2D {
 	// SET ID
 	//////////////////////
 	
-	public R_Line2DX id(int a) {
-		this.id.set(a,-1,-1,-1,-1,-1);
-		return this;
-	}
-
-	public R_Line2DX id(int a, int b) {
-		this.id.set(a,b,-1,-1,-1,-1);
-		return this;
-	}
-
-	public R_Line2DX id(int a, int b, int c) {
-		this.id.set(a,b,c,-1,-1,-1);
-		return this;
-	}
-
-	public R_Line2DX id(int a, int b, int c, int d) {
-		this.id.set(a,b,c,d,-1,-1);
-		return this;
-	}
-
-	public R_Line2DX id(int a, int b, int c, int d, int e) {
-		this.id.set(a,b,c,d,e,-1);
-		return this;
-	}
-
 	public R_Line2DX id(int a, int b, int c, int d, int e, int f) {
 		this.id.set(a,b,c,d,e,f);
 		return this;
@@ -88,27 +63,27 @@ public class R_Line2DX extends R_Line2D {
 		return this.id;
 	}
 
-	public int id_a() {
+	public Integer id_a() {
 		return this.id.a();
 	}
 
-	public int id_b() {
+	public Integer id_b() {
 		return this.id.b();
 	}
 
-	public int id_c() {
+	public Integer id_c() {
 		return this.id.c();
 	}
 
-	public int id_d() {
+	public Integer id_d() {
 		return this.id.d();
 	}
 
-	public int id_e() {
+	public Integer id_e() {
 		return this.id.e();
 	}
 
-	public int id_f() {
+	public Integer id_f() {
 		return this.id.f();
 	}
 
