@@ -1,10 +1,13 @@
 boolean show_error_is = false;
 boolean use_pixels_is = false;
 
+int count_impact = 0;
+int count_impact_err = 0;
 
 void impact_keypressed() {
 	if(key == 'n') {
 		int choice = floor(random(4));
+		count_impact++;
 		boolean use_heart_is = false;
 		// choice = 1;
 		switch(choice) {
@@ -32,6 +35,10 @@ void impact_keypressed() {
 		show_error_is = !show_error_is;
 	}
 
+	if(key == 'z') {
+		count_impact_err++;
+	}
+
 	if(key == 'p') {
 		use_pixels_is =!use_pixels_is;
 	}
@@ -45,6 +52,7 @@ void impact_keypressed() {
 			dec_display();
 		}
 	}
+	println("ERRORS",  count_impact_err, "/", count_impact);
 }
 
 

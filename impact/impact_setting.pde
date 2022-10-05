@@ -103,7 +103,7 @@ void print_setting() {
 	// println("circle iteration by ring");
 	// println(imp.get_size_circle());
 	for(int i = 0 ; i < imp.get_num_circle() ; i++) {
-		for(R_Line2DX line : imp.get_circle_line(i)) {
+		for(R_Line2DX line : imp.get_circle_lines(i)) {
 			println(i, line);
 		}
 	}

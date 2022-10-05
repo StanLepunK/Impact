@@ -36,6 +36,25 @@ void draw() {
 	}
 }
 
+void mousePressed() {
+	println("souris",mouseX,mouseY);
+	int count = 0;
+	for(R_Shape shape : imp.get_polygons()) {
+		count++;
+		int area_min = 20;
+		if(shape.area() < area_min) {
+			println("shape #", count, "inferior to",area_min);
+			println("shape.area()",shape.area());
+			printArray(shape.get_points());
+		}
+		if(r.in_polygon(shape, new vec2(mouseX,mouseY))) {
+			println("shape #", count, "clicked polygon");
+			println("shape.area()",shape.area());
+			printArray(shape.get_points());
+		}
+	}
+}
+
 void keyPressed() {
 	impact_keypressed();
 	//println("which_display()",which_display());
