@@ -37,20 +37,24 @@ void draw() {
 }
 
 void mousePressed() {
-	println("souris",mouseX,mouseY);
+	println("---------------------------------- souris ::::::::::::::::::::::::: ----------- ::::>",mouseX,mouseY);
 	int count = 0;
 	for(R_Shape shape : imp.get_polygons()) {
 		count++;
 		int area_min = 20;
-		if(shape.area() < area_min) {
-			println("shape #", count, "inferior to",area_min);
-			println("shape.area()",shape.area());
-			printArray(shape.get_points());
+		vec3 [] arr = shape.get_points();
+		if(arr.length > 0 && arr[0].compare(arr[1], 2)) {
+			println("shape #", count, "les deux premiers sont égaux",arr[0],arr[1]);
 		}
+		// if(shape.area() < area_min) {
+		// 	println("shape #", count, "inferior to",area_min);
+		// 	println("shape.area()",shape.area());
+		// 	printArray(shape.get_points());
+		// }
 		if(r.in_polygon(shape, new vec2(mouseX,mouseY))) {
 			println("shape #", count, "clicked polygon");
 			println("shape.area()",shape.area());
-			printArray(shape.get_points());
+			printArray(arr);
 		}
 	}
 }

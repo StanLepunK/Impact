@@ -314,6 +314,31 @@ public class R_Impact extends Rope {
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 	///////////////////////////
 	// BUILD GLOBAL
 	///////////////////////////
@@ -626,6 +651,61 @@ public class R_Impact extends Rope {
 
 
 
+	private void set_id_circle() {
+		for(int i = 0 ; i < circle.length ; i++) {
+			for(int k = 0 ; k < main.length ; k++) {
+				for(R_Line2DX lc : circle[i]) {
+					// id from main
+					for(R_Line2DX lm : main[k]) {
+						if(in_line(lm,lc.a(),marge)) lc.id_a(k);
+						if(in_line(lm,lc.b(),marge)) lc.id_b(k);
+					}
+					// ???????????????????????????????????????????????????????
+					// J'ai l'impression que ça rajoute des bugs
+					// Alors que cela ne devrait pas
+					// ???????????????????????????????????????????????????????
+					// id from heart, we minus by one to avoid a conflict with the 0 ID
+					for(int m = 0 ; m <  heart.size() ; m++) {
+						R_Line2DX lh = heart.get(m);
+						if(lc.id_a() == Integer.MIN_VALUE && in_line(lh,lc.a(),marge)) {
+							lc.id_a(-m-1);
+						}
+						if(lc.id_b() == Integer.MIN_VALUE && in_line(lh,lc.b(),marge)) {
+							lc.id_b(-m-1);
+						}
+					}
+
+				}
+			}
+		}
+	}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -670,18 +750,15 @@ public class R_Impact extends Rope {
 			for(int k = 0 ; k < get_circle_lines(i).size() ; k++) {		
 				R_Line2DX line = get_circle_lines(i).get(k);
 				if(!line.mute_is() && line.id_c() < 1) {		
-				// if(!line.mute_is() && line.id_c() < 2) {		
-
 					if(!line.a().compare(line.b(), marge)) {
-						println(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> ON BOSSE la dessus", line);
-						println("circle", i);
-						println("line", k);
-						println("coord sub center", sub(line.a(),pos), sub(line.b(),pos));
-						println("coord", line);
-						println("link",line.id_c());
-						println("id A",line.id_a(), "id B", line.id_b());
+						println(">>>>>>>>>>>>>>>>>>> NE SE TOUCHE PAS >>>>>>>>>>>>> ON BOSSE", line);
+						println("line", k, "circle", i, "id AA", line.id_a(),  "id BB",line.id_b(), "id LINK", line.id_c());
+						// println("coord sub center", sub(line.a(),pos), sub(line.b(),pos));
+						// println("coord", line);
+						// println("link",line.id_c());
+						// println("id A",line.id_a(), "id B", line.id_b());
 					} else {
-						println(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> ON S'EN FOUT");
+						println(">>>>>> ON S'EN FOUT", line);
 						println("id",line.id());
 					}
 				}	
@@ -696,11 +773,11 @@ public class R_Impact extends Rope {
 	private void build_polygons_circle(int im_0, int im_1) {
 		boolean bingo_is = false;
 		int max_circle = this.get_num_circle();
-		for(int k = 0 ; k < max_circle ; k++) {
+		for(int level = 0 ; level < max_circle ; level++) {
 			bingo_is = false;
-			for(R_Line2DX lc1 : this.get_circle_lines(k)) {
+			for(R_Line2DX lc1 : this.get_circle_lines(level)) {
 				if(lc1.id_a() == im_0 && !lc1.mute_is()) {
-					for(int m = k + 1 ; m < max_circle ;m++) {
+					for(int m = level + 1 ; m < max_circle ; m++) {
 						for(R_Line2DX lc2 : this.get_circle_lines(m)) {
 							if(lc2.id_a() == im_0 && !lc2.mute_is()) {
 								create_polygon_circle(lc1, lc2, im_0, im_1);
@@ -731,6 +808,44 @@ public class R_Impact extends Rope {
 		set_use_for_polygon(lc2);
 		shape.id(r.GRIS[4]);
 		shape.add_points(lc1.a(), lc1.b());
+		if(shape.get_point(0).compare(shape.get_point(1), marge)) {
+			println("-------- :::::::::::: ALERT CIRCLE", shape.get_point(0), shape.get_point(1), ":::::::::::: ------------");
+			println("heart size", heart.size());
+			if(heart.size() > 0) {
+				R_Line2DX lh_0 = heart.get(im_0);
+				R_Line2DX lh_1 = heart.get(im_1);
+				vec2 p0 = shape.get_point(0).xy();
+				vec2 p1 = shape.get_point(1).xy();
+				if(lh_0.a().compare(p0,marge)) println("HEART ALERT lh 0-A point 0", lh_0.a(), "lh_0", lh_0);
+				if(lh_0.b().compare(p0,marge)) {
+					println("HEART ALERT lh 0-B point 0", lh_0.b(), "lh_0", lh_0);
+					if(r.in_line(lh_0, lc2.a(), marge)) shape.add_points(lc2.a());
+					else if(r.in_line(lh_0, lc2.b(), marge)) shape.add_points(lc2.b());
+					else shape.add_points(lh_0.b());
+				}
+
+				if(lh_0.a().compare(p1,marge)) println("HEART ALERT lh 0-A point 1",lh_0.a(), "lh_0", lh_0);
+				if(lh_0.b().compare(p1,marge)) println("HEART ALERT lh 0-B point 1", lh_0.b(), "lh_0", lh_0);
+
+				println("lc1", lc1);
+				println("lc2", lc2);
+				
+				println("------------------------->>>>>>>>>::::::::: ALERT STOP :::::::::<<<<<<<<<-----------------------------------------------");
+
+				// if(lh_1.a().compare(p0,marge)) println("HEART ALERT lh 1-A point 0",lh_1.a(), "lh_1", lh_1);
+				// if(lh_1.b().compare(p0,marge)) println("HEART ALERT lh 1-B point 0",lh_1.b(), "lh_1", lh_1);
+
+				// if(lh_1.a().compare(p1,marge)) println("HEART ALERT lh 1-A point 1", lh_1.a(), "lh_1", lh_1);
+				// if(lh_1.b().compare(p1,marge)) println("HEART ALERT lh 1-B point 1", lh_1.b(), "lh_1", lh_1);
+
+				////////////////////////////////////////////////////////////////////
+				// if true
+				// add the lh.a()
+				// and add lh.b() if there is no other point from circle on the line.
+				////////////////////////////////////////////////////////////////////
+
+			}
+		}
 		shape.add_points(lc2.b(), lc2.a());
 		add_points_go(main_b, shape, null);
 		add_points_return(main_a, shape, null);
@@ -747,9 +862,6 @@ public class R_Impact extends Rope {
 		}
 		imp_shapes_heart.add(shape);
 	}
-
-
-
 
 
 	// BUILD POLYGON CENTER
@@ -769,7 +881,7 @@ public class R_Impact extends Rope {
 			if(this.get_circle_lines(index_c) != null && this.get_circle_lines(index_c).size() > 0) {
 				for(int index_lc = 0 ; index_lc < this.get_circle_lines(index_c).size() ; index_lc++) {
 					lc = this.get_circle_lines(index_c).get(index_lc);
-					if(r.all(!lc.mute_is(), r.any(lc.id_a() == im_0, lc.id_b() == im_1))) {
+					 if(r.all(!lc.mute_is(), id_line_circle_is(lc, im_0, im_1))) {
 						create_polygon_center(lh, lc, prev_lc, this.get_main_lines(im_0), this.get_main_lines(im_1));
 						prev_lc = lc.copy();
 						bingo_is = true;
@@ -787,6 +899,8 @@ public class R_Impact extends Rope {
 		}
 	}
 
+
+
 	private boolean break_if(R_Line2DX lh, R_Line2DX lc) {
 		if(r.any(lh == null)) {
 			return true;
@@ -799,7 +913,7 @@ public class R_Impact extends Rope {
 	private void create_polygon_center(R_Line2DX lh, R_Line2DX lc, R_Line2DX prev_lc, ArrayList<R_Line2DX> main_a, ArrayList<R_Line2DX> main_b) {
 		if(lc.a().compare(lc.b(), marge)) {
 			return;
-		}		
+		}
 		R_Shape shape = new R_Shape(this.pa);
 		set_use_for_polygon(lc);
 		
@@ -818,6 +932,7 @@ public class R_Impact extends Rope {
 		}
 		add_points_go(main_b, shape, lh);
 		add_points_return(main_a, shape, lh);
+
 		imp_shapes_heart.add(shape);
 	}
 	
@@ -962,11 +1077,25 @@ public class R_Impact extends Rope {
 
 
 
+
+
+
 	// UTILS POLYGON
 	//////////////////
 
-
-
+	private boolean id_line_circle_is(R_Line2DX lc, int im_0, int im_1) {
+		int id_a = lc.id_a();
+		int id_b = lc.id_b();
+		// check for id line on heart
+		
+		if(id_a < 0 && abs(id_a) <= heart.size()) {
+			id_a -= 1;
+		}
+		if(id_b < 0 && abs(id_b) <= heart.size()) {
+			id_b -= 1;
+		}
+		return r.any(id_a == im_0, id_b == im_1);
+	}
 
 
 	// ADD POINT POLYGON
@@ -1013,38 +1142,7 @@ public class R_Impact extends Rope {
 		// heart_connexion(shape, lh, first, last);
 	}
 
-	private ArrayList<vec3> heart_connexion(R_Shape shape, R_Line2DX lh, int first, int last) {
-		ArrayList<vec3> buf = new ArrayList<vec3>();
-		int same_same = 0;
-		// int res = 0;
-		if(lh != null) {
-			vec3 ref = new vec3();
-			for(vec3 v : shape.get_points()) {
-				if(v.compare(ref, marge)) {
-					same_same++;
-					
-				} else {
-					if(v.xy().compare(lh.a(), marge)) buf.add(v);
-					if(v.xy().compare(lh.b(), marge)) buf.add(v);
-				}
-				ref = v;
-				// if(r.in_line(lh,v,marge) && !prev.compare(v, marge)) {
-				// 	buf.add(v);
-				// }
-			}
-		}
-		if(buf.size() == 1 && same_same >= 2) {
-			println("----------------------------------");
-			if(first == 0 && last == 0) {
-				println("DOUBLE ZERO", first, last);
-			}
-			println("connexion", buf.size());
-			println("same", same_same);
-			println("lh",lh);
-			printArray(shape.get_points());
-		}
-		return buf;
-	} 
+
 
 
 	private void add_points_return(ArrayList<R_Line2DX> list_main_a, R_Shape shape, R_Line2DX lh) {
@@ -1124,6 +1222,25 @@ public class R_Impact extends Rope {
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 	
 
 
@@ -1175,6 +1292,35 @@ public class R_Impact extends Rope {
 	}
 
 	
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -1236,27 +1382,40 @@ public class R_Impact extends Rope {
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 	/////////////////////////////////
 	// ANNEXE
 	//////////////////////////////////
 
-	// ID CIRCLE
-	///////////////////////
 
-	private void set_id_circle() {
-		for(int i = 0 ; i < circle.length ; i++) {
-			for(int k = 0 ; k < main.length ; k++) {
-				for(R_Line2DX lc : circle[i]) {
-					for(R_Line2DX lm : main[k]) {
-						// ID A
-						if(in_line(lm,lc.a(),marge)) lc.id_a(k);
-						// ID B
-						if(in_line(lm,lc.b(),marge)) lc.id_b(k);
-					}
-				}
-			}
-		}
-	}
 
 	// MUTE
 	///////////////////
@@ -1308,6 +1467,36 @@ public class R_Impact extends Rope {
 
 
 	
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -1560,5 +1749,104 @@ public class R_Impact extends Rope {
 			}
 		}
 	}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+	/////////////////////////////////////////////////////////
+	// TEST
+	//////////////////////////////////////////////////////////
+		private ArrayList<vec3> heart_connexion(R_Shape shape, R_Line2DX lh, int first, int last) {
+		ArrayList<vec3> buf = new ArrayList<vec3>();
+		int same_same = 0;
+		// int res = 0;
+		if(lh != null) {
+			vec3 ref = new vec3();
+			for(vec3 v : shape.get_points()) {
+				if(v.compare(ref, marge)) {
+					same_same++;
+					
+				} else {
+					if(v.xy().compare(lh.a(), marge)) buf.add(v);
+					if(v.xy().compare(lh.b(), marge)) buf.add(v);
+				}
+				ref = v;
+				// if(r.in_line(lh,v,marge) && !prev.compare(v, marge)) {
+				// 	buf.add(v);
+				// }
+			}
+		}
+		if(buf.size() == 1 && same_same >= 2) {
+			println("----------------------------------");
+			if(first == 0 && last == 0) {
+				println("DOUBLE ZERO", first, last);
+			}
+			println("connexion", buf.size());
+			println("same", same_same);
+			println("lh",lh);
+			printArray(shape.get_points());
+		}
+		return buf;
+	} 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+	/////////////////////////////////////////
+	// FIN DE TEST
+	/////////////////////////////////////////
+
+
 }
 
