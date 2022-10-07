@@ -458,14 +458,12 @@ public class R_Impact extends Rope {
 	private void build_circle(float start_value) {
 	  circle = new ArrayList[get_num_circle()];
 	  fail = new ArrayList<R_Line2DX>();
-
 		float dist = 0;
 		float dist_step = get_growth_circle() / get_num_main(); 
 
 		for(int i = 0 ; i < get_num_circle() ; i++) {
 			circle[i] = new ArrayList<R_Line2DX>();
 			float fact = i + start_value; // that work but to far from the center
-
 			dist = (dist_step * fact);
 			circle_impl(circle[i], dist);
 			sort_circle(circle[i]);
@@ -746,24 +744,20 @@ public class R_Impact extends Rope {
 		}
 		build_polygon_heart();
 
-		for(int i = 0 ; i < get_num_circle() ; i++) {
-			for(int k = 0 ; k < get_circle_lines(i).size() ; k++) {		
-				R_Line2DX line = get_circle_lines(i).get(k);
-				if(!line.mute_is() && line.id_c() < 1) {		
-					if(!line.a().compare(line.b(), marge)) {
-						println(">>>>>>>>>>>>>>>>>>> NE SE TOUCHE PAS >>>>>>>>>>>>> ON BOSSE", line);
-						println("line", k, "circle", i, "id AA", line.id_a(),  "id BB",line.id_b(), "id LINK", line.id_c());
-						// println("coord sub center", sub(line.a(),pos), sub(line.b(),pos));
-						// println("coord", line);
-						// println("link",line.id_c());
-						// println("id A",line.id_a(), "id B", line.id_b());
-					} else {
-						println(">>>>>> ON S'EN FOUT", line);
-						println("id",line.id());
-					}
-				}	
-			}
-		}
+		// for(int i = 0 ; i < get_num_circle() ; i++) {
+		// 	for(int k = 0 ; k < get_circle_lines(i).size() ; k++) {		
+		// 		R_Line2DX line = get_circle_lines(i).get(k);
+		// 		if(!line.mute_is() && line.id_c() < 1) {		
+		// 			if(!line.a().compare(line.b(), marge)) {
+		// 				println(">>>>>>>>>>>>>>>>>>> NE SE TOUCHE PAS >>>>>>>>>>>>> ON BOSSE", line);
+		// 				println("line", k, "circle", i, "id AA", line.id_a(),  "id BB",line.id_b(), "id LINK", line.id_c());
+		// 			} else {
+		// 				println(">>>>>> ON S'EN FOUT", line);
+		// 				println("id",line.id());
+		// 			}
+		// 		}	
+		// 	}
+		// }
 	}
 
 
@@ -780,7 +774,7 @@ public class R_Impact extends Rope {
 					for(int m = level + 1 ; m < max_circle ; m++) {
 						for(R_Line2DX lc2 : this.get_circle_lines(m)) {
 							if(lc2.id_a() == im_0 && !lc2.mute_is()) {
-								create_polygon_circle(lc1, lc2, im_0, im_1);
+								create_polygon_circle(lc1, lc2, im_0, im_1, level);
 								bingo_is = true;
 								break;
 							}
@@ -793,7 +787,7 @@ public class R_Impact extends Rope {
 		}
 	}
 
-	private void create_polygon_circle(R_Line2DX lc1, R_Line2DX lc2, int im_0, int im_1) {
+	private void create_polygon_circle(R_Line2DX lc1, R_Line2DX lc2, int im_0, int im_1, int level) {
 		if(heart.size() > 0) {
 			if(touch_heart_is(lc1, lc2, heart.get(im_0))) {
 				return;
@@ -808,46 +802,104 @@ public class R_Impact extends Rope {
 		set_use_for_polygon(lc2);
 		shape.id(r.GRIS[4]);
 		shape.add_points(lc1.a(), lc1.b());
-		if(shape.get_point(0).compare(shape.get_point(1), marge)) {
-			println("-------- :::::::::::: ALERT CIRCLE", shape.get_point(0), shape.get_point(1), ":::::::::::: ------------");
-			println("heart size", heart.size());
-			if(heart.size() > 0) {
-				R_Line2DX lh_0 = heart.get(im_0);
-				R_Line2DX lh_1 = heart.get(im_1);
-				vec2 p0 = shape.get_point(0).xy();
-				vec2 p1 = shape.get_point(1).xy();
-				if(lh_0.a().compare(p0,marge)) println("HEART ALERT lh 0-A point 0", lh_0.a(), "lh_0", lh_0);
-				if(lh_0.b().compare(p0,marge)) {
-					println("HEART ALERT lh 0-B point 0", lh_0.b(), "lh_0", lh_0);
-					if(r.in_line(lh_0, lc2.a(), marge)) shape.add_points(lc2.a());
-					else if(r.in_line(lh_0, lc2.b(), marge)) shape.add_points(lc2.b());
-					else shape.add_points(lh_0.b());
+		boolean add_alert_is = false;
+		if(heart.size() > 0 && shape.get_point(0).compare(shape.get_point(1), marge)) {
+			println("-------- :::::::::::: ALERT CIRCLE", shape.get_point(0), shape.get_point(1), ":::::::::::: ------------ LEVEL", level, "BRANCH", im_0, im_1);
+
+			R_Line2DX lh_0 = heart.get(im_0);
+			vec2 p0 = shape.get_point(0).xy();
+			vec2 p1 = shape.get_point(1).xy();
+			if(lh_0.a().compare(p0,marge) && !add_alert_is) {	
+				if(r.in_line(lh_0, lc2.a(), marge)) {
+					println("HEART ALERT lh 0-A point 0 add lc2.a()", lc2.a());
+					shape.add_points(lc2.a()); 
+				} else if(r.in_line(lh_0, lc2.b(), marge)) { 
+					println("HEART ALERT lh 0-A point 0 add lc2.b()", lc2.b());
+					shape.add_points(lc2.b()); 
+				} else {
+					println("HEART ALERT lh 0-A point 0 add lh_0.b()", lh_0.b());
+					shape.add_points(lh_0.b());
 				}
-
-				if(lh_0.a().compare(p1,marge)) println("HEART ALERT lh 0-A point 1",lh_0.a(), "lh_0", lh_0);
-				if(lh_0.b().compare(p1,marge)) println("HEART ALERT lh 0-B point 1", lh_0.b(), "lh_0", lh_0);
-
-				println("lc1", lc1);
-				println("lc2", lc2);
-				
-				println("------------------------->>>>>>>>>::::::::: ALERT STOP :::::::::<<<<<<<<<-----------------------------------------------");
-
-				// if(lh_1.a().compare(p0,marge)) println("HEART ALERT lh 1-A point 0",lh_1.a(), "lh_1", lh_1);
-				// if(lh_1.b().compare(p0,marge)) println("HEART ALERT lh 1-B point 0",lh_1.b(), "lh_1", lh_1);
-
-				// if(lh_1.a().compare(p1,marge)) println("HEART ALERT lh 1-A point 1", lh_1.a(), "lh_1", lh_1);
-				// if(lh_1.b().compare(p1,marge)) println("HEART ALERT lh 1-B point 1", lh_1.b(), "lh_1", lh_1);
-
-				////////////////////////////////////////////////////////////////////
-				// if true
-				// add the lh.a()
-				// and add lh.b() if there is no other point from circle on the line.
-				////////////////////////////////////////////////////////////////////
-
+				add_alert_is = true;
 			}
+
+			if(lh_0.b().compare(p0,marge) && !add_alert_is) {
+				if(r.in_line(lh_0, lc2.a(), marge)) {
+					println("HEART ALERT lh 0-B point 0 add lc2.a()", lc2.a());
+					shape.add_points(lc2.a()); 
+				} else if(r.in_line(lh_0, lc2.b(), marge)) { 
+					println("HEART ALERT lh 0-B point 0 add lc2.b()", lc2.b());
+					shape.add_points(lc2.b()); 
+				} else {
+					println("HEART ALERT lh 0-B point 0 add lh_0.a()", lh_0.a());
+					shape.add_points(lh_0.a());
+				}
+				add_alert_is = true;
+			}
+
+			if(lh_0.a().compare(p1,marge) && !add_alert_is) {
+				if(r.in_line(lh_0, lc2.a(), marge)) {
+					println("HEART ALERT lh 0-A point 1 add lc2.a()", lc2.a());
+					shape.add_points(lc2.a()); 
+				} else if(r.in_line(lh_0, lc2.b(), marge)) { 
+					println("HEART ALERT lh 0-A point 1 add lc2.b()", lc2.b());
+					shape.add_points(lc2.b()); 
+				} else {
+					println("HEART ALERT lh 0-A point 1 add lh_0.b()", lh_0.b());
+					shape.add_points(lh_0.b());
+				}
+				add_alert_is = true;
+			}
+
+			if(lh_0.b().compare(p1,marge) && !add_alert_is) {
+				if(r.in_line(lh_0, lc2.a(), marge)) {
+					println("HEART ALERT lh 0-B point 1 add lc2.a()", lc2.a());
+					shape.add_points(lc2.a()); 
+				} else if(r.in_line(lh_0, lc2.b(), marge)) {
+					println("HEART ALERT lh 0-B point 1 add lc2.b()", lc2.b());
+					shape.add_points(lc2.b()); 
+				} else {
+					println("HEART ALERT lh 0-B point 1 add lh_0.a()", lh_0.a());
+					shape.add_points(lh_0.a());
+				}
+				add_alert_is = true;
+			}
+
+			if(!add_alert_is && level > 1) {
+				for(int k = level - 1 ; k > 0 ; k--) {
+					if(this.get_circle_lines(k) != null && this.get_circle_lines(k).size() > im_0) {
+						R_Line2DX lc_previous = this.get_circle_lines(k).get(im_0);
+						if(!lc_previous.mute_is()) {
+							println("HEART ALERT add lc_previous", lc_previous);
+							shape.add_points(lc_previous.a(), lc_previous.b());
+							add_alert_is = true;
+							break;
+						}
+					}
+				}
+			}
+
+			if(!add_alert_is) {	
+				if(lh_0.b().compare(p0, marge +3)) {
+					println("HEART ALERT add lh_0 [b][a]", lh_0.b(), lh_0.a());
+					shape.add_points(lh_0.b(), lh_0.a());
+				} else {
+					println("HEART ALERT add lh_0 [a][b]", lh_0.a(), lh_0.b());
+					shape.add_points(lh_0.a(), lh_0.b());
+				}
+				add_alert_is = true;
+			}
+			
+			println("------------------------->>>>>>>>>::::::::: ALERT STOP :::::::::<<<<<<<<<-----------------------------------------------");
+
 		}
 		shape.add_points(lc2.b(), lc2.a());
-		add_points_go(main_b, shape, null);
+		if(add_alert_is) {
+			add_points_go_alert_circle(main_b, shape, null);
+		} else {
+			add_points_go(main_b, shape, null);
+		}
+
 		add_points_return(main_a, shape, null);
 		imp_shapes_circle.add(shape);
 	}
@@ -881,7 +933,7 @@ public class R_Impact extends Rope {
 			if(this.get_circle_lines(index_c) != null && this.get_circle_lines(index_c).size() > 0) {
 				for(int index_lc = 0 ; index_lc < this.get_circle_lines(index_c).size() ; index_lc++) {
 					lc = this.get_circle_lines(index_c).get(index_lc);
-					 if(r.all(!lc.mute_is(), id_line_circle_is(lc, im_0, im_1))) {
+					if(r.all(!lc.mute_is(), id_line_circle_is(lc, im_0, im_1))) {
 						create_polygon_center(lh, lc, prev_lc, this.get_main_lines(im_0), this.get_main_lines(im_1));
 						prev_lc = lc.copy();
 						bingo_is = true;
@@ -917,7 +969,7 @@ public class R_Impact extends Rope {
 		R_Shape shape = new R_Shape(this.pa);
 		set_use_for_polygon(lc);
 		
-		shape.add_points(lc.a(), lc.b()); // may be need to switch if that's meet main a or main b
+		shape.add_points(lc.a(), lc.b()); // ELEM 0 AND 1
 		if(lh != null) {
 			if(prev_lc == null) {
 				vec2 point = get_point_line_heart(lh, lc, main_a, main_b);
@@ -1101,23 +1153,37 @@ public class R_Impact extends Rope {
 	// ADD POINT POLYGON
 	////////////////////
 
-	private void add_points_go(ArrayList<R_Line2DX> list_main_b, R_Shape shape, R_Line2DX lh) {
-		int first = 0;
-		int last = 0;
+	// Big fix, for a messy code it's just trick to avoid the big refactoring
+	private void add_points_go_alert_circle(ArrayList<R_Line2DX> list_main_b, R_Shape shape, R_Line2DX lh) {
 		int index = 1;
+		int index_next = shape.get_summits() -2;
+		if(shape.get_summits() == 5) {
+			index = 2;
+			// index_next = shape.get_summits() -3;
+		} else if (shape.get_summits() == 6) {
+			index = 3;
+		}
+		add_points_go_impl(list_main_b, shape, lh, index, index_next);
+	}
 
+	private void add_points_go(ArrayList<R_Line2DX> list_main_b, R_Shape shape, R_Line2DX lh) {
+		int index = 1;
 		int index_next = shape.get_summits() -2;
 		if(shape.get_summits() == 5) {
 			index_next = shape.get_summits() -3;
 		}
+		add_points_go_impl(list_main_b, shape, lh, index, index_next);
+	}
+
+	private void add_points_go_impl(ArrayList<R_Line2DX> list_main_b, R_Shape shape, R_Line2DX lh, int index, int index_next) {
+		int first = 0;
+		int last = 0;
 		vec3 a = shape.get_point(index);
 		vec3 b = shape.get_point(index_next);
 
 		for(int i = 0 ; i < list_main_b.size() ; i++) {
 			R_Line2DX line = list_main_b.get(i);
-			// first
 			if(r.in_line(line, a.xy(), marge)) first = i;
-			// last
 			if(r.in_line(line, b.xy(), marge)) last = i;
 		}
 
