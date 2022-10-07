@@ -34,6 +34,10 @@ void draw() {
 		case 6 : impact_draw(); imp.show_cloud(); break;
 		default : show_polygon(1); impact_draw(); imp.show_cloud(); break;
 	}
+
+	String info = mouseX + " / " + mouseY;
+	fill(r.CYAN);
+	text(info, mouseX,mouseY);
 }
 
 void mousePressed() {

@@ -804,65 +804,16 @@ public class R_Impact extends Rope {
 		shape.add_points(lc1.a(), lc1.b());
 		boolean add_alert_is = false;
 		if(heart.size() > 0 && shape.get_point(0).compare(shape.get_point(1), marge)) {
-			println("-------- :::::::::::: ALERT CIRCLE", shape.get_point(0), shape.get_point(1), ":::::::::::: ------------ LEVEL", level, "BRANCH", im_0, im_1);
-
-			R_Line2DX lh_0 = heart.get(im_0);
+			R_Line2DX lh = heart.get(im_0);
 			vec2 p0 = shape.get_point(0).xy();
 			vec2 p1 = shape.get_point(1).xy();
-			if(lh_0.a().compare(p0,marge) && !add_alert_is) {	
-				if(r.in_line(lh_0, lc2.a(), marge)) {
-					println("HEART ALERT lh 0-A point 0 add lc2.a()", lc2.a());
-					shape.add_points(lc2.a()); 
-				} else if(r.in_line(lh_0, lc2.b(), marge)) { 
-					println("HEART ALERT lh 0-A point 0 add lc2.b()", lc2.b());
-					shape.add_points(lc2.b()); 
-				} else {
-					println("HEART ALERT lh 0-A point 0 add lh_0.b()", lh_0.b());
-					shape.add_points(lh_0.b());
-				}
-				add_alert_is = true;
+
+			if(!add_alert_is) {
+				add_alert_is = add_point_alert(shape, lh, lc2, p0);
 			}
 
-			if(lh_0.b().compare(p0,marge) && !add_alert_is) {
-				if(r.in_line(lh_0, lc2.a(), marge)) {
-					println("HEART ALERT lh 0-B point 0 add lc2.a()", lc2.a());
-					shape.add_points(lc2.a()); 
-				} else if(r.in_line(lh_0, lc2.b(), marge)) { 
-					println("HEART ALERT lh 0-B point 0 add lc2.b()", lc2.b());
-					shape.add_points(lc2.b()); 
-				} else {
-					println("HEART ALERT lh 0-B point 0 add lh_0.a()", lh_0.a());
-					shape.add_points(lh_0.a());
-				}
-				add_alert_is = true;
-			}
-
-			if(lh_0.a().compare(p1,marge) && !add_alert_is) {
-				if(r.in_line(lh_0, lc2.a(), marge)) {
-					println("HEART ALERT lh 0-A point 1 add lc2.a()", lc2.a());
-					shape.add_points(lc2.a()); 
-				} else if(r.in_line(lh_0, lc2.b(), marge)) { 
-					println("HEART ALERT lh 0-A point 1 add lc2.b()", lc2.b());
-					shape.add_points(lc2.b()); 
-				} else {
-					println("HEART ALERT lh 0-A point 1 add lh_0.b()", lh_0.b());
-					shape.add_points(lh_0.b());
-				}
-				add_alert_is = true;
-			}
-
-			if(lh_0.b().compare(p1,marge) && !add_alert_is) {
-				if(r.in_line(lh_0, lc2.a(), marge)) {
-					println("HEART ALERT lh 0-B point 1 add lc2.a()", lc2.a());
-					shape.add_points(lc2.a()); 
-				} else if(r.in_line(lh_0, lc2.b(), marge)) {
-					println("HEART ALERT lh 0-B point 1 add lc2.b()", lc2.b());
-					shape.add_points(lc2.b()); 
-				} else {
-					println("HEART ALERT lh 0-B point 1 add lh_0.a()", lh_0.a());
-					shape.add_points(lh_0.a());
-				}
-				add_alert_is = true;
+			if(!add_alert_is) {
+				add_alert_is = add_point_alert(shape, lh, lc2, p1);
 			}
 
 			if(!add_alert_is && level > 1) {
@@ -870,7 +821,8 @@ public class R_Impact extends Rope {
 					if(this.get_circle_lines(k) != null && this.get_circle_lines(k).size() > im_0) {
 						R_Line2DX lc_previous = this.get_circle_lines(k).get(im_0);
 						if(!lc_previous.mute_is()) {
-							println("HEART ALERT add lc_previous", lc_previous);
+							// we keep because is not realy fix, but that's happen very rarely
+							println("HEART CIRCLE ALERT add lc_previous", lc_previous);
 							shape.add_points(lc_previous.a(), lc_previous.b());
 							add_alert_is = true;
 							break;
@@ -880,18 +832,15 @@ public class R_Impact extends Rope {
 			}
 
 			if(!add_alert_is) {	
-				if(lh_0.b().compare(p0, marge +3)) {
-					println("HEART ALERT add lh_0 [b][a]", lh_0.b(), lh_0.a());
-					shape.add_points(lh_0.b(), lh_0.a());
+				if(lh.b().compare(p0, marge +3)) {
+					// we keep because is not realy fix, but that's happen very rarely
+					println("HEART CIRCLE ALERT add lh [b][a]", lh.b(), lh.a());
+					shape.add_points(lh.b(), lh.a());
 				} else {
-					println("HEART ALERT add lh_0 [a][b]", lh_0.a(), lh_0.b());
-					shape.add_points(lh_0.a(), lh_0.b());
+					shape.add_points(lh.a(), lh.b());
 				}
 				add_alert_is = true;
 			}
-			
-			println("------------------------->>>>>>>>>::::::::: ALERT STOP :::::::::<<<<<<<<<-----------------------------------------------");
-
 		}
 		shape.add_points(lc2.b(), lc2.a());
 		if(add_alert_is) {
@@ -913,6 +862,31 @@ public class R_Impact extends Rope {
 			shape.add_points(lh.a());
 		}
 		imp_shapes_heart.add(shape);
+	}
+
+	boolean add_point_alert(R_Shape shape, R_Line2DX lh, R_Line2DX lc2, vec2 point) {
+		if(lh.a().compare(point, marge)) {	
+			if(r.in_line(lh, lc2.a(), marge)) {
+				shape.add_points(lc2.a()); 
+			} else if(r.in_line(lh, lc2.b(), marge)) { 
+				shape.add_points(lc2.b()); 
+			} else {
+				shape.add_points(lh.b());
+			}
+			return true;
+		}
+
+		if(lh.b().compare(point, marge)) {
+			if(r.in_line(lh, lc2.a(), marge)) {
+				shape.add_points(lc2.a()); 
+			} else if(r.in_line(lh, lc2.b(), marge)) { 
+				shape.add_points(lc2.b()); 
+			} else {
+				shape.add_points(lh.a());
+			}
+			return true;
+		}
+		return false;
 	}
 
 
@@ -1122,8 +1096,84 @@ public class R_Impact extends Rope {
 		if(lc != null) {
 			set_use_for_polygon(lc);
 		}
+
+		if(heart.size() > 0) {
+			check_same_rest(shape.get_points(), marge, lh, im_0, shape);
+		}
+
 		add_points_go(main_b, shape, lh);
 		add_points_return(main_a, shape, lh);
+	}
+
+
+	private boolean check_same_rest(vec3 [] list, float marge, R_Line2DX lh, int im_0, R_Shape shape) {
+		int same_same = 0;
+		vec2 ref = new vec2();
+		boolean lh_a_is = false;
+		boolean lh_b_is = false;
+		boolean lc_a_is = false;
+		boolean lc_b_is = false;
+		R_Line2DX lc = null;
+		for(int i = 0 ; i < list.length ; i++) {
+			vec2 v = list[i].xy();
+			if(v.compare(ref, marge) && r.all(r.greaterThanEqual(v, new vec2()))) {
+				same_same++;
+			}
+			if(lh != null) {
+				if(v.compare(lh.a(), marge)) lh_a_is = true;
+				if(v.compare(lh.b(), marge)) lh_b_is = true;
+			}
+			for(int k = get_num_circle() -1 ; k >= 0 ; k--) {
+				if(this.get_circle_lines(k).size() > im_0) {
+					lc = this.get_circle_lines(k).get(im_0);
+					if(!lc.mute_is()) {
+						if(v.compare(lc.a(), marge)) lc_a_is = true;
+						if(v.compare(lc.b(), marge)) lc_b_is = true;
+						break;
+					}
+				}		
+			}
+			ref = v;
+		}
+		if(same_same > 0) {
+			println("SAME SAME REST", same_same);
+			println("HEART LH A", lh_a_is, lh.a(), "LH B", lh_b_is, lh.b());
+			if(lc != null) {
+				println("CIRCLE LC A", lc_a_is, lc.a(), "LC B", lc_b_is, lc.b());
+			}	else {
+				println("CIRCLE LC", lc);
+			}
+			printArray(list);
+			if(r.all(lc == null, !lc_a_is, !lc_b_is) && r.only(lh_a_is, lh_b_is)) {
+				if(lh_a_is) {
+					println("add lh.b()",lh.b());
+					shape.add_points(lh.b());
+					return true;
+				}
+				if(lh_b_is) {
+					println("add lh.a()",lh.a());
+					shape.add_points(lh.a());
+					return true;
+				}
+			} else if(r.only(lc_a_is, lc_b_is)) {
+				if(lc_a_is) {
+					println("add lc.b()",lc.b());
+					shape.add_points(lc.b());
+					return true;
+				}
+				if(lc_b_is) {
+					println("add lc.a()",lc.a());
+					shape.add_points(lc.a());
+					return true;
+				}
+			} else if(r.all(lc == null, !lc_a_is, !lc_b_is, !lh_a_is, !lh_b_is)) {
+				println("add lh",lh);
+				shape.add_points(lh.a(),lh.b());
+				return true;
+
+			}
+		}
+		return false;
 	}
 
 
@@ -1159,7 +1209,6 @@ public class R_Impact extends Rope {
 		int index_next = shape.get_summits() -2;
 		if(shape.get_summits() == 5) {
 			index = 2;
-			// index_next = shape.get_summits() -3;
 		} else if (shape.get_summits() == 6) {
 			index = 3;
 		}
@@ -1852,7 +1901,7 @@ public class R_Impact extends Rope {
 	/////////////////////////////////////////////////////////
 	// TEST
 	//////////////////////////////////////////////////////////
-		private ArrayList<vec3> heart_connexion(R_Shape shape, R_Line2DX lh, int first, int last) {
+	private ArrayList<vec3> heart_connexion(R_Shape shape, R_Line2DX lh, int first, int last) {
 		ArrayList<vec3> buf = new ArrayList<vec3>();
 		int same_same = 0;
 		// int res = 0;
@@ -1883,31 +1932,9 @@ public class R_Impact extends Rope {
 			printArray(shape.get_points());
 		}
 		return buf;
-	} 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+	}
 
 	/////////////////////////////////////////
 	// FIN DE TEST
