@@ -1098,7 +1098,7 @@ public class R_Impact extends Rope {
 		}
 
 		if(heart.size() > 0) {
-			check_same_rest(shape.get_points(), marge, lh, im_0, shape);
+			check_same_rest(shape.get_points(), marge, lh, im_0, im_1, shape);
 		}
 
 		add_points_go(main_b, shape, lh);
@@ -1106,7 +1106,7 @@ public class R_Impact extends Rope {
 	}
 
 
-	private boolean check_same_rest(vec3 [] list, float marge, R_Line2DX lh, int im_0, R_Shape shape) {
+	private boolean check_same_rest(vec3 [] list, float marge, R_Line2DX lh, int im_0, int im_1, R_Shape shape) {
 		int same_same = 0;
 		vec2 ref = new vec2();
 		boolean lh_a_is = false;
@@ -1123,54 +1123,79 @@ public class R_Impact extends Rope {
 				if(v.compare(lh.a(), marge)) lh_a_is = true;
 				if(v.compare(lh.b(), marge)) lh_b_is = true;
 			}
+			boolean bingo_is = false;
 			for(int k = get_num_circle() -1 ; k >= 0 ; k--) {
-				if(this.get_circle_lines(k).size() > im_0) {
-					lc = this.get_circle_lines(k).get(im_0);
-					if(!lc.mute_is()) {
-						if(v.compare(lc.a(), marge)) lc_a_is = true;
-						if(v.compare(lc.b(), marge)) lc_b_is = true;
-						break;
+				for(int icl = 0 ; icl < this.get_circle_lines(k).size() ; icl++) {
+					lc = null;
+					if(this.get_circle_lines(k).get(icl).id_a() == im_0) {
+						lc = this.get_circle_lines(k).get(icl);
+						if(!lc.mute_is()) {
+							if(v.compare(lc.a(), marge)) lc_a_is = true;
+							if(v.compare(lc.b(), marge)) lc_b_is = true;
+							bingo_is = true;
+							break;
+						}
 					}
-				}		
+				}
+				if(bingo_is) {
+					break;
+				}
 			}
 			ref = v;
 		}
 		if(same_same > 0) {
-			println("SAME SAME REST", same_same);
-			println("HEART LH A", lh_a_is, lh.a(), "LH B", lh_b_is, lh.b());
-			if(lc != null) {
-				println("CIRCLE LC A", lc_a_is, lc.a(), "LC B", lc_b_is, lc.b());
-			}	else {
-				println("CIRCLE LC", lc);
-			}
+			println("HEART ALERT REST", same_same);
+
 			printArray(list);
-			if(r.all(lc == null, !lc_a_is, !lc_b_is) && r.only(lh_a_is, lh_b_is)) {
+			if(r.any(lc == null, r.all(!lc_a_is, !lc_b_is)) && r.only(lh_a_is, lh_b_is)) {
 				if(lh_a_is) {
+					println("HEART LH", lh);
 					println("add lh.b()",lh.b());
 					shape.add_points(lh.b());
 					return true;
 				}
 				if(lh_b_is) {
+					println("HEART LH", lh);
 					println("add lh.a()",lh.a());
 					shape.add_points(lh.a());
 					return true;
 				}
 			} else if(r.only(lc_a_is, lc_b_is)) {
 				if(lc_a_is) {
+					println("HEART LC", lc);
 					println("add lc.b()",lc.b());
 					shape.add_points(lc.b());
 					return true;
 				}
 				if(lc_b_is) {
+					println("HEART LC", lc);
 					println("add lc.a()",lc.a());
 					shape.add_points(lc.a());
 					return true;
 				}
 			} else if(r.all(lc == null, !lc_a_is, !lc_b_is, !lh_a_is, !lh_b_is)) {
+				println("HEART LH", lh);
 				println("add lh",lh);
 				shape.add_points(lh.a(),lh.b());
 				return true;
+			} else {
+				if(lc != null) {
+					println("======================== NOTHING HAPPEN ============================");
+					println("LC", lc);
+					println("LH", lh);
+				} else {
+					println("----------------------- NOTHING HAPPEN ------------------------------");
+					println("LC", lc);
+					println("LH", lh);
 
+				}
+
+				// println("HEART LH A", lh_a_is, lh.a(), "LH B", lh_b_is, lh.b());
+				// if(lc != null) {
+				// 	println("CIRCLE LC A", lc_a_is, lc.a(), "LC B", lc_b_is, lc.b());
+				// }	else {
+				// 	println("CIRCLE LC", lc);
+				// }
 			}
 		}
 		return false;
