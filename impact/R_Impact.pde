@@ -744,20 +744,20 @@ public class R_Impact extends Rope {
 		}
 		build_polygon_heart();
 
-		// for(int i = 0 ; i < get_num_circle() ; i++) {
-		// 	for(int k = 0 ; k < get_circle_lines(i).size() ; k++) {		
-		// 		R_Line2DX line = get_circle_lines(i).get(k);
-		// 		if(!line.mute_is() && line.id_c() < 1) {		
-		// 			if(!line.a().compare(line.b(), marge)) {
-		// 				println(">>>>>>>>>>>>>>>>>>> NE SE TOUCHE PAS >>>>>>>>>>>>> ON BOSSE", line);
-		// 				println("line", k, "circle", i, "id AA", line.id_a(),  "id BB",line.id_b(), "id LINK", line.id_c());
-		// 			} else {
-		// 				println(">>>>>> ON S'EN FOUT", line);
-		// 				println("id",line.id());
-		// 			}
-		// 		}	
-		// 	}
-		// }
+		for(int i = 0 ; i < get_num_circle() ; i++) {
+			for(int k = 0 ; k < get_circle_lines(i).size() ; k++) {		
+				R_Line2DX line = get_circle_lines(i).get(k);
+				if(!line.mute_is() && line.id_c() < 1) {		
+					if(!line.a().compare(line.b(), marge)) {
+						println(">>>>>>>>>>>>>>>>>>> NE SE TOUCHE PAS >>>>>>>>>>>>> ON BOSSE", line, "id LINK", line.id_c());
+						// println("line", k, "circle", i, "id AA", line.id_a(),  "id BB",line.id_b(), "id LINK", line.id_c());
+					} else {
+						// println("ON S'EN FOUT", line, "id LINK", line.id_c());
+						// println("id",line.id());
+					}
+				}	
+			}
+		}
 	}
 
 
@@ -822,7 +822,7 @@ public class R_Impact extends Rope {
 						R_Line2DX lc_previous = this.get_circle_lines(k).get(im_0);
 						if(!lc_previous.mute_is()) {
 							// we keep because is not realy fix, but that's happen very rarely
-							println("HEART CIRCLE ALERT add lc_previous", lc_previous);
+							// println("HEART CIRCLE ALERT add lc_previous", lc_previous);
 							shape.add_points(lc_previous.a(), lc_previous.b());
 							add_alert_is = true;
 							break;
@@ -834,7 +834,7 @@ public class R_Impact extends Rope {
 			if(!add_alert_is) {	
 				if(lh.b().compare(p0, marge +3)) {
 					// we keep because is not realy fix, but that's happen very rarely
-					println("HEART CIRCLE ALERT add lh [b][a]", lh.b(), lh.a());
+					// println("HEART CIRCLE ALERT add lh [b][a]", lh.b(), lh.a());
 					shape.add_points(lh.b(), lh.a());
 				} else {
 					shape.add_points(lh.a(), lh.b());
@@ -1125,6 +1125,7 @@ public class R_Impact extends Rope {
 			}
 			boolean bingo_is = false;
 			for(int k = get_num_circle() -1 ; k >= 0 ; k--) {
+				lc = null;
 				for(int icl = 0 ; icl < this.get_circle_lines(k).size() ; icl++) {
 					lc = null;
 					if(this.get_circle_lines(k).get(icl).id_a() == im_0) {
@@ -1144,59 +1145,53 @@ public class R_Impact extends Rope {
 			ref = v;
 		}
 		if(same_same > 0) {
-			println("HEART ALERT REST", same_same);
+			// println("HEART ALERT REST", same_same);
 
-			printArray(list);
+			// 
 			if(r.any(lc == null, r.all(!lc_a_is, !lc_b_is)) && r.only(lh_a_is, lh_b_is)) {
 				if(lh_a_is) {
 					println("HEART LH", lh);
-					println("add lh.b()",lh.b());
+					println("LH AAAAA is ", lh_a_is);
+					printArray(list);
+					println("add lh.a()",lh.a());
 					shape.add_points(lh.b());
 					return true;
 				}
 				if(lh_b_is) {
 					println("HEART LH", lh);
+					println("LH BBBBB is ", lh_b_is);
 					println("add lh.a()",lh.a());
 					shape.add_points(lh.a());
 					return true;
 				}
 			} else if(r.only(lc_a_is, lc_b_is)) {
 				if(lc_a_is) {
-					println("HEART LC", lc);
-					println("add lc.b()",lc.b());
 					shape.add_points(lc.b());
 					return true;
 				}
 				if(lc_b_is) {
-					println("HEART LC", lc);
-					println("add lc.a()",lc.a());
 					shape.add_points(lc.a());
 					return true;
 				}
 			} else if(r.all(lc == null, !lc_a_is, !lc_b_is, !lh_a_is, !lh_b_is)) {
 				println("HEART LH", lh);
+				printArray(list);
 				println("add lh",lh);
-				shape.add_points(lh.a(),lh.b());
+				shape.add_points(lh.b(),lh.a());
+				// shape.add_points(lh.a(),lh.b());
 				return true;
-			} else {
-				if(lc != null) {
-					println("======================== NOTHING HAPPEN ============================");
-					println("LC", lc);
-					println("LH", lh);
-				} else {
-					println("----------------------- NOTHING HAPPEN ------------------------------");
-					println("LC", lc);
-					println("LH", lh);
-
-				}
-
-				// println("HEART LH A", lh_a_is, lh.a(), "LH B", lh_b_is, lh.b());
-				// if(lc != null) {
-				// 	println("CIRCLE LC A", lc_a_is, lc.a(), "LC B", lc_b_is, lc.b());
-				// }	else {
-				// 	println("CIRCLE LC", lc);
-				// }
 			}
+			// } else {
+			// 	if(lc != null) {
+			// 		println("======================== NOTHING HAPPEN ============================");
+			// 		println("LC", lc);
+			// 		println("LH", lh);
+			// 	} else {
+			// 		println("----------------------- NOTHING HAPPEN ------------------------------");
+			// 		println("LC", lc);
+			// 		println("LH", lh);
+			// 	}
+			// }
 		}
 		return false;
 	}
