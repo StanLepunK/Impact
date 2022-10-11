@@ -24,9 +24,9 @@ void draw() {
 	// bg(r.BLACK, alpha_bg);
 	background(r.GRIS[1]);
 	// println("frameRate", (int)frameRate, "alpha bg",alpha_bg);
-	noFill();
-	stroke(255);
-	strokeWeight(1);
+	// noFill();
+	// stroke(255);
+	// strokeWeight(1);
 	switch(which_display()) {
 		// case 0 : imp.show_line(); break; // ok
 		// case 1 : imp.show_line_branch(1); break;
@@ -76,7 +76,7 @@ void mousePressed() {
 		// 	printArray(shape.get_points());
 		// }
 		if(r.in_polygon(shape, new vec2(mouseX,mouseY))) {
-			println("shape #", count, "clicked polygon");
+			println("shape #", count, "id", shape.id(), "clicked polygon");
 			println("shape.area()",shape.area());
 			printArray(arr);
 		}

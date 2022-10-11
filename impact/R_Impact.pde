@@ -302,6 +302,7 @@ public class R_Impact extends Rope {
 		buf.addAll(imp_shapes_heart);
 		buf.addAll(imp_shapes_circle);
 		buf.addAll(imp_shapes_rest);
+		buf.addAll(imp_shapes_orphan);
 		return buf;
 	}
 
@@ -768,15 +769,15 @@ public class R_Impact extends Rope {
 		}
 		build_polygon_heart();
 
-		// for(int i = 0 ; i < get_num_circle() ; i++) {
-		// 	for(int k = 0 ; k < get_circle_lines(i).size() ; k++) {		
-		// 		test_line_no_id(i,k);
-		// 		if(build_polygons_orphan(i,k)) {
-		// 			break;
-		// 		}
-		// 		// test_line_inf_to_1(i,k);
-		// 	}
-		// }
+		for(int i = 0 ; i < get_num_circle() ; i++) {
+			for(int k = 0 ; k < get_circle_lines(i).size() ; k++) {		
+				test_line_no_id(i,k);
+				if(build_polygons_orphan(i,k)) {
+					break;
+				}
+				// test_line_inf_to_1(i,k);
+			}
+		}
 	}
 
 
@@ -791,41 +792,18 @@ public class R_Impact extends Rope {
 		for(int i = 0 ; i < get_branch_lines(id_branch).size() -1 ; i++) {
 			R_Line2DX line =  get_branch_lines(id_branch).get(i);
 			R_Line2DX line_next =  get_branch_lines(id_branch).get(i + 1);
-			if(line.id_c() == Integer.MIN_VALUE && line_next.id_c() == Integer.MIN_VALUE) {
+			if(r.all(!line.mute_is(), line.id_c() == Integer.MIN_VALUE,line_next.id_c() == Integer.MIN_VALUE)) {
 				create_polygon_orphan(line, line_next);
 				find_is = true;
 			}
 		}
-		return find_is;
-		
-		// if(!lc.mute_is() && lc.id_c() == Integer.MIN_VALUE) {
-		// 	// println("LC circle",circle_rank, "line rank", line_rank);
-		// 	boolean touch_is = lc.a().compare(lc.b(), marge);
-		// 	if(!touch_is && circle_rank > 1) {
-		// 		// get upper lc
-		// 		for(int i = circle_rank + 1 ; i < get_num_circle() ; i++) {
-		// 			R_Line2DX lc_next = circle[i].get(line_rank);
-		// 			if(!lc_next.mute_is()) {
-		// 				println("LC circle",circle_rank, "line rank", line_rank);
-		// 				println("LC NEXT circle",i, "line rank", line_rank);
-		// 				println("lc id", lc.id());
-		// 				println("lc_next id", lc_next.id());
-		// 				create_polygon_orphan(lc, lc_next);
-		// 				break;
-		// 			}
-		// 		}
-		// 	} else {
-		// 		// build first polygo point on the only point I think
-
-		// 	}		
-		// }	
-
+		return find_is;	
 	}
 
 	private void create_polygon_orphan(R_Line2DX lc, R_Line2DX lc_next) {
 		R_Shape shape = new R_Shape(this.pa);
-		set_use_for_polygon(lc);
-		set_use_for_polygon(lc_next);
+		// set_use_for_polygon(lc);
+		// set_use_for_polygon(lc_next);
 		shape.id(r.GRIS[18]);
 		shape.add_points(lc_next.a(),lc_next.b(), lc.b(), lc.a());
 		imp_shapes_orphan.add(shape);
