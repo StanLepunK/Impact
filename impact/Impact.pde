@@ -24,9 +24,29 @@ void draw() {
 	// bg(r.BLACK, alpha_bg);
 	background(r.GRIS[1]);
 	// println("frameRate", (int)frameRate, "alpha bg",alpha_bg);
+	noFill();
+	stroke(255);
+	strokeWeight(1);
 	switch(which_display()) {
+		// case 0 : imp.show_line(); break; // ok
+		// case 1 : imp.show_line_branch(1); break;
+		// case 2 : imp.show_line_branch(2); break;
+		// case 3 : imp.show_line_branch(3); break;
+		// case 4 : imp.show_line_branch(4); break;
+		// case 5 : imp.show_line_branch(5); break;
+		// case 6 : imp.show_line_branch(6); break;
+
+		// case 0 : imp.show_line(); break; // ok
+		// case 1 : imp.show_line_circle(1); break;
+		// case 2 : imp.show_line_circle(2); break;
+		// case 3 : imp.show_line_circle(3); break;
+		// case 4 : imp.show_line_circle(4); break;
+		// case 5 : imp.show_line_circle(5); break;
+		// case 6 : imp.show_line_circle(6); break;
+
 		case 0 : show_polygon(1); impact_draw(); break;
-		case 1 : impact_draw(); break;
+		case 1 : imp.show_polygon_from(imp.get_orphan_polygons()); break;
+		// case 1 : impact_draw(); break;
 		case 2 : show_polygon(1); break;
 		case 3 : show_polygon(0); break;
 		case 4 : show_polygon(-1); break;

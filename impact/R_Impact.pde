@@ -6,7 +6,7 @@
  * 
  * v 0.2.0
  * copyleft(c) 2022-2022
- * by Stan le Punk aka Stanislas Marçais
+ * Stanislas Marçais aka Knupel aka Stan le Punk
  * 
  * 
  * 
@@ -33,6 +33,7 @@ public class R_Impact extends Rope {
 	private ArrayList<R_Shape> imp_shapes_circle = new ArrayList<R_Shape>();
 	private ArrayList<R_Shape> imp_shapes_heart = new ArrayList<R_Shape>();
 	private ArrayList<R_Shape> imp_shapes_rest = new ArrayList<R_Shape>();
+	private ArrayList<R_Shape> imp_shapes_orphan = new ArrayList<R_Shape>();
 	// POINT
 	private ArrayList<vec3> cloud = new ArrayList<vec3>();
 
@@ -258,11 +259,29 @@ public class R_Impact extends Rope {
 		return null;
 	}
 
+	/**
+	* return circle
+	 */
 	public ArrayList<R_Line2DX> get_circle_lines(int index) {
 		if(index >= 0 && index < circle.length) {
 			return circle[index];
 		}
 		return null;
+	}
+
+	/**
+	* return branch of all circle, it's attached to main id
+	 */
+	public ArrayList<R_Line2DX> get_branch_lines(int index) {
+		ArrayList<R_Line2DX> list = new ArrayList<R_Line2DX>();
+		for(int i = 0 ; i < circle.length ; i++) {
+			for(int k = 0 ; k < circle[i].size() ; k++) {
+				if(index == circle[i].get(k).id_a()) {
+					list.add(circle[i].get(k));
+				}		
+			}
+		}
+		return list;
 	}
 
 	public ArrayList<R_Line2DX> get_heart_lines() {
@@ -296,6 +315,10 @@ public class R_Impact extends Rope {
 
 	public ArrayList<R_Shape> get_center_polygons() {
 		return imp_shapes_heart;
+	}
+
+	public ArrayList<R_Shape> get_orphan_polygons() {
+		return imp_shapes_orphan;
 	}
 
 	// may be need to be refactoring to arrayList or R_Shape
@@ -728,6 +751,7 @@ public class R_Impact extends Rope {
 		imp_shapes_circle.clear();
 		imp_shapes_heart.clear();
 		imp_shapes_rest.clear();
+		imp_shapes_orphan.clear();
 
 		int count_info = 0;
 		int max_main = this.get_num_main();
@@ -744,20 +768,67 @@ public class R_Impact extends Rope {
 		}
 		build_polygon_heart();
 
-		for(int i = 0 ; i < get_num_circle() ; i++) {
-			for(int k = 0 ; k < get_circle_lines(i).size() ; k++) {		
-				R_Line2DX line = get_circle_lines(i).get(k);
-				if(!line.mute_is() && line.id_c() < 1) {		
-					if(!line.a().compare(line.b(), marge)) {
-						println(">>>>>>>>>>>>>>>>>>> NE SE TOUCHE PAS >>>>>>>>>>>>> ON BOSSE", line, "id LINK", line.id_c());
-						// println("line", k, "circle", i, "id AA", line.id_a(),  "id BB",line.id_b(), "id LINK", line.id_c());
-					} else {
-						// println("ON S'EN FOUT", line, "id LINK", line.id_c());
-						// println("id",line.id());
-					}
-				}	
+		// for(int i = 0 ; i < get_num_circle() ; i++) {
+		// 	for(int k = 0 ; k < get_circle_lines(i).size() ; k++) {		
+		// 		test_line_no_id(i,k);
+		// 		if(build_polygons_orphan(i,k)) {
+		// 			break;
+		// 		}
+		// 		// test_line_inf_to_1(i,k);
+		// 	}
+		// }
+	}
+
+
+
+
+	// BUILD POLYGON ORPHAN
+	////////////////////////
+	private boolean build_polygons_orphan(int circle_rank, int line_rank) {
+		// find the good circle branch
+		int id_branch = circle[circle_rank].get(line_rank).id_a();
+		boolean find_is = false;
+		for(int i = 0 ; i < get_branch_lines(id_branch).size() -1 ; i++) {
+			R_Line2DX line =  get_branch_lines(id_branch).get(i);
+			R_Line2DX line_next =  get_branch_lines(id_branch).get(i + 1);
+			if(line.id_c() == Integer.MIN_VALUE && line_next.id_c() == Integer.MIN_VALUE) {
+				create_polygon_orphan(line, line_next);
+				find_is = true;
 			}
 		}
+		return find_is;
+		
+		// if(!lc.mute_is() && lc.id_c() == Integer.MIN_VALUE) {
+		// 	// println("LC circle",circle_rank, "line rank", line_rank);
+		// 	boolean touch_is = lc.a().compare(lc.b(), marge);
+		// 	if(!touch_is && circle_rank > 1) {
+		// 		// get upper lc
+		// 		for(int i = circle_rank + 1 ; i < get_num_circle() ; i++) {
+		// 			R_Line2DX lc_next = circle[i].get(line_rank);
+		// 			if(!lc_next.mute_is()) {
+		// 				println("LC circle",circle_rank, "line rank", line_rank);
+		// 				println("LC NEXT circle",i, "line rank", line_rank);
+		// 				println("lc id", lc.id());
+		// 				println("lc_next id", lc_next.id());
+		// 				create_polygon_orphan(lc, lc_next);
+		// 				break;
+		// 			}
+		// 		}
+		// 	} else {
+		// 		// build first polygo point on the only point I think
+
+		// 	}		
+		// }	
+
+	}
+
+	private void create_polygon_orphan(R_Line2DX lc, R_Line2DX lc_next) {
+		R_Shape shape = new R_Shape(this.pa);
+		set_use_for_polygon(lc);
+		set_use_for_polygon(lc_next);
+		shape.id(r.GRIS[18]);
+		shape.add_points(lc_next.a(),lc_next.b(), lc.b(), lc.a());
+		imp_shapes_orphan.add(shape);
 	}
 
 
@@ -1216,6 +1287,13 @@ public class R_Impact extends Rope {
 		if(id_b < 0 && abs(id_b) <= heart.size()) {
 			id_b -= 1;
 		}
+		// if(r.all(id_a != im_0, id_b != im_1)) {
+		// 	println("TOUT FAUX", id_a, im_0, id_b, im_1, "LC", lc);
+		// }
+		// if(r.any(id_a < 0, id_b < 0)) {
+		// 	println("A", id_a, "B", id_b, "LC",lc);
+		// }
+		// return r.any(abs(id_a) == im_0, abs(id_b) == im_1); // to check the negative id from heart // VERY BAD IDEA
 		return r.any(id_a == im_0, id_b == im_1);
 	}
 
@@ -1759,8 +1837,30 @@ public class R_Impact extends Rope {
 		show_list_impl(main);
 	}
 
+	public void show_line_main(int index) {
+		if(index >= 0 && index < main.length) {
+			show_lines_impl(main[index]);	
+		}
+	}
+
 	public void show_line_circle() {
 		show_list_impl(circle);
+	}
+	
+	public void show_line_circle(int index) {
+		if(index >= 0 && index < circle.length) {
+			show_lines_impl(circle[index]);	
+		}
+	}
+
+	public void show_line_branch(int index) {
+		for(int i = 0 ; i < circle.length ; i++) {
+			for(int k = 0 ; k < circle[i].size() ; k++) {
+				if(index == circle[i].get(k).id_a()) {
+					show_single_line_impl(circle[i].get(k));
+				}		
+			}
+		}
 	}
 
 	public void show_line_heart() {
@@ -1779,13 +1879,24 @@ public class R_Impact extends Rope {
 
 	private void show_lines_impl(ArrayList<R_Line2DX> lines) {
 		for(R_Line2DX line : lines) {		
-			if(use_mute_is()) {
-				if(!line.mute_is()) {
-					line.show();
-				}
-			} else {
+			show_single_line_impl(line);
+			// if(use_mute_is()) {	
+			// 	if(!line.mute_is()) {
+			// 		line.show();
+			// 	}
+			// } else {
+			// 	line.show();
+			// }
+		}
+	}
+
+	private void show_single_line_impl(R_Line2DX line) {
+		if(use_mute_is()) {	
+			if(!line.mute_is()) {
 				line.show();
 			}
+		} else {
+			line.show();
 		}
 	}
 
@@ -1805,6 +1916,7 @@ public class R_Impact extends Rope {
 		show_polygon_from(imp_shapes_circle);
 		show_polygon_from(imp_shapes_heart);
 		show_polygon_from(imp_shapes_rest);
+		show_polygon_from(imp_shapes_orphan);
 	}
 
 	private void show_polygon_from(ArrayList<R_Shape> list) {
@@ -1952,8 +2064,38 @@ public class R_Impact extends Rope {
 			printArray(shape.get_points());
 		}
 		return buf;
+	}
 
 
+	private void test_line_no_id(int circle_rank, int line_rank) {
+		R_Line2DX line = get_circle_lines(circle_rank).get(line_rank);
+		if(!line.mute_is() && line.id_c() == Integer.MIN_VALUE) {
+			boolean touch_is = line.a().compare(line.b(), marge);
+			float dist = r.dist(line.a(), line.b());
+			if(touch_is) {
+				// println("PAS d'ID ça touche on s'en fout", line, "distance", dist, "circle", circle_rank);
+			} else {
+				if(circle_rank > 1) {
+					println(">>>>>>>>>>>>>>>>>>> PAS d'ID : ON BOSSE", line, "distance", dist, "circle", circle_rank);	
+				} else {
+					println(">>>>>>>>>>>>>>>>>>> PAS d'ID : TRAVAILLER C'EST TROP DUR", line, "distance", dist, "circle", circle_rank);
+				}
+				
+			}	
+		}	
+	}
+
+	private void test_line_inf_to_1(int circle_rank, int line_rank) {
+		R_Line2DX line = get_circle_lines(circle_rank).get(line_rank);
+		if(!line.mute_is() && line.id_c() < 1) {		
+			if(!line.a().compare(line.b(), marge)) {
+				println(">>>>>>>>>>>>>>>>>>> NE SE TOUCHE PAS >>>>>>>>>>>>> ON BOSSE", line, "A", line.id_a(), "B", line.id_b(), "LINK", line.id_c());
+				println("line", line_rank, "circle", circle_rank, "id AA", line.id_a(),  "id BB",line.id_b(), "id LINK", line.id_c());
+			} else {
+				println("ON S'EN FOUT", line, "id LINK", line.id_c());
+				println("id",line.id());
+			}
+		}	
 	}
 
 	/////////////////////////////////////////

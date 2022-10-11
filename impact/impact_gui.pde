@@ -63,6 +63,7 @@ void inc_display() {
 	if(which_display > max) {
 		which_display = 0;
 	}
+	println("display", which_display);
 }
 
 void dec_display() {
@@ -71,6 +72,7 @@ void dec_display() {
 	if(which_display < 0) {
 		which_display = max;
 	}
+	println("display", which_display);
 }
 
 int which_display() {

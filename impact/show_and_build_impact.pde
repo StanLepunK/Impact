@@ -51,8 +51,8 @@ void show_lines() {
 	stroke(255);
 	strokeWeight(1);
 	// imp.show_line();
-	imp.show_line_main();
-	stroke(r.YELLOW);
+	// imp.show_line_main();
+	// stroke(r.YELLOW);
 	imp.show_line_circle();
 	stroke(r.GREEN);
 	imp.show_line_heart();
