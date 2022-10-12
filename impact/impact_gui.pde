@@ -57,24 +57,24 @@ void impact_keypressed() {
 
 
 int which_display = 0;
+int max_display = 0;
 void inc_display() {
-	int max = 6;
 	which_display++;
-	if(which_display > max) {
+	if(which_display > max_display) {
 		which_display = 0;
 	}
 	println("display", which_display);
 }
 
 void dec_display() {
-	int max = 6;
 	which_display--;
 	if(which_display < 0) {
-		which_display = max;
+		which_display = max_display;
 	}
 	println("display", which_display);
 }
 
-int which_display() {
+int which_display(int max) {
+ 	max_display = max;
 	return which_display;
 }

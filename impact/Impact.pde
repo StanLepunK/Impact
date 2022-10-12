@@ -27,7 +27,7 @@ void draw() {
 	// noFill();
 	// stroke(255);
 	// strokeWeight(1);
-	switch(which_display()) {
+	switch(which_display(8)) {
 		// case 0 : imp.show_line(); break; // ok
 		// case 1 : imp.show_line_branch(1); break;
 		// case 2 : imp.show_line_branch(2); break;
@@ -46,13 +46,14 @@ void draw() {
 
 		case 0 : show_polygon(1); impact_draw(); break;
 		case 1 : imp.show_polygon_from(imp.get_orphan_polygons()); break;
-		// case 1 : impact_draw(); break;
-		case 2 : show_polygon(1); break;
-		case 3 : show_polygon(0); break;
-		case 4 : show_polygon(-1); break;
-		case 5 : show_polygon(1); impact_draw(); imp.show_cloud(); break;
-		case 6 : impact_draw(); imp.show_cloud(); break;
-		default : show_polygon(1); impact_draw(); imp.show_cloud(); break;
+		case 2 : impact_draw(); break;
+		case 3 : show_polygon(1); break;
+		case 4 : show_polygon(0); break;
+		case 5 : show_polygon(-1); break;
+		case 6 : show_polygon(1); impact_draw(); imp.show_cloud(); break;
+		case 7 : impact_draw(); imp.show_cloud(); break;
+		case 8 : impact_draw(); break;
+		// default : show_polygon(1); impact_draw(); imp.show_cloud(); break;
 	}
 
 	String info = mouseX + " / " + mouseY;
