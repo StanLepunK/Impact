@@ -17,6 +17,27 @@ void impact_draw() {
 	}
 }
 
+void circle_draw(int mode) {
+	noFill();
+	strokeWeight(4);
+	
+	if(mode == 0) {
+		float start_colour = g.colorModeX - (g.colorModeX / 4);
+		float step_colour = g.colorModeX / imp.get_num_circle() / 2;
+		for(int i = 0 ; i < imp.get_num_circle() ; i++) {
+			stroke(start_colour -= step_colour);
+			imp.show_line_circle(i);
+		}
+	} else if (mode == 1) {
+		float start_colour = g.colorModeX - (g.colorModeX / 4);
+		float step_colour = g.colorModeX / imp.get_num_circle() / 2;
+		for(int i = 0 ; i < imp.get_num_main() ; i++) {
+			stroke(start_colour -= step_colour);
+			imp.show_line_branch(i);
+		}
+	}
+}
+
 
 
 // BUILD

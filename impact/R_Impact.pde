@@ -763,20 +763,13 @@ public class R_Impact extends Rope {
 			if(im_1 == max_main) {
 				im_1 = 0;
 			}
-			build_polygons_circle(im_0, im_1);
-			build_polygons_center(im_0, im_1);
-			build_polygons_rest(im_0, im_1);
+			// build_polygons_circle(im_0, im_1);
+			// build_polygons_center(im_0, im_1);
+			// build_polygons_rest(im_0, im_1);
 		}
 		build_polygon_heart();
-
-		for(int i = 0 ; i < get_num_circle() ; i++) {
-			for(int k = 0 ; k < get_circle_lines(i).size() ; k++) {		
-				test_line_no_id(i,k);
-				if(build_polygons_orphan(i,k)) {
-					break;
-				}
-				// test_line_inf_to_1(i,k);
-			}
+		for(int i = 0 ; i < get_num_main() ; i++) {
+			build_polygons_orphan(i);
 		}
 	}
 
@@ -785,48 +778,53 @@ public class R_Impact extends Rope {
 
 	// BUILD POLYGON ORPHAN
 	////////////////////////
-	private boolean build_polygons_orphan(int circle_rank, int line_rank) {
-		// find the good circle branch
-		int id_branch = circle[circle_rank].get(line_rank).id_a();
+	private boolean build_polygons_orphan(int id_branch) {
 		boolean find_is = false;
 		for(int i = 0 ; i < get_branch_lines(id_branch).size() -1 ; i++) {
 			R_Line2DX line =  get_branch_lines(id_branch).get(i);
+			// for(int k = i + 1 ; k < get_branch_lines(id_branch).size() ; k++, i++) {
 			for(int k = i + 1 ; k < get_branch_lines(id_branch).size() ; k++) {
 
 				R_Line2DX line_next =  get_branch_lines(id_branch).get(k);
 				boolean first_is = line.mute_is();
 				boolean second_is = line_next.mute_is();
 				// boolean second_is = false; // we cannot do that because that's active the first line to close
-				int first_id = line.id_c();
-				// int second_id = line_next.id_c();
+				int id_first = line.id_c();
+				// int id_second = line_next.id_c();
 				
 				// check if the 4 points is contain in the shape, if it's true don't create polygon
 				boolean no_shape_already_exist_is = false;
-				int max_common_points = 3;
-				for(R_Shape shape : get_center_polygons()) {
-					if(shape.compare(max_common_points, marge, line.a(), line.b(), line_next.a(), line_next.b())) {
-						no_shape_already_exist_is = true;
-						break;
-					}
-				}
-				if(!no_shape_already_exist_is) {
-					for(R_Shape shape : get_rest_polygons()) {
-						if(shape.compare(max_common_points, marge, line.a(), line.b(), line_next.a(), line_next.b())) {
-							no_shape_already_exist_is = true;
-							break;
-						}
-					}
-				}
+				// int max_common_points = 3;
+				// for(R_Shape shape : get_center_polygons()) {
+				// 	if(shape.compare(max_common_points, marge, line.a(), line.b(), line_next.a(), line_next.b())) {
+				// 		no_shape_already_exist_is = true;
+				// 		break;
+				// 	}
+				// }
+				// if(!no_shape_already_exist_is) {
+				// 	for(R_Shape shape : get_rest_polygons()) {
+				// 		if(shape.compare(max_common_points, marge, line.a(), line.b(), line_next.a(), line_next.b())) {
+				// 			no_shape_already_exist_is = true;
+				// 			break;
+				// 		}
+				// 	}
+				// }
 
 				
-
-				if(r.all(!first_is, !second_is, first_id == Integer.MIN_VALUE, !no_shape_already_exist_is)) {
+				if(r.all(!first_is, !second_is, id_first == Integer.MIN_VALUE)) {
+				// if(r.all(!first_is, !second_is, first_id == Integer.MIN_VALUE, !no_shape_already_exist_is)) {
+					println("THE GOOD");
 					println("> ORPHELIN",i,k, "already exist", no_shape_already_exist_is);
-					println("> III",line, line.mute_is(), line.id().abc());
-					println("> KKK", line_next, line_next.mute_is(), line_next.id().abc());
+					println("> III",line.mute_is(),line, "ID", line.id().abc());
+					println("> KKK",line_next.mute_is(), line_next, "ID", line_next.id().abc());
 					create_polygon_orphan(line, line_next);
 					find_is = true;
 					break;
+				} else {
+					println(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> THE BAD");
+					println("> ORPHELIN",i,k, "already exist", no_shape_already_exist_is);
+					println("> III",line.mute_is(),line, "ID", line.id().abc());
+					println("> KKK",line_next.mute_is(), line_next, "ID",line_next.id().abc());
 				}
 			}	
 		}
@@ -836,7 +834,8 @@ public class R_Impact extends Rope {
 	private void create_polygon_orphan(R_Line2DX lc, R_Line2DX lc_next) {
 		R_Shape shape = new R_Shape(this.pa);
 		set_use_for_polygon(lc);
-		shape.id(r.GRIS[18]);
+		shape.id(BLOOD);
+		// shape.id(r.GRIS[18]);
 		shape.add_points(lc_next.a(),lc_next.b(), lc.b(), lc.a());
 
 		// find id index main 0 and 1
@@ -850,6 +849,9 @@ public class R_Impact extends Rope {
 		if(im_1 >= get_num_main()) {
 			im_1 = 0;
 		}
+		if(im_0 < 0) {
+			im_0 = get_num_main() -1;
+		}
 
 		ArrayList<R_Line2DX> main_a = this.get_main_lines(im_0);
 		ArrayList<R_Line2DX> main_b = this.get_main_lines(im_1);
@@ -859,7 +861,7 @@ public class R_Impact extends Rope {
 		}
 		add_points_go(main_b, shape, lh);
 		add_points_return(main_a, shape, lh);
-		println("> shape.area()",shape.area());
+		// println("> shape.area()",shape.area());
 		printArray(shape.get_points());
 		imp_shapes_orphan.add(shape);
 	}

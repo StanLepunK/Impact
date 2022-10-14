@@ -27,7 +27,7 @@ void draw() {
 	// noFill();
 	// stroke(255);
 	// strokeWeight(1);
-	switch(which_display(8)) {
+	switch(which_display(10)) {
 		// case 0 : imp.show_line(); break; // ok
 		// case 1 : imp.show_line_branch(1); break;
 		// case 2 : imp.show_line_branch(2); break;
@@ -53,6 +53,8 @@ void draw() {
 		case 6 : show_polygon(1); impact_draw(); imp.show_cloud(); break;
 		case 7 : impact_draw(); imp.show_cloud(); break;
 		case 8 : impact_draw(); break;
+		case 9 : circle_draw(0); break;
+		case 10 : circle_draw(1); break;
 		// default : show_polygon(1); impact_draw(); imp.show_cloud(); break;
 	}
 
