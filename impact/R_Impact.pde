@@ -276,7 +276,7 @@ public class R_Impact extends Rope {
 		ArrayList<R_Line2DX> list = new ArrayList<R_Line2DX>();
 		for(int i = 0 ; i < circle.length ; i++) {
 			for(int k = 0 ; k < circle[i].size() ; k++) {
-				if(index == circle[i].get(k).id_a()) {
+				if(index == get_abs_id(circle[i].get(k).id_a())) {
 					list.add(circle[i].get(k));
 				}		
 			}
@@ -332,6 +332,18 @@ public class R_Impact extends Rope {
 			polygon[i] = heart.get(i).a().copy();
 		}
 		return polygon;
+	}
+
+	// ID
+	/////////////////
+
+	private int get_abs_id(int raw_id) {
+		int id = raw_id;
+		// for line heart case
+		if(id < 0) {
+			id = abs(id + 1);
+		}
+		return id;
 	}
 
 
@@ -780,16 +792,21 @@ public class R_Impact extends Rope {
 	////////////////////////
 	private boolean build_polygons_orphan(int id_branch) {
 		boolean find_is = false;
-		for(int i = 0 ; i < get_branch_lines(id_branch).size() -1 ; i++) {
-			R_Line2DX line =  get_branch_lines(id_branch).get(i);
-			// for(int k = i + 1 ; k < get_branch_lines(id_branch).size() ; k++, i++) {
-			for(int k = i + 1 ; k < get_branch_lines(id_branch).size() ; k++) {
-
-				R_Line2DX line_next =  get_branch_lines(id_branch).get(k);
+		int len = get_branch_lines(id_branch).size();
+		// we create an array, to avoid to use to much get_branch_lines() 
+		// because this function use alot for() loop
+		// just in case we must use more than twice :)
+		R_Line2DX [] arr_branch = new R_Line2DX[len];
+		arr_branch = get_branch_lines(id_branch).toArray(arr_branch);
+		//
+		for(int i = 0 ; i < len -1 ; i++) {
+			R_Line2DX line =  arr_branch[i];
+			for(int k = i + 1 ; k < len ; k++) {
+				R_Line2DX line_next =  arr_branch[k];
 				boolean first_is = line.mute_is();
 				boolean second_is = line_next.mute_is();
 				// boolean second_is = false; // we cannot do that because that's active the first line to close
-				int id_first = line.id_c();
+				// int id_first = line.id_c();
 				// int id_second = line_next.id_c();
 				
 				// check if the 4 points is contain in the shape, if it's true don't create polygon
@@ -809,22 +826,30 @@ public class R_Impact extends Rope {
 				// 		}
 				// 	}
 				// }
+				// if(r.any(line.id().a() < 0, line.id().b() < 0) && !first_is) {
+				// 	println("I", i, first_is, line.id().abc(), line);
+				// 	println("K", k, second_is, line_next.id().abc(),  line_next);
+				// }
 
 				
-				if(r.all(!first_is, !second_is, id_first == Integer.MIN_VALUE)) {
+				if(r.all(!first_is, !second_is, line.id().c() == Integer.MIN_VALUE)) {
+					println(">>> I", i, first_is, line.id().abc());
+					println(">>> K", k, second_is, line_next.id().abc());
+					// println(">>> I", i, first_is, line);
+					// println(">>> K", k, second_is, line_next);
 				// if(r.all(!first_is, !second_is, first_id == Integer.MIN_VALUE, !no_shape_already_exist_is)) {
-					println("THE GOOD");
-					println("> ORPHELIN",i,k, "already exist", no_shape_already_exist_is);
-					println("> III",line.mute_is(),line, "ID", line.id().abc());
-					println("> KKK",line_next.mute_is(), line_next, "ID", line_next.id().abc());
+					// println("THE GOOD");
+					// println("> ORPHELIN",i,k, "already exist", no_shape_already_exist_is);
+					// println("> III",line.mute_is(),line, "ID", line.id().abc());
+					// println("> KKK",line_next.mute_is(), line_next, "ID", line_next.id().abc());
 					create_polygon_orphan(line, line_next);
 					find_is = true;
 					break;
 				} else {
-					println(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> THE BAD");
-					println("> ORPHELIN",i,k, "already exist", no_shape_already_exist_is);
-					println("> III",line.mute_is(),line, "ID", line.id().abc());
-					println("> KKK",line_next.mute_is(), line_next, "ID",line_next.id().abc());
+					// println(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> THE BAD");
+					// println("> ORPHELIN",i,k, "already exist", no_shape_already_exist_is);
+					// println("> III",line.mute_is(),line, "ID", line.id().abc());
+					// println("> KKK",line_next.mute_is(), line_next, "ID",line_next.id().abc());
 				}
 			}	
 		}
@@ -838,11 +863,24 @@ public class R_Impact extends Rope {
 		// shape.id(r.GRIS[18]);
 		shape.add_points(lc_next.a(),lc_next.b(), lc.b(), lc.a());
 
-		// find id index main 0 and 1
-		int im_0 = lc.id().a();
+		R_Line2DX lh = null;
+		// if(heart.size() > 0) {
+		// 	lh = heart.get(im_0);
+		// }
+		ArrayList<R_Line2DX>[] main = tupple_main(lc.id().a(), lc.id().b());
+		add_points_go(main[1], shape, lh);
+		add_points_return(main[0], shape, lh);
+		// println("> shape.area()",shape.area());
+		// printArray(shape.get_points());
+		imp_shapes_orphan.add(shape);
+	}
+
+	private ArrayList<R_Line2DX>[] tupple_main(int id_a, int id_b) {
+		ArrayList<R_Line2DX> [] arr = new ArrayList[2];
+		int im_0 = id_a;
 		int im_1 = im_0 + 1;
-		if(lc.id().a() < 0) {
-			im_1 = lc.id().b();
+		if(id_a < 0) {
+			im_1 = id_b;
 			im_0 = im_1 -1;
 		}
 
@@ -853,18 +891,22 @@ public class R_Impact extends Rope {
 			im_0 = get_num_main() -1;
 		}
 
-		ArrayList<R_Line2DX> main_a = this.get_main_lines(im_0);
-		ArrayList<R_Line2DX> main_b = this.get_main_lines(im_1);
-		R_Line2DX lh = null;
-		if(heart.size() > 0) {
-			lh = heart.get(im_0);
-		}
-		add_points_go(main_b, shape, lh);
-		add_points_return(main_a, shape, lh);
-		// println("> shape.area()",shape.area());
-		printArray(shape.get_points());
-		imp_shapes_orphan.add(shape);
+		arr[0] = this.get_main_lines(im_0);
+		arr[1] = this.get_main_lines(im_1);
+		return arr;
 	}
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 	// BUILD POLYGON CIRCLE
@@ -1899,7 +1941,7 @@ public class R_Impact extends Rope {
 	public void show_line_branch(int index) {
 		for(int i = 0 ; i < circle.length ; i++) {
 			for(int k = 0 ; k < circle[i].size() ; k++) {
-				if(index == circle[i].get(k).id_a()) {
+				if(index == get_abs_id(circle[i].get(k).id().a())) {
 					show_single_line_impl(circle[i].get(k));
 				}		
 			}
