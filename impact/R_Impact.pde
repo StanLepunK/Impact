@@ -850,23 +850,9 @@ public class R_Impact extends Rope {
 			shape.add_points(next_line.a(), next_line.b(), line.b(),line.a());
 		}
 		R_Line2DX lh = null;
-
-		println(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> 0 shape");
-		println(shape.get_points());
-		junction_lh_lc(shape, lh, line, next_line);
-		println(">>> 1 shape LH");
-		println(shape.get_points());
-
+		junction_heart_circle(shape, lh, line, next_line);
 		add_points_go(main[1], shape, lh);
-		println(">>> 2 shape GO");
-		println(shape.get_points());
-
 		add_points_return(main[0], shape, lh);
-		// println(">>> 3 shape RETURN");
-		// println(shape.get_points());
-
-		// add_points_go(main[1], shape, null);
-		// add_points_return(main[0], shape, null);
 		imp_shapes.add(shape);
 	}
 
@@ -874,12 +860,10 @@ public class R_Impact extends Rope {
 	private void create_polygon_current(R_Line2DX lc, R_Line2DX next_lc) {
 		R_Shape shape = new R_Shape(this.pa);
 		set_use_for_polygon(lc);
-		// shape.id(BLOOD);
 		shape.id(r.GRIS[10]);
 		shape.add_points(next_lc.a(), next_lc.b(), lc.b(), lc.a());
-		// shape.add_points(lc.a(), lc.b(), next_lc.b(), next_lc.a());
 		R_Line2DX lh = null;
-		junction_lh_lc(shape, lh, lc, next_lc);
+		junction_heart_circle(shape, lh, lc, next_lc);
 		ArrayList<R_Line2DX>[] main = tupple_main(lc.id().a(), lc.id().b());
 		add_points_go(main[1], shape, lh);
 		add_points_return(main[0], shape, lh);
@@ -922,30 +906,12 @@ public class R_Impact extends Rope {
 			// index = 2;
 			index_next = shape.get_summits() -3;
 		}
-
-		if(shape.get_summits() == 5) {
-			// println("shape index", shape.get_point(index));
-			// println("shape index_next", shape.get_point(index_next));
-		}
-		
-		// int index = 1;
-		// if(shape.get_summits() == 5) {
-		// 	index = 2;
-		// }
-		// int index_next = shape.get_summits() -1;
-
 		add_points_go_impl(list_main_b, shape, lh, index, index_next);
 	}
 
 	private void add_points_return(ArrayList<R_Line2DX> list_main_a, R_Shape shape, R_Line2DX lh) {
 		int index = shape.get_summits() -1;
 		int index_next = 0;
-
-		// 		int index = 1;
-		// int index_next = shape.get_summits() -2;
-		// if(shape.get_summits() == 5) {
-		// 	index_next = shape.get_summits() -3;
-		// }
 		add_points_return_impl(list_main_a, shape, lh, index, index_next);
 	}
 
@@ -998,9 +964,7 @@ public class R_Impact extends Rope {
 
 		for(int i = 0 ; i < list_main_a.size() ; i++) {
 			R_Line2DX line = list_main_a.get(i);
-			// first
 			if(r.in_line(line, a.xy(), marge)) first = i;
-			// last
 			if(r.in_line(line, b.xy(), marge)) last = i;
 		}
 
@@ -1067,7 +1031,7 @@ public class R_Impact extends Rope {
 	// UTILS POLYGON
 	//////////////////
 
-private void junction_lh_lc(R_Shape shape, R_Line2DX lh, R_Line2DX lc, R_Line2DX next_lc) {
+private void junction_heart_circle(R_Shape shape, R_Line2DX lh, R_Line2DX lc, R_Line2DX next_lc) {
 		int id_heart = get_abs_id(lc.id().a());
 		if(heart.size() > 0 && id_heart < get_num_main()) {
 			lh = heart.get(id_heart);
@@ -1075,10 +1039,24 @@ private void junction_lh_lc(R_Shape shape, R_Line2DX lh, R_Line2DX lc, R_Line2DX
 			boolean lc_b_is = r.in_line(lh, lc.b(), marge);
 			boolean next_lc_a_is = r.in_line(lh, next_lc.a(), marge);
 			boolean next_lc_b_is = r.in_line(lh, next_lc.b(), marge);
-			if(lc_a_is && r.all(!next_lc_a_is, !next_lc_b_is)) {
-				shape.add_points(lh.a());
-			} else if(lc_b_is && r.all(!next_lc_a_is, !next_lc_b_is)) {
-				shape.add_points(2,lh.b());
+			if(r.all(!next_lc_a_is, !next_lc_b_is)) {
+				if(r.any(lc_a_is,lc_b_is)) {
+					println("lc",lc, lc_a_is, lc_b_is);
+					println("lh",lh);
+				}
+				if(lc_a_is && !lc_b_is) {
+					shape.add_points(lh.a());
+				} else if(lc_b_is && !lc_a_is) {
+					shape.add_points(2,lh.b());
+				} else if(r.all(lc_a_is, lc_b_is)) {
+					float dist_a = dist(lc.barycenter(), lh.a());
+					float dist_b = dist(lc.barycenter(), lh.b());
+					if(dist_a > dist_b) {
+						shape.add_points(lh.a());
+					} else {
+						shape.add_points(2,lh.b());
+					}
+				}
 			}
 		}
 	}
@@ -1652,109 +1630,5 @@ private void junction_lh_lc(R_Shape shape, R_Line2DX lh, R_Line2DX lc, R_Line2DX
 			}
 		}
 	}
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-	/////////////////////////////////////////////////////////
-	// TEST
-	//////////////////////////////////////////////////////////
-	private ArrayList<vec3> heart_connexion(R_Shape shape, R_Line2DX lh, int first, int last) {
-		ArrayList<vec3> buf = new ArrayList<vec3>();
-		int same_same = 0;
-		// int res = 0;
-		if(lh != null) {
-			vec3 ref = new vec3();
-			for(vec3 v : shape.get_points()) {
-				if(v.compare(ref, marge)) {
-					same_same++;
-					
-				} else {
-					if(v.xy().compare(lh.a(), marge)) buf.add(v);
-					if(v.xy().compare(lh.b(), marge)) buf.add(v);
-				}
-				ref = v;
-			}
-		}
-		if(buf.size() == 1 && same_same >= 2) {
-			println("----------------------------------");
-			if(first == 0 && last == 0) {
-				println("DOUBLE ZERO", first, last);
-			}
-			println("connexion", buf.size());
-			println("same", same_same);
-			println("lh",lh);
-			printArray(shape.get_points());
-		}
-		return buf;
-	}
-
-
-	private void test_line_no_id(int circle_rank, int line_rank) {
-		R_Line2DX line = get_circle_lines(circle_rank).get(line_rank);
-		if(!line.mute_is() && line.id_c() == Integer.MIN_VALUE) {
-			boolean touch_is = line.a().compare(line.b(), marge);
-			float dist = r.dist(line.a(), line.b());
-			if(touch_is) {
-				// println("PAS d'ID ça touche on s'en fout", line, "distance", dist, "circle", circle_rank);
-			} else {
-				if(circle_rank > 1) {
-					println(">>>>>>>>>>>>>>>>>>> PAS d'ID : ON BOSSE", line, "distance", dist, "circle", circle_rank);	
-				} else {
-					println(">>>>>>>>>>>>>>>>>>> PAS d'ID : TRAVAILLER C'EST TROP DUR", line, "distance", dist, "circle", circle_rank);
-				}
-				
-			}	
-		}	
-	}
-
-	private void test_line_inf_to_1(int circle_rank, int line_rank) {
-		R_Line2DX line = get_circle_lines(circle_rank).get(line_rank);
-		if(!line.mute_is() && line.id_c() < 1) {		
-			if(!line.a().compare(line.b(), marge)) {
-				println(">>>>>>>>>>>>>>>>>>> NE SE TOUCHE PAS >>>>>>>>>>>>> ON BOSSE", line, "A", line.id_a(), "B", line.id_b(), "LINK", line.id_c());
-				println("line", line_rank, "circle", circle_rank, "id AA", line.id_a(),  "id BB",line.id_b(), "id LINK", line.id_c());
-			} else {
-				println("ON S'EN FOUT", line, "id LINK", line.id_c());
-				println("id",line.id());
-			}
-		}	
-	}
-
-	/////////////////////////////////////////
-	// FIN DE TEST
-	/////////////////////////////////////////
-
-
 }
 
