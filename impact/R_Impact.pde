@@ -30,9 +30,9 @@ public class R_Impact extends Rope {
 	private ArrayList<R_Line2DX> heart;
 	private ArrayList<R_Line2DX> fail;
 	// SHAPE
-	private ArrayList<R_Shape> imp_shapes_circle = new ArrayList<R_Shape>();
+	// private ArrayList<R_Shape> imp_shapes_circle = new ArrayList<R_Shape>();
 	private ArrayList<R_Shape> imp_shapes_center = new ArrayList<R_Shape>();
-	private ArrayList<R_Shape> imp_shapes_rest = new ArrayList<R_Shape>();
+	// private ArrayList<R_Shape> imp_shapes_rest = new ArrayList<R_Shape>();
 	private ArrayList<R_Shape> imp_shapes_orphan = new ArrayList<R_Shape>();
 	// POINT
 	private ArrayList<vec3> cloud = new ArrayList<vec3>();
@@ -300,19 +300,19 @@ public class R_Impact extends Rope {
 	public ArrayList<R_Shape> get_polygons() {
 		ArrayList<R_Shape> buf = new ArrayList<R_Shape>();
 		buf.addAll(imp_shapes_center);
-		buf.addAll(imp_shapes_circle);
-		buf.addAll(imp_shapes_rest);
+		// buf.addAll(imp_shapes_circle);
+		// buf.addAll(imp_shapes_rest);
 		buf.addAll(imp_shapes_orphan);
 		return buf;
 	}
 
-	public ArrayList<R_Shape> get_circle_polygons() {
-		return imp_shapes_circle;
-	}
+	// public ArrayList<R_Shape> get_circle_polygons() {
+	// 	return imp_shapes_circle;
+	// }
 
-	public ArrayList<R_Shape> get_rest_polygons() {
-		return imp_shapes_rest;
-	}
+	// public ArrayList<R_Shape> get_rest_polygons() {
+	// 	return imp_shapes_rest;
+	// }
 
 	public ArrayList<R_Shape> get_center_polygons() {
 		return imp_shapes_center;
@@ -777,9 +777,9 @@ public class R_Impact extends Rope {
 		println("<<<<<<<<<<<<< ============= >>>>>>> NEW BUILD POLYGON <<<<<<<<<< ============= >>>>>>>>>>>>>>>");
 		ArrayList<vec2>poly = new ArrayList<vec2>();
 		// clear polygon
-		imp_shapes_circle.clear();
+		// imp_shapes_circle.clear();
 		imp_shapes_center.clear();
-		imp_shapes_rest.clear();
+		// imp_shapes_rest.clear();
 		imp_shapes_orphan.clear();
 
 		int count_info = 0;
@@ -839,13 +839,57 @@ public class R_Impact extends Rope {
 			} else if (last_index == 0 && heart.size() > 0) {
 				last_line = heart.get(id_branch);
 			} else {
-				last_line = new R_Line2DX(this.pa);
-				last_line.set(pos, pos);
+				// here we make a line like a point to keep the structure shape with 4 points, for the go and return function
+
+				last_line = new R_Line2DX(this.pa, pos, pos);
+				last_line.id_a(id_branch);
 			}
 			if(last_line != null) {
 				create_polygon_last(last_line, id_branch);
 			}
 		}
+	}
+
+
+	private void create_polygon_last(R_Line2DX line, int id_branch) {
+		R_Shape shape = new R_Shape(this.pa);
+		shape.id(r.GRIS[15]);
+		int next_id_branch = id_branch + 1;
+		if(next_id_branch >= get_num_main()) {
+			next_id_branch = 0;
+		}
+		ArrayList<R_Line2DX>[] main = tupple_main(id_branch, next_id_branch);
+		R_Line2DX next_line = new R_Line2DX(this.pa, main[0].get(main[0].size() -1).b(), main[1].get(main[1].size() -1).b());
+		if(r.all(main[0] != null,main[1] != null)) {
+			shape.add_points(line.a(),line.b(), next_line.b(),  next_line.a());
+		}
+		R_Line2DX lh = null;
+		// ID PROBLEM
+		///////////////////////////
+		/////////////////////////
+		// NEED SOLUTION
+		// line.id_a(id_branch);
+		junction_lh_lc(shape, lh, line, next_line);
+		add_points_go(main[1], shape, lh);
+		add_points_return(main[0], shape, lh);
+		// add_points_go(main[1], shape, null);
+		// add_points_return(main[0], shape, null);
+		imp_shapes_orphan.add(shape);
+	}
+
+
+	private void create_polygon_current(R_Line2DX lc, R_Line2DX next_lc) {
+		R_Shape shape = new R_Shape(this.pa);
+		set_use_for_polygon(lc);
+		// shape.id(BLOOD);
+		shape.id(r.GRIS[10]);
+		shape.add_points(next_lc.a(),next_lc.b(), lc.b(), lc.a());
+		R_Line2DX lh = null;
+		junction_lh_lc(shape, lh, lc, next_lc);
+		ArrayList<R_Line2DX>[] main = tupple_main(lc.id().a(), lc.id().b());
+		add_points_go(main[1], shape, lh);
+		add_points_return(main[0], shape, lh);
+		imp_shapes_orphan.add(shape);
 	}
 
 	private void create_polygon_first(R_Line2DX lc) {
@@ -874,54 +918,18 @@ public class R_Impact extends Rope {
 
 
 
-	private void create_polygon_current(R_Line2DX lc, R_Line2DX next_lc) {
-		R_Shape shape = new R_Shape(this.pa);
-		set_use_for_polygon(lc);
-		// shape.id(BLOOD);
-		shape.id(r.GRIS[10]);
-		shape.add_points(next_lc.a(),next_lc.b(), lc.b(), lc.a());
-		R_Line2DX lh = null;
-		junction_lh_lc(shape, lh, lc, next_lc);
-		ArrayList<R_Line2DX>[] main = tupple_main(lc.id().a(), lc.id().b());
-		add_points_go(main[1], shape, lh);
-		add_points_return(main[0], shape, lh);
-		imp_shapes_orphan.add(shape);
-	}
-
-
-	private void create_polygon_last(R_Line2DX line, int id_branch) {
-		R_Shape shape = new R_Shape(this.pa);
-		shape.id(r.GRIS[15]);
-		int next_id_branch = id_branch + 1;
-		if(next_id_branch >= get_num_main()) {
-			next_id_branch = 0;
-		}
-		ArrayList<R_Line2DX>[] main = tupple_main(id_branch, next_id_branch);
-		R_Line2DX next_line = new R_Line2DX(this.pa, main[0].get(main[0].size() -1).b(), main[1].get(main[1].size() -1).b());
-		if(r.all(main[0] != null,main[1] != null)) {
-			shape.add_points(line.a(),line.b(), next_line.b(),  next_line.a());
-			// shape.add_points(line.a(),line.b(), main[1].get(main[1].size() -1).b(),  main[0].get(main[0].size() -1).b());
-		}
-		R_Line2DX lh = null;
-		// ID PROBLEM
-		///////////////////////////
-		/////////////////////////
-		// NEED SOLUTION
-		// line.id_a(id_branch);
-		junction_lh_lc(shape, lh, line, next_line);
-		add_points_go(main[1], shape, lh);
-		add_points_return(main[0], shape, lh);
-		// add_points_go(main[1], shape, null);
-		// add_points_return(main[0], shape, null);
-		imp_shapes_orphan.add(shape);
-	}
 
 
 
 
 	private void junction_lh_lc(R_Shape shape, R_Line2DX lh, R_Line2DX lc, R_Line2DX next_lc) {
-		if(heart.size() > 0) {
-			lh = heart.get(get_abs_id(lc.id().a()));
+		int id_heart = get_abs_id(lc.id().a());
+		if(id_heart >= get_num_main()) {
+			println("Quoi:", lh, lc, next_lc);
+			println("heart size:", heart.size());
+		}
+		if(heart.size() > 0 && id_heart < get_num_main()) {
+			lh = heart.get(id_heart);
 			boolean lc_a_is = r.in_line(lh, lc.a(), marge);
 			boolean lc_b_is = r.in_line(lh, lc.b(), marge);
 			boolean next_lc_a_is = r.in_line(lh, next_lc.a(), marge);
@@ -975,94 +983,94 @@ public class R_Impact extends Rope {
 	// BUILD POLYGON CIRCLE
 	/////////////////////////
 
-	private void build_polygons_circle(int im_0, int im_1) {
-		boolean bingo_is = false;
-		int max_circle = this.get_num_circle();
-		for(int level = 0 ; level < max_circle ; level++) {
-			bingo_is = false;
-			for(R_Line2DX lc1 : this.get_circle_lines(level)) {
-				if(lc1.id_a() == im_0 && !lc1.mute_is()) {
-					for(int m = level + 1 ; m < max_circle ; m++) {
-						for(R_Line2DX lc2 : this.get_circle_lines(m)) {
-							if(lc2.id_a() == im_0 && !lc2.mute_is()) {
-								create_polygon_circle(lc1, lc2, im_0, im_1, level);
-								bingo_is = true;
-								break;
-							}
-						}
-						if(bingo_is) break;
-					}
-				}
-				if(bingo_is) break;
-			}
-		}
-	}
+	// private void build_polygons_circle(int im_0, int im_1) {
+	// 	boolean bingo_is = false;
+	// 	int max_circle = this.get_num_circle();
+	// 	for(int level = 0 ; level < max_circle ; level++) {
+	// 		bingo_is = false;
+	// 		for(R_Line2DX lc1 : this.get_circle_lines(level)) {
+	// 			if(lc1.id_a() == im_0 && !lc1.mute_is()) {
+	// 				for(int m = level + 1 ; m < max_circle ; m++) {
+	// 					for(R_Line2DX lc2 : this.get_circle_lines(m)) {
+	// 						if(lc2.id_a() == im_0 && !lc2.mute_is()) {
+	// 							create_polygon_circle(lc1, lc2, im_0, im_1, level);
+	// 							bingo_is = true;
+	// 							break;
+	// 						}
+	// 					}
+	// 					if(bingo_is) break;
+	// 				}
+	// 			}
+	// 			if(bingo_is) break;
+	// 		}
+	// 	}
+	// }
 
-	private void create_polygon_circle(R_Line2DX lc1, R_Line2DX lc2, int im_0, int im_1, int level) {
-		if(heart.size() > 0) {
-			if(touch_heart_is(lc1, lc2, heart.get(im_0))) {
-				return;
-			}
-		}
-		// get R_Line2DX Main
-		ArrayList<R_Line2DX> main_a = this.get_main_lines(im_0);
-		ArrayList<R_Line2DX> main_b = this.get_main_lines(im_1);
-		// set shape
-		R_Shape shape = new R_Shape(this.pa);
-		set_use_for_polygon(lc1);
-		set_use_for_polygon(lc2);
-		shape.id(r.GRIS[4]);
-		shape.add_points(lc1.a(), lc1.b());
-		boolean add_alert_is = false;
-		if(heart.size() > 0 && shape.get_point(0).compare(shape.get_point(1), marge)) {
-			R_Line2DX lh = heart.get(im_0);
-			vec2 p0 = shape.get_point(0).xy();
-			vec2 p1 = shape.get_point(1).xy();
+	// private void create_polygon_circle(R_Line2DX lc1, R_Line2DX lc2, int im_0, int im_1, int level) {
+	// 	if(heart.size() > 0) {
+	// 		if(touch_heart_is(lc1, lc2, heart.get(im_0))) {
+	// 			return;
+	// 		}
+	// 	}
+	// 	// get R_Line2DX Main
+	// 	ArrayList<R_Line2DX> main_a = this.get_main_lines(im_0);
+	// 	ArrayList<R_Line2DX> main_b = this.get_main_lines(im_1);
+	// 	// set shape
+	// 	R_Shape shape = new R_Shape(this.pa);
+	// 	set_use_for_polygon(lc1);
+	// 	set_use_for_polygon(lc2);
+	// 	shape.id(r.GRIS[4]);
+	// 	shape.add_points(lc1.a(), lc1.b());
+	// 	boolean add_alert_is = false;
+	// 	if(heart.size() > 0 && shape.get_point(0).compare(shape.get_point(1), marge)) {
+	// 		R_Line2DX lh = heart.get(im_0);
+	// 		vec2 p0 = shape.get_point(0).xy();
+	// 		vec2 p1 = shape.get_point(1).xy();
 
-			if(!add_alert_is) {
-				add_alert_is = add_point_alert(shape, lh, lc2, p0);
-			}
+	// 		if(!add_alert_is) {
+	// 			add_alert_is = add_point_alert(shape, lh, lc2, p0);
+	// 		}
 
-			if(!add_alert_is) {
-				add_alert_is = add_point_alert(shape, lh, lc2, p1);
-			}
+	// 		if(!add_alert_is) {
+	// 			add_alert_is = add_point_alert(shape, lh, lc2, p1);
+	// 		}
 
-			if(!add_alert_is && level > 1) {
-				for(int k = level - 1 ; k > 0 ; k--) {
-					if(this.get_circle_lines(k) != null && this.get_circle_lines(k).size() > im_0) {
-						R_Line2DX lc_previous = this.get_circle_lines(k).get(im_0);
-						if(!lc_previous.mute_is()) {
-							// we keep because is not realy fix, but that's happen very rarely
-							// println("HEART CIRCLE ALERT add lc_previous", lc_previous);
-							shape.add_points(lc_previous.a(), lc_previous.b());
-							add_alert_is = true;
-							break;
-						}
-					}
-				}
-			}
+	// 		if(!add_alert_is && level > 1) {
+	// 			for(int k = level - 1 ; k > 0 ; k--) {
+	// 				if(this.get_circle_lines(k) != null && this.get_circle_lines(k).size() > im_0) {
+	// 					R_Line2DX lc_previous = this.get_circle_lines(k).get(im_0);
+	// 					if(!lc_previous.mute_is()) {
+	// 						// we keep because is not realy fix, but that's happen very rarely
+	// 						// println("HEART CIRCLE ALERT add lc_previous", lc_previous);
+	// 						shape.add_points(lc_previous.a(), lc_previous.b());
+	// 						add_alert_is = true;
+	// 						break;
+	// 					}
+	// 				}
+	// 			}
+	// 		}
 
-			if(!add_alert_is) {	
-				if(lh.b().compare(p0, marge +3)) {
-					// we keep because is not realy fix, but that's happen very rarely
-					// println("HEART CIRCLE ALERT add lh [b][a]", lh.b(), lh.a());
-					shape.add_points(lh.b(), lh.a());
-				} else {
-					shape.add_points(lh.a(), lh.b());
-				}
-				add_alert_is = true;
-			}
-		}
-		shape.add_points(lc2.b(), lc2.a());
-		if(add_alert_is) {
-			add_points_go_alert_circle(main_b, shape, null);
-		} else {
-			add_points_go(main_b, shape, null);
-		}
+	// 		if(!add_alert_is) {	
+	// 			if(lh.b().compare(p0, marge +3)) {
+	// 				// we keep because is not realy fix, but that's happen very rarely
+	// 				// println("HEART CIRCLE ALERT add lh [b][a]", lh.b(), lh.a());
+	// 				shape.add_points(lh.b(), lh.a());
+	// 			} else {
+	// 				shape.add_points(lh.a(), lh.b());
+	// 			}
+	// 			add_alert_is = true;
+	// 		}
+	// 	}
+	// 	shape.add_points(lc2.b(), lc2.a());
+	// 	if(add_alert_is) {
+	// 		add_points_go_alert_circle(main_b, shape, null);
+	// 	} else {
+	// 		add_points_go(main_b, shape, null);
+	// 	}
 
-		add_points_return(main_a, shape, null);
-		imp_shapes_circle.add(shape);
-	}
+	// 	add_points_return(main_a, shape, null);
+	// 	imp_shapes_circle.add(shape);
+	// }
 
 	// POLYGON HEART
 	//////////////////
@@ -1104,84 +1112,84 @@ public class R_Impact extends Rope {
 	// BUILD POLYGON CENTER
 	///////////////////////////
 
-	private void build_polygons_center(int im_0, int im_1) {
-		R_Line2DX lh = null;
-		R_Line2DX lc = null;
-		R_Line2DX prev_lc = null;
-		int max_circle = this.get_num_circle();
-		// REGULAR
-		boolean bingo_is = false;
-		for(int index_c = 0 ; index_c < max_circle ; index_c++) {
-			if(this.get_heart_lines().size() > 0 && im_0 < this.get_heart_lines().size()) {
-				lh = this.get_heart_lines().get(im_0);
-			}
-			if(this.get_circle_lines(index_c) != null && this.get_circle_lines(index_c).size() > 0) {
-				for(int index_lc = 0 ; index_lc < this.get_circle_lines(index_c).size() ; index_lc++) {
-					lc = this.get_circle_lines(index_c).get(index_lc);
-					if(r.all(!lc.mute_is(), id_line_circle_is(lc, im_0, im_1))) {
-						create_polygon_center(lh, lc, prev_lc, this.get_main_lines(im_0), this.get_main_lines(im_1));
-						prev_lc = lc.copy();
-						bingo_is = true;
-						break; 
-					}
-					lc = null;
-				}
-			} 	
-			if(bingo_is) {
-				bingo_is = false;
-				if(break_if(lh, lc)) {
-					break;
-				}
-			}
-		}
-	}
+	// private void build_polygons_center(int im_0, int im_1) {
+	// 	R_Line2DX lh = null;
+	// 	R_Line2DX lc = null;
+	// 	R_Line2DX prev_lc = null;
+	// 	int max_circle = this.get_num_circle();
+	// 	// REGULAR
+	// 	boolean bingo_is = false;
+	// 	for(int index_c = 0 ; index_c < max_circle ; index_c++) {
+	// 		if(this.get_heart_lines().size() > 0 && im_0 < this.get_heart_lines().size()) {
+	// 			lh = this.get_heart_lines().get(im_0);
+	// 		}
+	// 		if(this.get_circle_lines(index_c) != null && this.get_circle_lines(index_c).size() > 0) {
+	// 			for(int index_lc = 0 ; index_lc < this.get_circle_lines(index_c).size() ; index_lc++) {
+	// 				lc = this.get_circle_lines(index_c).get(index_lc);
+	// 				if(r.all(!lc.mute_is(), id_line_circle_is(lc, im_0, im_1))) {
+	// 					create_polygon_center(lh, lc, prev_lc, this.get_main_lines(im_0), this.get_main_lines(im_1));
+	// 					prev_lc = lc.copy();
+	// 					bingo_is = true;
+	// 					break; 
+	// 				}
+	// 				lc = null;
+	// 			}
+	// 		} 	
+	// 		if(bingo_is) {
+	// 			bingo_is = false;
+	// 			if(break_if(lh, lc)) {
+	// 				break;
+	// 			}
+	// 		}
+	// 	}
+	// }
 
 
 
-	private boolean break_if(R_Line2DX lh, R_Line2DX lc) {
-		if(r.any(lh == null)) {
-			return true;
-		}
-		return !r.any(r.in_line(lh.a(),lh.b(), lc.a(),marge), r.in_line(lh.a(),lh.b(), lc.b(),marge));
-	}
+	// private boolean break_if(R_Line2DX lh, R_Line2DX lc) {
+	// 	if(r.any(lh == null)) {
+	// 		return true;
+	// 	}
+	// 	return !r.any(r.in_line(lh.a(),lh.b(), lc.a(),marge), r.in_line(lh.a(),lh.b(), lc.b(),marge));
+	// }
 
 
 
-	private void create_polygon_center(R_Line2DX lh, R_Line2DX lc, R_Line2DX prev_lc, ArrayList<R_Line2DX> main_a, ArrayList<R_Line2DX> main_b) {
-		if(lc.a().compare(lc.b(), marge)) {
-			lc.id_c(Integer.MAX_VALUE); 
-			// we set to Integer.MAX_VALUE to exprim the desire to don't use in the fure
-			// for memory Integer.MIN_VALUE exprim the fact the line has never used to build polygon
-			return;
-		}
-		set_use_for_polygon(lc);
-		// int id_before = lc.id().c();
-		// set_use_for_polygon(lc);
-		// if(lc.id().c() == id_before) {
-		// 	println("id problem", id_before, lc.id().c());
-		// }
-		R_Shape shape = new R_Shape(this.pa);
-		shape.add_points(lc.a(), lc.b()); // ELEM 0 AND 1
-		if(lh != null) {
-			if(prev_lc == null) {
-				vec2 point = get_point_line_heart(lh, lc, main_a, main_b);
-				add_point_first_level_polygon_center(shape, lh, lc, point);
-			} else {
-				add_points_next_level_polygon_center(shape, lh, lc, prev_lc);
-			}	
-		} else {
-			shape.id(r.GRIS[14]);
-			// add double pos to avoir the "GO" bug when there only three points for the ArrayList acces on a square shape.
-			shape.add_points(pos, pos); 
-		}
-		add_points_go(main_b, shape, lh);
-		add_points_return(main_a, shape, lh);
+	// private void create_polygon_center(R_Line2DX lh, R_Line2DX lc, R_Line2DX prev_lc, ArrayList<R_Line2DX> main_a, ArrayList<R_Line2DX> main_b) {
+	// 	if(lc.a().compare(lc.b(), marge)) {
+	// 		lc.id_c(Integer.MAX_VALUE); 
+	// 		// we set to Integer.MAX_VALUE to exprim the desire to don't use in the fure
+	// 		// for memory Integer.MIN_VALUE exprim the fact the line has never used to build polygon
+	// 		return;
+	// 	}
+	// 	set_use_for_polygon(lc);
+	// 	// int id_before = lc.id().c();
+	// 	// set_use_for_polygon(lc);
+	// 	// if(lc.id().c() == id_before) {
+	// 	// 	println("id problem", id_before, lc.id().c());
+	// 	// }
+	// 	R_Shape shape = new R_Shape(this.pa);
+	// 	shape.add_points(lc.a(), lc.b()); // ELEM 0 AND 1
+	// 	if(lh != null) {
+	// 		if(prev_lc == null) {
+	// 			vec2 point = get_point_line_heart(lh, lc, main_a, main_b);
+	// 			add_point_first_level_polygon_center(shape, lh, lc, point);
+	// 		} else {
+	// 			add_points_next_level_polygon_center(shape, lh, lc, prev_lc);
+	// 		}	
+	// 	} else {
+	// 		shape.id(r.GRIS[14]);
+	// 		// add double pos to avoir the "GO" bug when there only three points for the ArrayList acces on a square shape.
+	// 		shape.add_points(pos, pos); 
+	// 	}
+	// 	add_points_go(main_b, shape, lh);
+	// 	add_points_return(main_a, shape, lh);
 
-		imp_shapes_center.add(shape);
-	}
+	// 	imp_shapes_center.add(shape);
+	// }
 	
-	// first level
-	//////////////
+	// // first level
+	// //////////////
 
 	private vec2 get_point_line_heart(R_Line2DX lh, R_Line2DX lc, ArrayList<R_Line2DX> main_a, ArrayList<R_Line2DX> main_b) {
 		float dist_a = r.dist(pos, lh.a());
@@ -1203,36 +1211,36 @@ public class R_Impact extends Rope {
 		}
 	}
 
-	// next level
-	////////////////
+	// // next level
+	// ////////////////
 
-	private void add_points_next_level_polygon_center(R_Shape shape, R_Line2DX lh, R_Line2DX lc, R_Line2DX prev_lc) {
-		boolean a_prev_is = false;
-		boolean b_prev_is = false;
-		boolean a_is = r.in_line(lh, lc.a(), marge);
-		boolean b_is = r.in_line(lh, lc.b(), marge);
-		shape.id(r.GRIS[12]);
-		if(r.all(!a_is, !b_is)) {
-			a_prev_is = r.in_line(lh, prev_lc.a(), marge);
-			b_prev_is = r.in_line(lh, prev_lc.b(), marge);
-			if(r.all(a_prev_is,b_prev_is)) {
-				shape.id(r.GRIS[10]);
-				shape.add_points(lh.b(), lh.a());
-				return;
-			}
-			if(a_prev_is) {
-				shape.id(r.GRIS[8]);
-				shape.add_points(prev_lc.b(), prev_lc.a(), lh.a());
-				return;
-			}
-			if(b_prev_is) {
-				shape.id(r.GRIS[6]);
-				shape.add_points(lh.b(), prev_lc.b(), prev_lc.a());
-				return;
-			}
-		}
-		shape.add_points(prev_lc.b(),prev_lc.a());
-	}
+	// private void add_points_next_level_polygon_center(R_Shape shape, R_Line2DX lh, R_Line2DX lc, R_Line2DX prev_lc) {
+	// 	boolean a_prev_is = false;
+	// 	boolean b_prev_is = false;
+	// 	boolean a_is = r.in_line(lh, lc.a(), marge);
+	// 	boolean b_is = r.in_line(lh, lc.b(), marge);
+	// 	shape.id(r.GRIS[12]);
+	// 	if(r.all(!a_is, !b_is)) {
+	// 		a_prev_is = r.in_line(lh, prev_lc.a(), marge);
+	// 		b_prev_is = r.in_line(lh, prev_lc.b(), marge);
+	// 		if(r.all(a_prev_is,b_prev_is)) {
+	// 			shape.id(r.GRIS[10]);
+	// 			shape.add_points(lh.b(), lh.a());
+	// 			return;
+	// 		}
+	// 		if(a_prev_is) {
+	// 			shape.id(r.GRIS[8]);
+	// 			shape.add_points(prev_lc.b(), prev_lc.a(), lh.a());
+	// 			return;
+	// 		}
+	// 		if(b_prev_is) {
+	// 			shape.id(r.GRIS[6]);
+	// 			shape.add_points(lh.b(), prev_lc.b(), prev_lc.a());
+	// 			return;
+	// 		}
+	// 	}
+	// 	shape.add_points(prev_lc.b(),prev_lc.a());
+	// }
 
 
 
@@ -1244,176 +1252,176 @@ public class R_Impact extends Rope {
 	// BUILD POLYGON REST
 	//////////////////////////
 
-	private void build_polygons_rest(int im_0, int im_1) {
-		R_Shape shape = new R_Shape(this.pa);
-		shape.id(r.GRIS[2]);
+	// private void build_polygons_rest(int im_0, int im_1) {
+	// 	R_Shape shape = new R_Shape(this.pa);
+	// 	shape.id(r.GRIS[2]);
 
-		// find the last circle elem not mute and add it
-		int max_circle = this.get_num_circle()-1;
-		boolean bingo_is = false;
-		// go from the max to minimum
-		for(int k = max_circle ; k >= 0 ; k--) {
-			for(R_Line2DX lc : this.get_circle_lines(k)) {
-				if(r.any(lc.id_a() == im_0, lc.id_b() == im_1) && !lc.mute_is()) {
-					create_polygon_rest(lc, shape, im_0, im_1);
-					bingo_is = true;
-					break;
-				}
-			}
-			if(bingo_is) {
-				break;
-			}
-		}
-		if(!bingo_is) {
-			create_polygon_rest(null, shape, im_0, im_1);		
-		}
+	// 	// find the last circle elem not mute and add it
+	// 	int max_circle = this.get_num_circle()-1;
+	// 	boolean bingo_is = false;
+	// 	// go from the max to minimum
+	// 	for(int k = max_circle ; k >= 0 ; k--) {
+	// 		for(R_Line2DX lc : this.get_circle_lines(k)) {
+	// 			if(r.any(lc.id_a() == im_0, lc.id_b() == im_1) && !lc.mute_is()) {
+	// 				create_polygon_rest(lc, shape, im_0, im_1);
+	// 				bingo_is = true;
+	// 				break;
+	// 			}
+	// 		}
+	// 		if(bingo_is) {
+	// 			break;
+	// 		}
+	// 	}
+	// 	if(!bingo_is) {
+	// 		create_polygon_rest(null, shape, im_0, im_1);		
+	// 	}
 		
-		imp_shapes_rest.add(shape);
-	}
+	// 	imp_shapes_rest.add(shape);
+	// }
 
-	private void create_polygon_rest(R_Line2DX lc, R_Shape shape, int im_0, int im_1) {
-		ArrayList<R_Line2DX> main_a = this.get_main_lines(im_0);
-		ArrayList<R_Line2DX> main_b = this.get_main_lines(im_1);
+	// private void create_polygon_rest(R_Line2DX lc, R_Shape shape, int im_0, int im_1) {
+	// 	ArrayList<R_Line2DX> main_a = this.get_main_lines(im_0);
+	// 	ArrayList<R_Line2DX> main_b = this.get_main_lines(im_1);
 
-		R_Line2DX lm_0_last = main_a.get(main_a.size() -1);
-		R_Line2DX lm_1_last = main_b.get(main_b.size() -1);
-		R_Line2DX lh = null;
-		if(this.get_heart_lines().size() > 0) {
-			lh = this.get_heart_lines().get(im_0);
-		}
+	// 	R_Line2DX lm_0_last = main_a.get(main_a.size() -1);
+	// 	R_Line2DX lm_1_last = main_b.get(main_b.size() -1);
+	// 	R_Line2DX lh = null;
+	// 	if(this.get_heart_lines().size() > 0) {
+	// 		lh = this.get_heart_lines().get(im_0);
+	// 	}
 
-		shape.add_points(lm_0_last.b(), lm_1_last.b());
-		int what = 0;
-		if(r.all(lc == null, lh == null)) what = 0;
-		else if(lc != null && lh == null) what = 1;
-		else if(lc == null && lh != null) what = 2;
-		else if(lc != null && lh != null) what = 3;
+	// 	shape.add_points(lm_0_last.b(), lm_1_last.b());
+	// 	int what = 0;
+	// 	if(r.all(lc == null, lh == null)) what = 0;
+	// 	else if(lc != null && lh == null) what = 1;
+	// 	else if(lc == null && lh != null) what = 2;
+	// 	else if(lc != null && lh != null) what = 3;
 		
-		if(lc != null) {
-			set_use_for_polygon(lc);
-		}
+	// 	if(lc != null) {
+	// 		set_use_for_polygon(lc);
+	// 	}
 
-		switch(what) {
-			// case 0 : double the center points to avoid the getting problem when we catch the point in the GO function
-			case 0 : shape.add_points(pos, pos); break; 
-			case 1 : shape.add_points(lc.b(), lc.a()); break;
-			case 2 : shape.add_points(lh.b(), lh.a()); break;
-			case 3 :
-				boolean lc_is_a = r.in_line(lh, lc.a(), marge);
-				boolean lc_is_b = r.in_line(lh, lc.b(), marge);
-				if(r.all(lc_is_a,lc_is_b)) {
-					shape.add_points(lh.b(), lh.a());
-				}
-				if(lc_is_a) {
-					shape.add_points(lc.b(), lc.a(), lh.a());
-					break;
-				}
-				if(lc_is_b) {
-					shape.add_points(lh.b(), lc.b(), lc.a());
-					break;
-				}
-				shape.add_points(lc.b(), lc.a());
-				break;
-		}
-		// if(lc != null) {
-		// 	set_use_for_polygon(lc);
-		// }
+	// 	switch(what) {
+	// 		// case 0 : double the center points to avoid the getting problem when we catch the point in the GO function
+	// 		case 0 : shape.add_points(pos, pos); break; 
+	// 		case 1 : shape.add_points(lc.b(), lc.a()); break;
+	// 		case 2 : shape.add_points(lh.b(), lh.a()); break;
+	// 		case 3 :
+	// 			boolean lc_is_a = r.in_line(lh, lc.a(), marge);
+	// 			boolean lc_is_b = r.in_line(lh, lc.b(), marge);
+	// 			if(r.all(lc_is_a,lc_is_b)) {
+	// 				shape.add_points(lh.b(), lh.a());
+	// 			}
+	// 			if(lc_is_a) {
+	// 				shape.add_points(lc.b(), lc.a(), lh.a());
+	// 				break;
+	// 			}
+	// 			if(lc_is_b) {
+	// 				shape.add_points(lh.b(), lc.b(), lc.a());
+	// 				break;
+	// 			}
+	// 			shape.add_points(lc.b(), lc.a());
+	// 			break;
+	// 	}
+	// 	// if(lc != null) {
+	// 	// 	set_use_for_polygon(lc);
+	// 	// }
 
-		if(heart.size() > 0) {
-			check_same_rest(shape.get_points(), marge, lh, im_0, im_1, shape);
-		}
+	// 	if(heart.size() > 0) {
+	// 		check_same_rest(shape.get_points(), marge, lh, im_0, im_1, shape);
+	// 	}
 
-		add_points_go(main_b, shape, lh);
-		add_points_return(main_a, shape, lh);
-	}
+	// 	add_points_go(main_b, shape, lh);
+	// 	add_points_return(main_a, shape, lh);
+	// }
 
 
-	private boolean check_same_rest(vec3 [] list, float marge, R_Line2DX lh, int im_0, int im_1, R_Shape shape) {
-		int same_same = 0;
-		vec2 ref = new vec2();
-		boolean lh_a_is = false;
-		boolean lh_b_is = false;
-		boolean lc_a_is = false;
-		boolean lc_b_is = false;
-		R_Line2DX lc = null;
-		for(int i = 0 ; i < list.length ; i++) {
-			vec2 v = list[i].xy();
-			if(v.compare(ref, marge) && r.all(r.greaterThanEqual(v, new vec2()))) {
-				same_same++;
-			}
-			if(lh != null) {
-				if(v.compare(lh.a(), marge)) lh_a_is = true;
-				if(v.compare(lh.b(), marge)) lh_b_is = true;
-			}
-			boolean bingo_is = false;
-			for(int k = get_num_circle() -1 ; k >= 0 ; k--) {
-				lc = null;
-				for(int icl = 0 ; icl < this.get_circle_lines(k).size() ; icl++) {
-					lc = null;
-					if(this.get_circle_lines(k).get(icl).id_a() == im_0) {
-						lc = this.get_circle_lines(k).get(icl);
-						if(!lc.mute_is()) {
-							if(v.compare(lc.a(), marge)) lc_a_is = true;
-							if(v.compare(lc.b(), marge)) lc_b_is = true;
-							bingo_is = true;
-							break;
-						}
-					}
-				}
-				if(bingo_is) {
-					break;
-				}
-			}
-			ref = v;
-		}
-		if(same_same > 0) {
-			if(r.any(lc == null, r.all(!lc_a_is, !lc_b_is)) && r.only(lh_a_is, lh_b_is)) {
-				if(lh_a_is) {
-					println("HEART LH", lh);
-					println("LH AAAAA is ", lh_a_is);
-					printArray(list);
-					println("add lh.a()",lh.a());
-					shape.add_points(lh.b());
-					return true;
-				}
-				if(lh_b_is) {
-					println("HEART LH", lh);
-					println("LH BBBBB is ", lh_b_is);
-					println("add lh.a()",lh.a());
-					shape.add_points(lh.a());
-					return true;
-				}
-			} else if(r.only(lc_a_is, lc_b_is)) {
-				if(lc_a_is) {
-					shape.add_points(lc.b());
-					return true;
-				}
-				if(lc_b_is) {
-					shape.add_points(lc.a());
-					return true;
-				}
-			} else if(r.all(lc == null, !lc_a_is, !lc_b_is, !lh_a_is, !lh_b_is)) {
-				println("HEART LH", lh);
-				printArray(list);
-				println("add lh",lh);
-				shape.add_points(lh.b(),lh.a());
-				// shape.add_points(lh.a(),lh.b());
-				return true;
-			}
-			// } else {
-			// 	if(lc != null) {
-			// 		println("======================== NOTHING HAPPEN ============================");
-			// 		println("LC", lc);
-			// 		println("LH", lh);
-			// 	} else {
-			// 		println("----------------------- NOTHING HAPPEN ------------------------------");
-			// 		println("LC", lc);
-			// 		println("LH", lh);
-			// 	}
-			// }
-		}
-		return false;
-	}
+	// private boolean check_same_rest(vec3 [] list, float marge, R_Line2DX lh, int im_0, int im_1, R_Shape shape) {
+	// 	int same_same = 0;
+	// 	vec2 ref = new vec2();
+	// 	boolean lh_a_is = false;
+	// 	boolean lh_b_is = false;
+	// 	boolean lc_a_is = false;
+	// 	boolean lc_b_is = false;
+	// 	R_Line2DX lc = null;
+	// 	for(int i = 0 ; i < list.length ; i++) {
+	// 		vec2 v = list[i].xy();
+	// 		if(v.compare(ref, marge) && r.all(r.greaterThanEqual(v, new vec2()))) {
+	// 			same_same++;
+	// 		}
+	// 		if(lh != null) {
+	// 			if(v.compare(lh.a(), marge)) lh_a_is = true;
+	// 			if(v.compare(lh.b(), marge)) lh_b_is = true;
+	// 		}
+	// 		boolean bingo_is = false;
+	// 		for(int k = get_num_circle() -1 ; k >= 0 ; k--) {
+	// 			lc = null;
+	// 			for(int icl = 0 ; icl < this.get_circle_lines(k).size() ; icl++) {
+	// 				lc = null;
+	// 				if(this.get_circle_lines(k).get(icl).id_a() == im_0) {
+	// 					lc = this.get_circle_lines(k).get(icl);
+	// 					if(!lc.mute_is()) {
+	// 						if(v.compare(lc.a(), marge)) lc_a_is = true;
+	// 						if(v.compare(lc.b(), marge)) lc_b_is = true;
+	// 						bingo_is = true;
+	// 						break;
+	// 					}
+	// 				}
+	// 			}
+	// 			if(bingo_is) {
+	// 				break;
+	// 			}
+	// 		}
+	// 		ref = v;
+	// 	}
+	// 	if(same_same > 0) {
+	// 		if(r.any(lc == null, r.all(!lc_a_is, !lc_b_is)) && r.only(lh_a_is, lh_b_is)) {
+	// 			if(lh_a_is) {
+	// 				println("HEART LH", lh);
+	// 				println("LH AAAAA is ", lh_a_is);
+	// 				printArray(list);
+	// 				println("add lh.a()",lh.a());
+	// 				shape.add_points(lh.b());
+	// 				return true;
+	// 			}
+	// 			if(lh_b_is) {
+	// 				println("HEART LH", lh);
+	// 				println("LH BBBBB is ", lh_b_is);
+	// 				println("add lh.a()",lh.a());
+	// 				shape.add_points(lh.a());
+	// 				return true;
+	// 			}
+	// 		} else if(r.only(lc_a_is, lc_b_is)) {
+	// 			if(lc_a_is) {
+	// 				shape.add_points(lc.b());
+	// 				return true;
+	// 			}
+	// 			if(lc_b_is) {
+	// 				shape.add_points(lc.a());
+	// 				return true;
+	// 			}
+	// 		} else if(r.all(lc == null, !lc_a_is, !lc_b_is, !lh_a_is, !lh_b_is)) {
+	// 			println("HEART LH", lh);
+	// 			printArray(list);
+	// 			println("add lh",lh);
+	// 			shape.add_points(lh.b(),lh.a());
+	// 			// shape.add_points(lh.a(),lh.b());
+	// 			return true;
+	// 		}
+	// 		// } else {
+	// 		// 	if(lc != null) {
+	// 		// 		println("======================== NOTHING HAPPEN ============================");
+	// 		// 		println("LC", lc);
+	// 		// 		println("LH", lh);
+	// 		// 	} else {
+	// 		// 		println("----------------------- NOTHING HAPPEN ------------------------------");
+	// 		// 		println("LC", lc);
+	// 		// 		println("LH", lh);
+	// 		// 	}
+	// 		// }
+	// 	}
+	// 	return false;
+	// }
 
 
 
@@ -1553,9 +1561,9 @@ public class R_Impact extends Rope {
 		}
 	}
 
-	private int get_use_for_polygon(R_Line2DX line) {
-		return line.id_c();
-	}
+	// private int get_use_for_polygon(R_Line2DX line) {
+	// 	return line.id_c();
+	// }
 
 	private boolean touch_heart_is(R_Line2DX lc1, R_Line2DX lc2, R_Line2DX lh) {
 		if(in_line(lh, lc1.a(), marge)) return true;
@@ -2061,9 +2069,9 @@ public class R_Impact extends Rope {
 		} else {
 			stroke(r.YELLOW);
 		}
-		show_polygon_from(imp_shapes_circle);
+		// show_polygon_from(imp_shapes_circle);
 		show_polygon_from(imp_shapes_center);
-		show_polygon_from(imp_shapes_rest);
+		// show_polygon_from(imp_shapes_rest);
 		show_polygon_from(imp_shapes_orphan);
 	}
 
