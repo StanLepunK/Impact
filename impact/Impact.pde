@@ -24,28 +24,10 @@ void draw() {
 	// bg(r.BLACK, alpha_bg);
 	background(r.GRIS[1]);
 	// println("frameRate", (int)frameRate, "alpha bg",alpha_bg);
-	// noFill();
-	// stroke(255);
-	// strokeWeight(1);
+
 	switch(which_display(10)) {
-		// case 0 : imp.show_line(); break; // ok
-		// case 1 : imp.show_line_branch(1); break;
-		// case 2 : imp.show_line_branch(2); break;
-		// case 3 : imp.show_line_branch(3); break;
-		// case 4 : imp.show_line_branch(4); break;
-		// case 5 : imp.show_line_branch(5); break;
-		// case 6 : imp.show_line_branch(6); break;
-
-		// case 0 : imp.show_line(); break; // ok
-		// case 1 : imp.show_line_circle(1); break;
-		// case 2 : imp.show_line_circle(2); break;
-		// case 3 : imp.show_line_circle(3); break;
-		// case 4 : imp.show_line_circle(4); break;
-		// case 5 : imp.show_line_circle(5); break;
-		// case 6 : imp.show_line_circle(6); break;
-
 		case 0 : show_polygon(1); impact_draw(); break;
-		case 1 : imp.show_polygon_from(imp.get_orphan_polygons()); break;
+		case 1 : imp.show_polygon_from(imp.get_polygons()); break;
 		case 2 : impact_draw(); break;
 		case 3 : show_polygon(1); break;
 		case 4 : show_polygon(0); break;
@@ -66,13 +48,14 @@ void draw() {
 void mousePressed() {
 	println("---------------------------------- souris ::::::::::::::::::::::::: ----------- ::::>",mouseX,mouseY);
 	int count = 0;
-	for(R_Shape shape : imp.get_polygons()) {
+	for(R_Shape shape : imp.get_all_polygons()) {
 		count++;
 		int area_min = 20;
 		vec3 [] arr = shape.get_points();
-		if(arr.length > 0 && arr[0].compare(arr[1], 2)) {
-			println("shape #", count, "les deux premiers sont égaux",arr[0],arr[1]);
-		}
+		
+		// if(arr.length > 0 && arr[0].compare(arr[1], 2)) {
+		// 	println("shape #", count, "les deux premiers sont égaux",arr[0],arr[1]);
+		// }
 		// if(shape.area() < area_min) {
 		// 	println("shape #", count, "inferior to",area_min);
 		// 	println("shape.area()",shape.area());
@@ -81,6 +64,8 @@ void mousePressed() {
 		if(r.in_polygon(shape, new vec2(mouseX,mouseY))) {
 			println("shape #", count, "id", shape.id(), "clicked polygon");
 			println("shape.area()",shape.area());
+			println(arr);
+			println("printArray()");
 			printArray(arr);
 		}
 	}
