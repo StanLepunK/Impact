@@ -271,12 +271,20 @@ public class R_Impact extends Rope {
 	/**
 	* return branch of all circle, it's attached to main id
 	 */
-	public ArrayList<R_Line2D> get_branch_lines(int index) {
+	public ArrayList<R_Line2D> get_branch_lines(int index, boolean only_visible_is) {
 		ArrayList<R_Line2D> list = new ArrayList<R_Line2D>();
 		for(int i = 0 ; i < circle.length ; i++) {
 			for(int k = 0 ; k < circle[i].size() ; k++) {
 				if(index == get_abs_id(circle[i].get(k).id().a())) {
-					list.add(circle[i].get(k));
+					if(only_visible_is) {
+						R_Line2D line = circle[i].get(k);
+						if(!line.mute_is()) {
+							list.add(line);
+						}
+					} else {
+						list.add( circle[i].get(k));
+					}
+					
 				}		
 			}
 		}
@@ -782,6 +790,7 @@ public class R_Impact extends Rope {
 		private void build_polygon_heart() {
 		R_Shape shape = new R_Shape(this.pa);
 		shape.id_a(r.GRIS[1]);
+		shape.id_b(-1);
 		for(R_Line2D lh : this.get_heart_lines()) {
 			shape.add_points(lh.a());
 		}
@@ -794,13 +803,13 @@ public class R_Impact extends Rope {
 	// BUILD POLYGON
 	////////////////////////
 	private void build_polygons(int id_branch) {
-		int len = get_branch_lines(id_branch).size();
+		int len = get_branch_lines(id_branch, true).size();
 		R_Line2D [] arr_branch = new R_Line2D[len];
-		arr_branch = get_branch_lines(id_branch).toArray(arr_branch);
+		arr_branch = get_branch_lines(id_branch, true).toArray(arr_branch);
 		// first element
 		for(int i = 0 ; i < len -1 ; i++) {
 			R_Line2D line =  arr_branch[i];
-			if(r.all(!line.mute_is(), line.id().c() == Integer.MIN_VALUE)) {
+			if(r.all(line.id().c() == Integer.MIN_VALUE)) {
 				create_polygon_first(line);
 				break;
 			}
@@ -842,6 +851,7 @@ public class R_Impact extends Rope {
 	private void create_polygon_last(R_Line2D line, int id_branch) {
 		R_Shape shape = new R_Shape(this.pa);
 		shape.id_a(r.GRIS[5]);
+		shape.id_b(id_branch);
 		int next_id_branch = id_branch + 1;
 		if(next_id_branch >= get_num_main()) {
 			next_id_branch = 0;
@@ -863,6 +873,7 @@ public class R_Impact extends Rope {
 		R_Shape shape = new R_Shape(this.pa);
 		set_use_for_polygon(lc);
 		shape.id_a(r.GRIS[10]);
+		shape.id_b(get_abs_id(lc.id().a()));
 		shape.add_points(next_lc.a(), next_lc.b(), lc.b(), lc.a());
 		R_Line2D lh = null;
 		junction_heart_circle(shape, lh, lc, next_lc);
@@ -878,12 +889,14 @@ public class R_Impact extends Rope {
 	private void create_polygon_first(R_Line2D lc) {
 		R_Shape shape = new R_Shape(this.pa);
 		shape.id_a(r.GRIS[12]);
+		shape.id_b(get_abs_id(lc.id().a()));
 		R_Line2D lh = null;
 		ArrayList<R_Line2D> [] main = tupple_main(lc.id().a(), lc.id().b());
 		if(heart.size() > 0) {
 			if(r.any(lc.id().a() < 0, lc.id().b() < 0)) {
 				lh = get_line_heart(lc);
 				vec2 point = get_point_line_heart(lh, lc, main[0], main[1]);
+				shape.id_a(r.GRIS[14]);
 				add_point_first_level_polygon(shape, lh, lc, point);
 			} else {
 				lh = get_line_heart(lc);
@@ -1107,7 +1120,6 @@ private void junction_heart_circle(R_Shape shape, R_Line2D lh, R_Line2D lc, R_Li
 	private void add_point_first_level_polygon(R_Shape shape, R_Line2D lh, R_Line2D lc, vec2 lh_point) {
 		boolean a_is = r.in_line(lh, lc.a(), marge);
 		boolean b_is = r.in_line(lh, lc.b(), marge);
-		shape.id_a(r.GRIS[14]);
 		if(r.all(!a_is, !b_is)) {
 			shape.add_points(lh.b(),lh.a());
 		} else {

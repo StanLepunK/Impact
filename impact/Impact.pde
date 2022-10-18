@@ -62,11 +62,19 @@ void mousePressed() {
 		// 	printArray(shape.get_points());
 		// }
 		if(r.in_polygon(shape, new vec2(mouseX,mouseY))) {
-			println("shape #", count, "id", shape.id(), "clicked polygon");
-			println("shape.area()",shape.area());
-			println(arr);
-			println("printArray()");
+			println("shape #", count);
+			int id_branch = shape.id().b();
+			println("shape ", shape.id().a(), id_branch);
 			printArray(arr);
+			if(imp.get_heart_lines().size() > 0) {
+				println("line heart", imp.get_heart_lines().get(id_branch));
+			}
+		
+			println("line branch circle from this pie:",id_branch);
+			println("num branch circle on this pie",imp.get_branch_lines(id_branch, true).size());
+			for(R_Line2D line : imp.get_branch_lines(id_branch, true)) {
+				println("line circle",line);
+			}
 		}
 	}
 }
