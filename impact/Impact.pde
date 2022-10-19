@@ -66,15 +66,30 @@ void mousePressed() {
 			int id_branch = shape.id().b();
 			println("shape ", shape.id().a(), id_branch);
 			printArray(arr);
-			if(imp.get_heart_lines().size() > 0) {
-				println("line heart", imp.get_heart_lines().get(id_branch));
+			if(id_branch != -1) {
+				if(imp.get_heart_lines().size() > 0) {
+					println("line heart", imp.get_heart_lines().get(id_branch));
+				}
+			
+				println("line branch circle from this pie:",id_branch);
+				println("num branch circle on this pie",imp.get_branch_lines(id_branch, true).size());
+				for(R_Line2D line : imp.get_branch_lines(id_branch, true)) {
+					println("line circle",line, "len", line.dist());
+				}
+				// println("polygons on this branch");
+				int num_poly = 0;
+				for(R_Shape shape_info : imp.get_polygons()) {
+					if(shape_info.id().b() == id_branch) {
+						num_poly++;
+					// 	println("polygon");
+					// 	printArray(shape_info.get_points());
+					}
+				}
+				println("there is", num_poly, "polygons on branch", id_branch);
+			} else {
+				println("it's the heart by sweet heart");
 			}
-		
-			println("line branch circle from this pie:",id_branch);
-			println("num branch circle on this pie",imp.get_branch_lines(id_branch, true).size());
-			for(R_Line2D line : imp.get_branch_lines(id_branch, true)) {
-				println("line circle",line);
-			}
+
 		}
 	}
 }

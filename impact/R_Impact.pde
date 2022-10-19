@@ -17,6 +17,8 @@ import rope.core.Rope;
 import rope.mesh.R_Shape;
 import rope.mesh.R_Line2D;
 
+import rope.vector.bvec2;
+import rope.vector.bvec4;
 import rope.vector.vec2;
 import rope.vector.vec3;
 import rope.vector.vec4;
@@ -1053,34 +1055,44 @@ private void junction_heart_circle(R_Shape shape, R_Line2D lh, R_Line2D lc, R_Li
 		int id_heart = get_abs_id(lc.id().a());
 		if(heart.size() > 0 && id_heart < get_num_main()) {
 			lh = heart.get(id_heart);
+			
+			bvec2 lc_is = new bvec2(r.in_line(lh, lc.a(), marge), 
+															r.in_line(lh, lc.b(), marge));
+			bvec2 next_lc_is = new bvec2(	r.in_line(lh, next_lc.a(), marge), 
+																		r.in_line(lh, next_lc.b(), marge));
 
-			boolean lc_a_is = r.in_line(lh, lc.a(), marge);
-			boolean lc_b_is = r.in_line(lh, lc.b(), marge);
-			boolean next_lc_a_is = r.in_line(lh, next_lc.a(), marge);
-			boolean next_lc_b_is = r.in_line(lh, next_lc.b(), marge);
-			if(lc.a().compare(lc.b(), marge)) {
-				// println("lc.a() same same lc.b()", lc);
-				// println("et le coeur dans tout ça?", lh);
-				println(shape.get_points());
-				println("lc", lc ,lc_a_is,lc_b_is);
-				println("next_lc",next_lc_a_is, next_lc_b_is);
+			bvec4 point_is = new bvec4(	lc.b().compare(lh.a(),marge),
+																	lc.b().compare(lh.b(),marge),
+																	lc.a().compare(lh.a(),marge),
+																	lc.a().compare(lh.b(),marge));
 
-			}
-			if(r.all(!next_lc_a_is, !next_lc_b_is)) {
-				if(lc_a_is && !lc_b_is) {
+			if(!next_lc_is.all()) {
+				boolean done_is = false;
+				if(lc_is.only(0)) {
+					done_is = true;
 					shape.add_points(lh.a());
-				} else if(lc_b_is && !lc_a_is) {
+				} else if(lc_is.only(1)) {
+					done_is = true;
 					shape.add_points(2,lh.b());
-				} else if(r.all(lc_a_is, lc_b_is)) {
+				} else if(lc_is.all()) {
 					float dist_a = dist(lc.barycenter(), lh.a());
 					float dist_b = dist(lc.barycenter(), lh.b());
 					if(dist_a > dist_b) {
-						println("je suis ici", lc, ">", lh.a());
+						done_is = true;
 						shape.add_points(lh.a());
 					} else {
-						println("je suis là", lc, ">", lh.b());
+						done_is = true;
 						shape.add_points(2,lh.b());
 					}
+				}
+				if(!done_is) {
+					if(point_is.only(1,3)) {
+						println("13");
+						shape.add_points(lh.a());
+					} else if(point_is.only(0,2)) {
+						println("02");
+						shape.add_points(2,lh.b());
+					} 
 				}
 			}
 		}
@@ -1186,8 +1198,6 @@ private void junction_heart_circle(R_Shape shape, R_Line2D lh, R_Line2D lc, R_Li
 			cloud.add(new vec3(this.pos().x(),this.pos().y(),family));
 		}
 	}
-
-
 
 	private void add_points(ArrayList<R_Line2D> list, R_Impact imp, int family) {
 		for(R_Line2D line : list) {
