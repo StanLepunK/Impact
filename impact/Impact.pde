@@ -53,14 +53,6 @@ void mousePressed() {
 		int area_min = 20;
 		vec3 [] arr = shape.get_points();
 		
-		// if(arr.length > 0 && arr[0].compare(arr[1], 2)) {
-		// 	println("shape #", count, "les deux premiers sont égaux",arr[0],arr[1]);
-		// }
-		// if(shape.area() < area_min) {
-		// 	println("shape #", count, "inferior to",area_min);
-		// 	println("shape.area()",shape.area());
-		// 	printArray(shape.get_points());
-		// }
 		if(r.in_polygon(shape, new vec2(mouseX,mouseY))) {
 			println("shape #", count);
 			int id_branch = shape.id().b();
@@ -76,13 +68,12 @@ void mousePressed() {
 				for(R_Line2D line : imp.get_branch_lines(id_branch, true)) {
 					println("line circle",line, "len", line.dist());
 				}
-				// println("polygons on this branch");
 				int num_poly = 0;
 				for(R_Shape shape_info : imp.get_polygons()) {
 					if(shape_info.id().b() == id_branch) {
 						num_poly++;
-					// 	println("polygon");
-					// 	printArray(shape_info.get_points());
+						println("polygon");
+						printArray(shape_info.get_points());
 					}
 				}
 				println("there is", num_poly, "polygons on branch", id_branch);
@@ -96,7 +87,6 @@ void mousePressed() {
 
 void keyPressed() {
 	impact_keypressed();
-	//println("which_display()",which_display());
 }
 
 // Utils background with alpha

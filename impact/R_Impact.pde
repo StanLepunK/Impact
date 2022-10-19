@@ -526,20 +526,16 @@ public class R_Impact extends Rope {
 		if(get_heart_normal_radius() > 0) {
 			ArrayList<R_Line2D> selected_list = new ArrayList<R_Line2D>();
 			ArrayList<R_Line2D> working_list = new ArrayList<R_Line2D>();
-			ArrayList<R_Line2D> remove_list = new ArrayList<R_Line2D>();
 			// list of vec2 point of the heart
 			vec2 [] polygon = get_heart_polygon();
 			// check all the lines web string point
 			for(R_Line2D line : circle_lines) {
-				boolean a_is = in_polygon(polygon, line.a());
-				boolean b_is = in_polygon(polygon, line.b());
-				if(a_is && b_is) {
-					remove_list.add(line);
-				} else if(!a_is && b_is) {
+				bvec2 is = new bvec2(in_polygon(polygon, line.a()), in_polygon(polygon, line.b()));
+				if(is.only(1)) {
 					working_list.add(line);
-				} else if(a_is && !b_is) {
+				} else if(is.only(0)) {
 					working_list.add(line);
-				} else {
+				} else if(!is.all()) {
 					selected_list.add(line);
 				}
 			}
@@ -566,6 +562,17 @@ public class R_Impact extends Rope {
 						break;
 					}
 				}
+			}
+			// last clean, to remove the too tiny lines that could cause problem with the buiding polygons part
+			selected_list.clear();
+			for(R_Line2D line : circle_lines) {
+				if(line.dist() > 2.05) {
+					selected_list.add(line);
+				}
+			}
+			circle_lines.clear();
+			for(R_Line2D line : selected_list) {
+				circle_lines.add(line);
 			}
 		}
 	}
@@ -1086,11 +1093,7 @@ private void junction_heart_circle(R_Shape shape, R_Line2D lh, R_Line2D lc, R_Li
 					}
 				}
 				if(!done_is) {
-					if(point_is.only(1,3)) {
-						println("13");
-						shape.add_points(lh.a());
-					} else if(point_is.only(0,2)) {
-						println("02");
+					if(point_is.only(0,2)) {
 						shape.add_points(2,lh.b());
 					} 
 				}
