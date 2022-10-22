@@ -1,7 +1,5 @@
 
 
-
-
 void impact_setup(R_Impact imp) {
 	impact_build();	
 	imp.pixel_mode(2);
@@ -17,10 +15,10 @@ void impact_draw() {
 	}
 }
 
+
 void circle_draw(int mode) {
 	noFill();
 	strokeWeight(4);
-	
 	if(mode == 0) {
 		float start_colour = g.colorModeX - (g.colorModeX / 4);
 		float step_colour = g.colorModeX / imp.get_num_circle() / 2;
@@ -46,14 +44,11 @@ void impact_build() {
 	imp.build_struct(width/2, height/2);
 	imp.set_pixels(0.3, r.RED);
 	impact_build_polygon();
-
 }
 
 void impact_build_polygon() {
-		set_mute_circle();
-	//set_mute_main();
+	set_mute_circle();
 	imp.build_polygon();
-
 }
 
 // SHOW

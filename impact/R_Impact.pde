@@ -859,7 +859,7 @@ public class R_Impact extends Rope {
 
 	private void create_polygon_last(R_Line2D line, int id_branch) {
 		R_Shape shape = new R_Shape(this.pa);
-		shape.id_a(r.GRIS[5]);
+		shape.id_a(r.GRIS[15]);
 		shape.id_b(id_branch);
 		int next_id_branch = id_branch + 1;
 		if(next_id_branch >= get_num_main()) {
@@ -897,7 +897,7 @@ public class R_Impact extends Rope {
 
 	private void create_polygon_first(R_Line2D lc) {
 		R_Shape shape = new R_Shape(this.pa);
-		shape.id_a(r.GRIS[12]);
+		shape.id_a(r.GRIS[7]);
 		shape.id_b(get_abs_id(lc.id().a()));
 		R_Line2D lh = null;
 		ArrayList<R_Line2D> [] main = tupple_main(lc.id().a(), lc.id().b());
@@ -905,7 +905,7 @@ public class R_Impact extends Rope {
 			if(r.any(lc.id().a() < 0, lc.id().b() < 0)) {
 				lh = get_line_heart(lc);
 				vec2 point = get_point_line_heart(lh, lc, main[0], main[1]);
-				shape.id_a(r.GRIS[14]);
+				shape.id_a(r.GRIS[6]);
 				add_point_first_level_polygon(shape, lh, lc, point);
 			} else {
 				lh = get_line_heart(lc);
@@ -1591,7 +1591,8 @@ private void junction_heart_circle(R_Shape shape, R_Line2D lh, R_Line2D lc, R_Li
 	}
 
 	private void show_polygon_from(ArrayList<R_Shape> list) {
-		boolean display_all = !keyPressed;
+		// boolean display_all = !keyPressed;
+		boolean display_all = true;
 		for(R_Shape shape : list) {
 			if(r.any(shape.id().a() == r.GRIS[4], 
 								shape.id().a() == r.MAGENTA, 
