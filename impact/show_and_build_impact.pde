@@ -51,8 +51,44 @@ void impact_build_polygon() {
 	imp.build_polygon();
 }
 
-// SHOW
+// SHOW NODES
 ////////////////////
+
+void show_nodes() {
+	// imp.show_nodes(); basic show who depend of the id node
+	noFill();
+	stroke(r.WHITE);
+	for(R_Node node : imp.get_nodes()) {
+		float size = node.id().b();
+		vec2 mouse = new vec2(mouseX, mouseY);
+		if(node.pos().xy().compare(mouse, size)) {
+			fill(r.MAGENTA);
+		} else {
+			noFill();
+		}
+		switch(node.id().a()) {
+			case 0:
+				stroke(r.CYAN);
+				circle(node.x(), node.y(), size);
+				break;
+			case 1:
+				stroke(r.MAGENTA);
+				circle(node.x(), node.y(), size);
+				break;
+			case 2:
+				stroke(r.YELLOW);
+				circle(node.x(), node.y(), size);
+				break;
+			default:
+				stroke(r.WHITE);
+				circle(node.x(), node.y(), size);
+				break;
+		}
+	}
+}
+
+
+
 
 // SHOW POLYGON
 void show_polygon(int mode) {

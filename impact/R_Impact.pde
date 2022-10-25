@@ -16,6 +16,7 @@ import rope.core.Rope;
 
 import rope.mesh.R_Shape;
 import rope.mesh.R_Line2D;
+import rope.mesh.R_Node;
 
 import rope.vector.bvec2;
 import rope.vector.bvec4;
@@ -36,9 +37,9 @@ public class R_Impact extends Rope {
 	private ArrayList<R_Shape> imp_shapes_center = new ArrayList<R_Shape>();
 	private ArrayList<R_Shape> imp_shapes = new ArrayList<R_Shape>();
 	// POINT
-	private ArrayList<vec3> cloud = new ArrayList<vec3>();
+	private ArrayList<R_Node> nodes = new ArrayList<R_Node>();
 
-	private vec2 pos;
+	private vec3 pos;
 
 	private int mode = LINE;
 	private float marge = 2; // use for in_line detection
@@ -56,7 +57,7 @@ public class R_Impact extends Rope {
 	
 	public R_Impact(PApplet pa) {
 		this.pa = pa;
-		pos = new vec2();
+		pos = new vec3();
 		float growth = sqrt(pow(this.pa.width,2) + pow(this.pa.height,2))/this.base;
 		// It's very small value for the result, there is something weird
 		float main_growth_angle = PI * 0.02;
@@ -68,7 +69,7 @@ public class R_Impact extends Rope {
 	public R_Impact(PApplet pa, int base) {
 		this.pa = pa;
 		this.base = base;
-		pos = new vec2();
+		pos = new vec3();
 		float growth = sqrt(pow(this.pa.width,2) + pow(this.pa.height,2))/this.base;
 		// It's very small value for the result, there is something weird
 		float main_growth_angle = PI * 0.02;
@@ -157,7 +158,7 @@ public class R_Impact extends Rope {
 	//////////////////////////////
 
 	public vec2 pos() {
-		return this.pos;
+		return this.pos.xy();
 	}
 
 	public int get_mode() {
@@ -301,8 +302,8 @@ public class R_Impact extends Rope {
 		return fail;
 	}
 
-	public ArrayList<vec3> get_cloud() {
-		return cloud;
+	public ArrayList<R_Node> get_nodes() {
+		return nodes;
 	}
 
 	// get polygon
@@ -400,7 +401,7 @@ public class R_Impact extends Rope {
 	}
 
 	public void build_struct(int x, int y) {
-		this.pos.set(x,y);
+		this.pos.set(x,y,0);
 		build_main();
 		build_heart();
   	
@@ -415,7 +416,7 @@ public class R_Impact extends Rope {
 	  		build_circle(start_value);
 	  		for(int i = 0 ; i < get_num_circle() ; i++) {
 	  			for(R_Line2D line : circle[i]) {
-						if(line.a().compare(this.pos,area)) {
+						if(line.a().compare(this.pos.xy(),area)) {
 	  					threshold++;
 	  				}
 	  			}
@@ -429,7 +430,7 @@ public class R_Impact extends Rope {
   	}
   	build_circle(0);
 		set_id_circle();
-		add_cloud_points();	
+		add_nodes();	
 	}
 
 
@@ -469,7 +470,7 @@ public class R_Impact extends Rope {
 
 	private void main_impl(int index, float angle) {
 		float range_jit = TAU / get_num_main() * 0.1;
-		vec2 a = pos;
+		vec2 a = pos.xy();
 		vec2 b = new vec2();
 		float dist = 0;
 		boolean start_is = true;
@@ -489,7 +490,9 @@ public class R_Impact extends Rope {
 
 			R_Line2D line = new R_Line2D(this.pa);
 			if(start_is) {
-				line.set(a, b);
+				line.set_b(b);
+				line.set_a(a);
+				// line.pointer_a(pos);
 			} else {
 				line.set_b(b);
 				line.pointer_a(main[index].get(i-1).pointer_b());
@@ -503,7 +506,6 @@ public class R_Impact extends Rope {
 			if(start_is) {
 				a = b.copy();
 			}
-			
 			start_is = false;
 		}
 	}
@@ -615,7 +617,7 @@ public class R_Impact extends Rope {
 			jump_is = adjust_string_web(circle_lines, line, buf_meet, tupple, good_tupple_is, jump_is);
 
 			if(mode == SPIRAL) {
-				buf_dist = dist(line.b(),this.pos);
+				buf_dist = dist(line.b(),this.pos.xy());
 			}
 
 			// close the circle line
@@ -869,7 +871,7 @@ public class R_Impact extends Rope {
 				last_line = heart.get(id_branch);
 			} else {
 				// here we make a line like a point to keep the structure shape with 4 points, for the go and return function
-				last_line = new R_Line2D(this.pa, pos, pos);
+				last_line = new R_Line2D(this.pa, pos.xy(), pos.xy());
 				last_line.id_a(id_branch);
 			}
 			if(last_line != null) {
@@ -1146,8 +1148,8 @@ private void junction_heart_circle(R_Shape shape, R_Line2D lh, R_Line2D lc, R_Li
 
 
 	private vec2 get_point_line_heart(R_Line2D lh, R_Line2D lc, ArrayList<R_Line2D> main_a, ArrayList<R_Line2D> main_b) {
-		float dist_a = r.dist(pos, lh.a());
-		float dist_b = r.dist(pos, lh.b());
+		float dist_a = r.dist(pos.xy(), lh.a());
+		float dist_b = r.dist(pos.xy(), lh.b());
 		if(dist_a < dist_b) {
 			return lh.a();
 		}
@@ -1201,39 +1203,43 @@ private void junction_heart_circle(R_Shape shape, R_Line2D lh, R_Line2D lc, R_Li
 	// BUILD CLOUD POINT
 	//////////////////////////////////
 
-	private void add_cloud_points() {
-		cloud.clear();
+	private void add_nodes() {
+		nodes.clear();
 		int family = 0;
 		// main point
 		for(int i = 0 ; i < this.get_num_main() ; i++) {
 			family = 0;
-			add_points(this.get_main_lines(i), imp, family);
+			add_nodes_impl(this.get_main_lines(i), imp, family);
 		}
 		// circle point
 		for(int i = 0 ; i < this.get_num_circle() ; i++) {
 			family = 1;
-			add_points(this.get_circle_lines(i), imp, family);
+			add_nodes_impl(this.get_circle_lines(i), imp, family);
 		}
 		// heart
 		family = 2;
-		add_points(this.get_heart_lines(), imp, family);
+		add_nodes_impl(this.get_heart_lines(), imp, family);
 		if(this.get_heart_polygon() != null) {
 			vec2 [] polygon = this.get_heart_polygon();
 		} else {
-			cloud.add(new vec3(this.pos().x(),this.pos().y(),family));
+			R_Node node = new R_Node(this.pos);
+			node.id(family, 15,0,0,0,0);
+			nodes.add(node);
 		}
 	}
 
-	private void add_points(ArrayList<R_Line2D> list, R_Impact imp, int family) {
+	private void add_nodes_impl(ArrayList<R_Line2D> list, R_Impact imp, int family) {
 		for(R_Line2D line : list) {
 			// check the center
 			boolean a_is = this.pos().compare(line.a(), new vec2(marge));
 			boolean b_is = this.pos().compare(line.b(), new vec2(marge));
-			if(r.all((r.any(r.all(!a_is, !b_is, !line.mute_is()),!this.use_mute_is())),!a_is,!b_is)) { // that's work but too much complex
-				vec3 a = new vec3(line.a().x(), line.a().y(), family);
-				cloud.add(a);
-				vec3 b = new vec3(line.b().x(), line.b().y(), family);
-				cloud.add(b);
+			if(r.all((r.any(r.all(!a_is, !b_is, !line.mute_is()),!this.use_mute_is())),!a_is,!b_is)) {
+				R_Node node_a = new R_Node(line.pointer_a());
+				node_a.id(family, 15,0,0,0,0);
+				nodes.add(node_a);
+				R_Node node_b = new R_Node(line.pointer_b());
+				node_b.id(family, 15,0,0,0,0);
+				nodes.add(node_b);
 			}
 		}
 	}
@@ -1641,26 +1647,26 @@ private void junction_heart_circle(R_Shape shape, R_Line2D lh, R_Line2D lc, R_Li
 	// SHOW POINT
 	//////////////////
 
-	public void show_cloud() {
+	public void show_nodes() {
 		noFill();
 		stroke(WHITE);
-		for(vec3 p : cloud) {
-			switch((int)p.z()) {
+		for(R_Node node : nodes) {
+			switch(node.id().a()) {
 				case 0:
 					stroke(CYAN);
-					circle(p.x(), p.y(), 15);
+					circle(node.x(), node.y(), node.id().b());
 					break;
 				case 1:
 					stroke(MAGENTA);
-					circle(p.x(), p.y(), 15);
+					circle(node.x(), node.y(), node.id().b());
 					break;
 				case 2:
 					stroke(YELLOW);
-					circle(p.x(), p.y(), 15);
+					circle(node.x(), node.y(), node.id().b());
 					break;
 				default:
 					stroke(WHITE);
-					circle(p.x(), p.y(), 15);
+					circle(node.x(), node.y(), node.id().b());
 					break;
 			}
 		}

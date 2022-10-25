@@ -32,8 +32,8 @@ void draw() {
 		case 3 : show_polygon(1); break;
 		case 4 : show_polygon(0); break;
 		case 5 : show_polygon(-1); break;
-		case 6 : show_polygon(1); impact_draw(); imp.show_cloud(); break;
-		case 7 : impact_draw(); imp.show_cloud(); break;
+		case 6 : show_polygon(1); impact_draw(); show_nodes(); break;
+		case 7 : impact_draw(); show_nodes(); break;
 		case 8 : impact_draw(); break;
 		case 9 : circle_draw(0); break;
 		case 10 : circle_draw(1); break;
@@ -44,6 +44,8 @@ void draw() {
 	fill(r.CYAN);
 	text(info, mouseX,mouseY);
 }
+
+
 
 void mousePressed() {
 	println("---------------------------------- souris ::::::::::::::::::::::::: ----------- ::::>",mouseX,mouseY);
