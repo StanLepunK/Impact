@@ -60,8 +60,17 @@ void show_nodes() {
 	stroke(r.WHITE);
 	for(R_Node node : imp.get_nodes()) {
 		float size = node.id().b();
-		vec2 mouse = new vec2(mouseX, mouseY);
-		if(node.pos().xy().compare(mouse, size)) {
+		vec3 mouse = new vec3(mouseX, mouseY, 0);
+		if(node.pos().compare(mouse, size)) {
+			println("node.pos().xy()",node.pos().xy());
+			if(mousePressed) {
+				node.pointer(mouse);
+			}
+		// vec2 mouse = new vec2(mouseX, mouseY);	
+		// if(node.pos().xy().compare(mouse, size)) {
+		// 	println("node.pos().xy()",node.pos().xy());
+		// 	node.pos(mouse);
+			// node.pos(mouse);
 			fill(r.MAGENTA);
 		} else {
 			noFill();

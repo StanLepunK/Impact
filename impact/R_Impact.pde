@@ -1222,7 +1222,8 @@ private void junction_heart_circle(R_Shape shape, R_Line2D lh, R_Line2D lc, R_Li
 		if(this.get_heart_polygon() != null) {
 			vec2 [] polygon = this.get_heart_polygon();
 		} else {
-			R_Node node = new R_Node(this.pos);
+			R_Node node = new R_Node();
+			node.pointer(this.pos);
 			node.id(family, 15,0,0,0,0);
 			nodes.add(node);
 		}
@@ -1234,10 +1235,12 @@ private void junction_heart_circle(R_Shape shape, R_Line2D lh, R_Line2D lc, R_Li
 			boolean a_is = this.pos().compare(line.a(), new vec2(marge));
 			boolean b_is = this.pos().compare(line.b(), new vec2(marge));
 			if(r.all((r.any(r.all(!a_is, !b_is, !line.mute_is()),!this.use_mute_is())),!a_is,!b_is)) {
-				R_Node node_a = new R_Node(line.pointer_a());
+				R_Node node_a = new R_Node();
+				node_a.pointer(line.pointer_a());
 				node_a.id(family, 15,0,0,0,0);
 				nodes.add(node_a);
-				R_Node node_b = new R_Node(line.pointer_b());
+				R_Node node_b = new R_Node();
+				node_b.pointer(line.pointer_b());
 				node_b.id(family, 15,0,0,0,0);
 				nodes.add(node_b);
 			}
