@@ -20,7 +20,7 @@ void setup() {
 
 	lines[0] = new R_Line2D(this,a,b);
 
-	puppet.set(lines[0].coord(0.5));
+	puppet.set(lines[0].point(0.5));
 
 	lines[1] = new R_Line2D(this);
 	lines[1].pointer(c.xyz(),puppet);

@@ -566,6 +566,7 @@ public class R_Impact extends Rope {
 			// last clean, to remove the too tiny lines that could cause problem with the buiding polygons part
 			selected_list.clear();
 			for(R_Line2D line : circle_lines) {
+				// here 2.05 is the threshold to remove smaller line
 				if(line.dist() > 2.05) {
 					selected_list.add(line);
 				}
@@ -672,7 +673,7 @@ public class R_Impact extends Rope {
 	private vec2 [] meet_point(R_Line2D line, boolean two_points_is) {
 		// the temporary list to work
 		ArrayList<ArrayList> buf_list = new ArrayList<ArrayList>();
-		for(int i = 0; i < main.length ; i++) {
+		for(int i = 0 ; i < main.length ; i++) {
 			ArrayList<R_Line2D> temp = new ArrayList<R_Line2D>();
 			// put the first point to center of the impact
 			R_Line2D temp_line_first = main[i].get(0);
@@ -713,21 +714,30 @@ public class R_Impact extends Rope {
 			for(int k = 0 ; k < main.length ; k++) {
 				for(R_Line2D lc : circle[i]) {
 					// id from main
+					int id_segment = 0;
 					for(R_Line2D lm : main[k]) {
-						if(in_line(lm,lc.a(),marge)) lc.id_a(k);
-						if(in_line(lm,lc.b(),marge)) lc.id_b(k);
+						if(in_line(lm,lc.a(),marge)) {
+							lc.id_a(k);
+							lc.id_c(id_segment);
+						}
+						if(in_line(lm,lc.b(),marge)) {
+							lc.id_b(k);
+							lc.id_d(id_segment);
+						}
+						id_segment++;
 					}
 					// id from heart, we minus by one to avoid a conflict with the 0 ID
 					for(int m = 0 ; m <  heart.size() ; m++) {
 						R_Line2D lh = heart.get(m);
 						if(lc.id().a() == Integer.MIN_VALUE && in_line(lh,lc.a(),marge)) {
 							lc.id_a(-m-1);
+							lc.id_c(0);
 						}
 						if(lc.id().b() == Integer.MIN_VALUE && in_line(lh,lc.b(),marge)) {
 							lc.id_b(-m-1);
+							lc.id_d(0);
 						}
 					}
-
 				}
 			}
 		}
@@ -818,7 +828,9 @@ public class R_Impact extends Rope {
 		// first element
 		for(int i = 0 ; i < len -1 ; i++) {
 			R_Line2D line =  arr_branch[i];
-			if(r.all(line.id().c() == Integer.MIN_VALUE)) {
+			
+			if(r.all(line.id().f() == Integer.MIN_VALUE)) {
+				println("FIRST line.id()", line.id(), "branch",  id_branch ,"segment", i);
 				create_polygon_first(line);
 				break;
 			}
@@ -830,7 +842,9 @@ public class R_Impact extends Rope {
 			R_Line2D line =  arr_branch[i];
 			for(int k = i + 1 ; k < len ; k++) {
 				R_Line2D next_line =  arr_branch[k];
-				if(r.all(!line.mute_is(), ! next_line.mute_is(), line.id().c() == Integer.MIN_VALUE)) {
+				
+				if(r.all(!line.mute_is(), ! next_line.mute_is(), line.id().f() == Integer.MIN_VALUE)) {
+					println("CURRENT line.id()", line.id(), "branch",  id_branch ,"segment", k);
 					create_polygon_current(line, next_line);
 					last_index = k;
 					break;
@@ -1144,10 +1158,10 @@ private void junction_heart_circle(R_Shape shape, R_Line2D lh, R_Line2D lc, R_Li
 
 
 	private void set_use_for_polygon(R_Line2D line) {
-		if(line.id().c() == Integer.MIN_VALUE) {
-			line.id_c(1);
+		if(line.id().f() == Integer.MIN_VALUE) {
+			line.id_f(1);
 		} else {
-			line.id_c(line.id().c() + 1);
+			line.id_f(line.id().f() + 1);
 		}
 	}
 
