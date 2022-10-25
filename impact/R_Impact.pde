@@ -469,13 +469,11 @@ public class R_Impact extends Rope {
 
 	private void main_impl(int index, float angle) {
 		float range_jit = TAU / get_num_main() * 0.1;
-
-		float ax = pos.x();
-		float ay = pos.y();
-		float bx = 0;
-		float by = 0;
-
+		vec2 a = pos;
+		vec2 b = new vec2();
 		float dist = 0;
+		boolean start_is = true;
+
 		for(int i = 0 ; i < get_iter_main() ; i++) {
 			// distance
 			float buf_dist = random(get_growth_main()/10,get_growth_main());
@@ -486,19 +484,31 @@ public class R_Impact extends Rope {
 			float final_angle = angle + dir;
 			float x = sin(final_angle) * dist;
 			float y = cos(final_angle) * dist;
-			bx = x + this.pos.x();
-			by = y + this.pos.y();
-			R_Line2D line = new R_Line2D(this.pa, ax, ay, bx, by);
+			b.x(x + this.pos.x());
+			b.y(y + this.pos.y());
+
+			R_Line2D line = new R_Line2D(this.pa);
+			if(start_is) {
+				line.set(a, b);
+			} else {
+				line.set_b(b);
+				line.pointer_a(main[index].get(i-1).pointer_b());
+			}
 			if(i == 0 && get_heart_normal_radius() > 0) {
 				line.change(-get_heart_normal_radius(),0);
 				// to make the changement for ever !!!
 				line.set(line.a(),line.b());
 			}
 			main[index].add(line);
-			ax = bx;
-			ay = by;
+			if(start_is) {
+				a = b.copy();
+			}
+			
+			start_is = false;
 		}
 	}
+
+
 
 
 
@@ -830,7 +840,6 @@ public class R_Impact extends Rope {
 			R_Line2D line =  arr_branch[i];
 			
 			if(r.all(line.id().f() == Integer.MIN_VALUE)) {
-				println("FIRST line.id()", line.id(), "branch",  id_branch ,"segment", i);
 				create_polygon_first(line);
 				break;
 			}
@@ -844,7 +853,6 @@ public class R_Impact extends Rope {
 				R_Line2D next_line =  arr_branch[k];
 				
 				if(r.all(!line.mute_is(), ! next_line.mute_is(), line.id().f() == Integer.MIN_VALUE)) {
-					println("CURRENT line.id()", line.id(), "branch",  id_branch ,"segment", k);
 					create_polygon_current(line, next_line);
 					last_index = k;
 					break;
