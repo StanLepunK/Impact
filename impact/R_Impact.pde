@@ -470,13 +470,16 @@ public class R_Impact extends Rope {
 
 	private void main_impl(int index, float angle) {
 		float range_jit = TAU / get_num_main() * 0.1;
-		vec2 a = pos.xy();
-		vec2 b = new vec2();
+		// vec2 a = pos.xy();
+		// vec2 b = new vec2();
+		vec3 a = pos.copy();
+		// vec3 b = new vec3();
 		float dist = 0;
 		boolean start_is = true;
 
 		for(int i = 0 ; i < get_iter_main() ; i++) {
 			// distance
+			vec3 b = new vec3();
 			float buf_dist = random(get_growth_main()/10,get_growth_main());
 			dist += buf_dist;
 			// direction
@@ -490,12 +493,11 @@ public class R_Impact extends Rope {
 
 			R_Line2D line = new R_Line2D(this.pa);
 			if(start_is) {
-				line.set_b(b);
-				line.set_a(a);
-				// line.pointer_a(pos);
+				line.pointer_a(a);
+				line.pointer_b(b);
 			} else {
-				line.set_b(b);
 				line.pointer_a(main[index].get(i-1).pointer_b());
+				line.pointer_b(b);
 			}
 			if(i == 0 && get_heart_normal_radius() > 0) {
 				line.change(-get_heart_normal_radius(),0);
@@ -504,7 +506,7 @@ public class R_Impact extends Rope {
 			}
 			main[index].add(line);
 			if(start_is) {
-				a = b.copy();
+				a = b;
 			}
 			start_is = false;
 		}
@@ -516,8 +518,6 @@ public class R_Impact extends Rope {
 
 	// BUILD CIRCLE
 	//////////////////////////
-
-
 
 	private void build_circle(float start_value) {
 	  circle = new ArrayList[get_num_circle()];
@@ -1209,16 +1209,21 @@ private void junction_heart_circle(R_Shape shape, R_Line2D lh, R_Line2D lc, R_Li
 		// main point
 		for(int i = 0 ; i < this.get_num_main() ; i++) {
 			family = 0;
-			add_nodes_impl(this.get_main_lines(i), imp, family);
+			if(i == this.get_num_main() -1) {
+				add_nodes_impl(this.get_main_lines(i), imp, family, true);
+			} else {
+				add_nodes_impl(this.get_main_lines(i), imp, family, false);
+			}
+			
 		}
 		// circle point
 		for(int i = 0 ; i < this.get_num_circle() ; i++) {
 			family = 1;
-			add_nodes_impl(this.get_circle_lines(i), imp, family);
+			add_nodes_impl(this.get_circle_lines(i), imp, family, false);
 		}
-		// heart
+		// // heart
 		family = 2;
-		add_nodes_impl(this.get_heart_lines(), imp, family);
+		add_nodes_impl(this.get_heart_lines(), imp, family, false);
 		if(this.get_heart_polygon() != null) {
 			vec2 [] polygon = this.get_heart_polygon();
 		} else {
@@ -1229,7 +1234,7 @@ private void junction_heart_circle(R_Shape shape, R_Line2D lh, R_Line2D lc, R_Li
 		}
 	}
 
-	private void add_nodes_impl(ArrayList<R_Line2D> list, R_Impact imp, int family) {
+	private void add_nodes_impl(ArrayList<R_Line2D> list, R_Impact imp, int family, boolean add_last_is) {
 		for(R_Line2D line : list) {
 			// check the center
 			boolean a_is = this.pos().compare(line.a(), new vec2(marge));
@@ -1239,10 +1244,12 @@ private void junction_heart_circle(R_Shape shape, R_Line2D lh, R_Line2D lc, R_Li
 				node_a.pointer(line.pointer_a());
 				node_a.id(family, 15,0,0,0,0);
 				nodes.add(node_a);
-				R_Node node_b = new R_Node();
-				node_b.pointer(line.pointer_b());
-				node_b.id(family, 15,0,0,0,0);
-				nodes.add(node_b);
+				if(add_last_is) {
+					R_Node node_b = new R_Node();
+					node_b.pointer(line.pointer_b());
+					node_b.id(family, 15,0,0,0,0);
+					nodes.add(node_b);
+				}
 			}
 		}
 	}

@@ -34,6 +34,7 @@ void draw() {
 		case 5 : show_polygon(-1); break;
 		case 6 : show_polygon(1); impact_draw(); show_nodes(); break;
 		case 7 : impact_draw(); show_nodes(); break;
+		// case 7 : show_nodes(); break;
 		case 8 : impact_draw(); break;
 		case 9 : circle_draw(0); break;
 		case 10 : circle_draw(1); break;

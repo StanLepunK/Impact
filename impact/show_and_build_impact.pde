@@ -61,19 +61,31 @@ void show_nodes() {
 	for(R_Node node : imp.get_nodes()) {
 		float size = node.id().b();
 		vec3 mouse = new vec3(mouseX, mouseY, 0);
-		if(node.pos().compare(mouse, size)) {
-			println("node.pos().xy()",node.pos().xy());
-			if(mousePressed) {
-				node.pointer(mouse);
-			}
-		// vec2 mouse = new vec2(mouseX, mouseY);	
-		// if(node.pos().xy().compare(mouse, size)) {
+		// if(node.pos().compare(mouse, size)) {
 		// 	println("node.pos().xy()",node.pos().xy());
-		// 	node.pos(mouse);
-			// node.pos(mouse);
+		// 	if(mousePressed) {
+		// 		node.pointer(mouse);
+		// 	}
+
+		if(mousePressed && node.pos().compare(mouse, size)) {
+			println("BEFORE node.pos()", node.pos());
+		}
+
+
+		if(node.pos().compare(mouse, size)) {
+			if(mousePressed) {
+				// println("frameCount", frameCount);
+				println("IN node.pos().xy()",node.pos().xy());
+				// println("IN mouse.xy()",mouse.xy());
+				node.pos(mouse.xy());
+				println("OUT node.pos().xy()",node.pos().xy());
+			}
 			fill(r.MAGENTA);
 		} else {
 			noFill();
+		}
+		if(mousePressed && node.pos().compare(mouse, size)) {
+			println("AFTER node.pos()", node.pos());
 		}
 		switch(node.id().a()) {
 			case 0:
@@ -111,7 +123,6 @@ void show_lines() {
 	noFill();
 	stroke(r.WHITE);
 	strokeWeight(1);
-	imp.show_line();
 	imp.show_line_main();
 	stroke(r.YELLOW);
 	imp.show_line_circle();
