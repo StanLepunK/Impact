@@ -51,8 +51,22 @@ void impact_build_polygon() {
 	imp.build_polygon();
 }
 
-// SHOW NODES
+// NODES
 ////////////////////
+
+void update_nodes(R_Node node, float diam) {
+	if(node.id().a() == 0) {
+		vec3 mouse = new vec3(mouseX, mouseY, 0);
+		if(node.pos().compare(mouse, diam * 0.5)) {
+			if(mousePressed) {
+				node.pos(mouse.xy());
+			}
+			fill(r.MAGENTA);
+		} else {
+			noFill();
+		}
+	}
+}
 
 void show_nodes() {
 	// imp.show_nodes(); basic show who depend of the id node
@@ -60,33 +74,7 @@ void show_nodes() {
 	stroke(r.WHITE);
 	for(R_Node node : imp.get_nodes()) {
 		float size = node.id().b();
-		vec3 mouse = new vec3(mouseX, mouseY, 0);
-		// if(node.pos().compare(mouse, size)) {
-		// 	println("node.pos().xy()",node.pos().xy());
-		// 	if(mousePressed) {
-		// 		node.pointer(mouse);
-		// 	}
-
-		if(mousePressed && node.pos().compare(mouse, size)) {
-			println("BEFORE node.pos()", node.pos());
-		}
-
-
-		if(node.pos().compare(mouse, size)) {
-			if(mousePressed) {
-				// println("frameCount", frameCount);
-				println("IN node.pos().xy()",node.pos().xy());
-				// println("IN mouse.xy()",mouse.xy());
-				node.pos(mouse.xy());
-				println("OUT node.pos().xy()",node.pos().xy());
-			}
-			fill(r.MAGENTA);
-		} else {
-			noFill();
-		}
-		if(mousePressed && node.pos().compare(mouse, size)) {
-			println("AFTER node.pos()", node.pos());
-		}
+		update_nodes(node, size);
 		switch(node.id().a()) {
 			case 0:
 				stroke(r.CYAN);

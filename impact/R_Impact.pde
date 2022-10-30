@@ -470,10 +470,7 @@ public class R_Impact extends Rope {
 
 	private void main_impl(int index, float angle) {
 		float range_jit = TAU / get_num_main() * 0.1;
-		// vec2 a = pos.xy();
-		// vec2 b = new vec2();
 		vec3 a = pos.copy();
-		// vec3 b = new vec3();
 		float dist = 0;
 		boolean start_is = true;
 
