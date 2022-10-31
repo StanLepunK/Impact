@@ -74,54 +74,36 @@ void new_distribution() {
 
 class R_Puppet2D extends R_Line2D {
 	ArrayList<vec3> list = new ArrayList<vec3>();
-	ArrayList<vec3> data_list = new ArrayList<vec3>();
 	R_Puppet2D buffer;
-	// ArrayList<Float> angle = new ArrayList<Float>();
-	// ArrayList<Float> dist = new ArrayList<Float>();
+
+	vec2 start_a;
+	vec2 start_b;
 	R_Puppet2D (PApplet pa) {
 		super(pa);
+		this.start_a = new vec2();
+    this.start_b = new vec2();
 		
 	}
-	float offset_ang = 0;
+
 	vec2 test = new vec2();
 	void update() {
-
 		// a move
 		if(!a.equals(ref_a)) {
-			// print_err("AAAA");
+			// start_b.set(ref_b.xy());
+			vec2 buf_start_a = start_a.xy().sub(start_b.xy());
 			vec2 buf_a = a.xy().sub(b.xy());
 			vec2 buf_ref_a = ref_a.xy().sub(ref_b.xy());
-			float ang_a = buf_a.angle();
-			float ang_ref_a = buf_ref_a.angle();
-			float dif_ang = ang_ref_a - ang_a;
+			float ang_buf_a = buf_a.angle();
+			float ang_ref_buf_a = buf_ref_a.angle();
+			float dif_ang = ang_ref_buf_a - ang_buf_a;
 
 			for(vec3 p : list) {
 				vec2 buf_p = p.xy().sub(b.xy());
-				// vec2 buf_p = p.xy();
-				float ang_p = buf_p.angle();
-				// float new_ang = ang_p + dif_ang;
-				// float new_ang = ang_p + dif_ang + (ang_a *2);
-				if(mousePressed) {
-					offset_ang = map(sin(frameCount * 0.01), -1, 1, 0, TAU);
-				}
-				float new_ang = ang_p + dif_ang + ang_a + offset_ang;
-				// float new_ang = ang_p + dif_ang - ang_a; // same as + ang_a
-				// float new_ang = dif_ang + ang_a;
-				//float new_ang = dif_ang + ang_a - ang_p;
+				float ang_buf_p = buf_p.angle();
+				float new_ang = ang_buf_p + dif_ang + ang_buf_a + TAU - buf_start_a.angle();;
 				float dist = dist(p,b);
-				// println("distance", dist, p, b);
-				println("angle a", ang_a);
-				println("offset angle", offset_ang);
-				println("dif angle", dif_ang);
-				println("angle point", ang_p);
-				println("new angle", new_ang);
-				// println("new angle", new_ang);
 				vec2 new_pos = new vec2(projection(new_ang, dist));
-				// println("new pos", new_pos);
-				// println("p", p.xy());
-				// println("b", b.xy());
 				new_pos = add(new_pos, b.xy());
-				// println("new pos", new_pos);
 				test.set(new_pos);
 				// p.x(new_pos.x());
 				// p.y(new_pos.y());
@@ -129,16 +111,38 @@ class R_Puppet2D extends R_Line2D {
 			}
 		}
 
-
 		// b move
 		if(!b.equals(ref_b)) {
-			print_err("BBBB");
+			// start_a.set(ref_a.xy());
+			vec2 buf_start_b = start_b.xy().sub(start_a.xy());
+			vec2 buf_b = b.xy().sub(a.xy());
+			vec2 buf_ref_b = ref_b.xy().sub(ref_a.xy());
+			float ang_buf_b = buf_b.angle();
+			float ang_ref_buf_b = buf_ref_b.angle();
+			float dif_ang = ang_ref_buf_b - ang_buf_b;
+
+			for(vec3 p : list) {
+				vec2 buf_p = p.xy().sub(a.xy());
+				float ang_buf_p = buf_p.angle();
+				float new_ang = ang_buf_p + dif_ang + ang_buf_b + TAU - buf_start_b.angle();;
+				float dist = dist(p,a);
+				vec2 new_pos = new vec2(projection(new_ang, dist));
+				new_pos = add(new_pos, a.xy());
+				test.set(new_pos);
+				// p.x(new_pos.x());
+				// p.y(new_pos.y());
+
+			}
 		}
 
 	}
 
 
-
+  public void set_a(float x, float y) {
+    this.a(x,y);
+    this.ref_a(x,y);
+    this.start_a(x,y);;
+  }
 
 	public void ref_a(vec2 ref_a) {
     this.ref_a(ref_a.x(),ref_a.y());
@@ -148,12 +152,35 @@ class R_Puppet2D extends R_Line2D {
     this.ref_a.set(x,y,0);
   }
 
+	public void start_a(vec2 start_a) {
+    this.start_a(start_a.x(),start_a.y());
+  }
+  
+  public void start_a(float x, float y) {
+    this.start_a.set(x,y);
+  }
+
+
+	public void set_b(float x, float y) {
+    this.b(x,y);
+    this.ref_b(x,y);
+    this.start_b(x,y);
+  }
+
 	public void ref_b(vec2 ref_b) {
     this.ref_b(ref_b.x(),ref_b.y());
   }
   
   public void ref_b(float x, float y) {
     this.ref_b.set(x,y,0);
+  }
+
+	public void start_b(vec2 start_b) {
+    this.start_b(start_b.x(),start_b.y());
+  }
+  
+  public void start_b(float x, float y) {
+    this.start_b.set(x,y);
   }
 
 	void add(vec3... children) {
@@ -166,19 +193,8 @@ class R_Puppet2D extends R_Line2D {
 
 		for(int i = 0 ; i < children.length ; i++) {
 			list.add(children[i]);
-			vec2 proj = buffer.ortho(children[i].xy());
-			float dist = proj.dist(children[i]);
-			float marge = 1.0f;
-			float norm = buffer.normal(proj, marge);
-			// float norm = this.normal(proj, marge, false);
-			println("norm", norm);
-			float ang = point(norm).angle(children[i].xy());
-			vec3 data = new vec3(dist, norm, ang);
-			data_list.add(data);
 		}
 	}
-
-
 
 	ArrayList<vec3> get_children() {
 		return list;
@@ -186,55 +202,10 @@ class R_Puppet2D extends R_Line2D {
 
 	void clear() {
 		list.clear();
-		data_list.clear();
-		// normal.clear();
-		// angle.clear();
-		// dist.clear();
 	}
 
 	public vec2 ortho(vec2 p) {
 		vec2 proj = b.xy().ortho(a.xy(), p);
 		return new vec2(proj.x(), proj.y());
 	}
-
-
-		// void update() {
-	// 	for(vec3 data : data_list) {
-	// 		float dist = data.x();
-	// 		float normal = data.y();
-	// 		float angle = data.z();
-
-	// 		float ax = cos(angle) * dist;
-	// 		float ay = sin(angle) * dist;
-	// 		vec2 res = point(normal);
-	// 		// println("normal", normal);
-	// 		// vec2 res = new vec2(ax, ay).add(point(normal));
-	// 		circle(res.x(),res.y(), 10);
-	// 	}
-	// }
-
-	// void update() {
-	// 	for(vec3 v : list) {
-	// 		// vec2 proj = this.ortho(v.xy());
-	// 		// float dist = proj.dist(v);
-	// 		println("dist", dist);
-	// 		float norm = this.normal(proj, 1);
-	// 		float angle = a.xy().angle(proj);
-	// 		float ax = cos(angle) * dist;
-	// 		float ay = sin(angle) * dist;
-	// 		vec2 reflect = new vec2(ax,ay).add(a.xy());
-	// 		v.set(reflect);
-	// 		// circle(reflect.x(),reflect.y(), 10);
-	// 		circle(v.x(),v.y(), 10);
-
-
-	// 		// vec2 reflect = 
-	// 		// circle(proj.x(),proj.y(), 10);
-	// 	}
-	// }
-
-
-
-
-
 }
