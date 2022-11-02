@@ -37,11 +37,11 @@ void draw() {
 	}
 
 
-	if(puppet.a().compare(mouse, radius *2)) {
+	if(puppet.a().compare(mouse, radius *2) && mousePressed) {
 		puppet.a(mouse);
 	}
 
-	if(puppet.b().compare(mouse, radius *2)) {
+	if(puppet.b().compare(mouse, radius *2) && mousePressed) {
 		puppet.b(mouse);
 	}
 
