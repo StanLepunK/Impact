@@ -49,7 +49,18 @@ void draw() {
 
 	// display
 	fill(r.BLACK);
-	circle(puppet.test.x(),puppet.test.y(), 20);
+	// circle(puppet.test.x(),puppet.test.y(), 20);
+	fill(r.BLOOD);
+	R_Pair<vec3,vec3> pair = puppet.get_child(0);
+	vec3 data = pair.b();
+	// vec3 data = puppet.get_child(0).b();
+	vec2 v = puppet.point(data.x());
+
+	circle(v.x(),v.y(),10);
+	float vpx = cos(data.z())* data.y() * 2;
+	float vpy = sin(data.z())* data.y() * 2;
+	fill(r.BLACK);
+	circle(vpx,vpy,20);
 	// for(vec3 p : list) {
 	// 	circle(p.x(),p.y(), 20);
 	// }
