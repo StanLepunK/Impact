@@ -118,14 +118,27 @@ class R_Puppet2D extends R_Line2D {
 			dist = proj.dist(children[i].xy());
 			// line(children[i].x(),children[i].y(),proj.x(), proj.y());
 			// circle(proj.x(), proj.y(),10);
-			dir = proj.angle();
-			println("ortho line",children[i], proj);
-			println("children[i].xy().angle()",children[i].xy().angle());
-			println("proj.angle()",proj.angle());
-			println("this.b().angle()",this.b().angle());
-			println("this.a().angle()",this.a().angle());
-			println("this.b().angle(this.a()",this.b().angle(this.a()));
-			println("this.a().angle(this.b()",this.a().angle(this.b()));
+			float buf_dir = proj.angle();
+			println("ortho line >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>",children[i], proj);
+			float ang_child_proj = children[i].xy().angle(proj.xy());
+			float ang_proj_child = proj.xy().angle(children[i].xy());
+			float ang_b_a = this.b().angle(this.a());
+			float ang_a_b = this.a().angle(this.b());
+			println("children[i].angle(proj)", ang_child_proj); // ce sont les bonnes infos
+			println("proj.angle(children[i])", ang_proj_child); // ce sont les bonnes infos
+			println(">>> children[i].xy().angle()",children[i].xy().angle());
+			println(">>> buf_dir",buf_dir);
+			println(">>> this.b().angle()",this.b().angle());
+			println(">>> this.a().angle()",this.a().angle());
+			println("this.b().angle(this.a()", ang_b_a); // ce sont les bonnes infos
+			println("this.a().angle(this.b()", ang_a_b); // ce sont les bonnes infos
+
+			println("ang_b_a - ang_child_proj",ang_b_a - ang_child_proj); // ok
+			println("ang_child_proj - ang_b_a", ang_child_proj - ang_b_a); // ok
+			println("ang_a_b - ang_proj_child",ang_b_a - ang_proj_child); // ok
+			println("ang_proj_child - ang_a_b",ang_proj_child - ang_a_b); // ok
+
+			dir = (ang_child_proj - ang_b_a) + ang_b_a;
 			vec3 data = new vec3(norm, dist, dir);
 			println("data",data);
 

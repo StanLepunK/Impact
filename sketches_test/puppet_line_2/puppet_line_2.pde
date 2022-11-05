@@ -10,7 +10,10 @@ R_Puppet2D puppet;
 void setup() {
 	size(500,500);
 	puppet = new R_Puppet2D(this);
-	new_distribution();
+	// new_distribution();
+	puppet.set(width/2, height - (height/3), width/2,height/3);
+	vec3 child = new vec3().rand(new vec3(), new vec3(width, height,0));
+	puppet.add(child);
 }
 
 void draw() {
@@ -57,10 +60,13 @@ void draw() {
 	vec2 v = puppet.point(data.x());
 
 	circle(v.x(),v.y(),10);
-	float vpx = cos(data.z())* data.y() * 2;
-	float vpy = sin(data.z())* data.y() * 2;
+
+	float vpx = cos(data.z())* data.y();
+	float vpy = sin(data.z())* data.y();
+	vec2 vp = new vec2(vpx,vpy);
+	vp.add(puppet.ortho(pair.a().xy()));
 	fill(r.BLACK);
-	circle(vpx,vpy,20);
+	circle(vp.x(),vp.y(),20);
 	// for(vec3 p : list) {
 	// 	circle(p.x(),p.y(), 20);
 	// }
