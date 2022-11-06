@@ -33,10 +33,12 @@ void draw() {
 	textSize(24);
 	textAlign(CENTER, CENTER);
 	text("B",puppet.b().x(), puppet.b().y() - 12);
-	for(vec3 v : puppet.get_children()) {
+	for(R_Pair<vec3,vec3> pair : puppet.get_children()) {
+	// for(vec3 v : puppet.get_children()) {
 		// r.line(v,puppet);
 		fill(r.WHITE);
-		circle(v.x(),v.y(), 50);
+		circle(pair.a().x(),pair.a().y(), 50);
+		// circle(v.x(),v.y(), 50);
 	}
 
 
@@ -49,10 +51,10 @@ void draw() {
 	}
 
 	puppet.update();
+	puppet.update_children();
 
 	// display
 	fill(r.BLACK);
-	// circle(puppet.test.x(),puppet.test.y(), 20);
 	fill(r.BLOOD);
 	R_Pair<vec3,vec3> pair = puppet.get_child(0);
 	vec3 data = pair.b();
@@ -64,7 +66,7 @@ void draw() {
 	float vpx = cos(data.z())* data.y();
 	float vpy = sin(data.z())* data.y();
 	vec2 vp = new vec2(vpx,vpy);
-	vp.add(puppet.ortho(pair.a().xy()));
+	vp.add(v);
 	fill(r.BLACK);
 	circle(vp.x(),vp.y(),20);
 	// for(vec3 p : list) {

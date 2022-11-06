@@ -16,7 +16,6 @@ class R_Puppet2D extends R_Line2D {
 		
 	}
 
-	vec2 test = new vec2();
 	public void update() {
 		bvec2 is = new bvec2(!a.equals(ref_a), !b.equals(ref_b));
 		if(is.a()) {
@@ -62,8 +61,6 @@ class R_Puppet2D extends R_Line2D {
 			float new_ang = ang_buf_p + dif_ang + ang_buf + TAU - ang_buf_start;
 			float dist_p = dist(ref_p,second);
 			float ratio = dist() / start_a.dist(start_b);
-			// println("ratio", ratio);
-			// float ref_dist = this.dist_ref();
 			vec2 new_pos = new vec2(projection(new_ang, dist_p));
 			new_pos = add(new_pos, first.xy());
 			p.set(new_pos.xyz());
@@ -100,6 +97,11 @@ class R_Puppet2D extends R_Line2D {
     this.start_b.set(x,y);
   }
 
+
+  //////////////////////////////
+  // CHILDREN
+  /////////////////////////////////
+
 	public void add(vec3... children) {
 		if(buffer == null) {
 			buffer = new R_Puppet2D(this.pa);
@@ -109,55 +111,85 @@ class R_Puppet2D extends R_Line2D {
 		}
 
 		for(int i = 0 ; i < children.length ; i++) {
-			float norm = 0;
-			float dist = 0;
-			float dir = 1;
-			
-			vec2 proj = this.ortho(children[i].xy());
-			norm = this.normal(proj);
-			dist = proj.dist(children[i].xy());
-			// line(children[i].x(),children[i].y(),proj.x(), proj.y());
-			// circle(proj.x(), proj.y(),10);
-			float buf_dir = proj.angle();
-			println("ortho line >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>",children[i], proj);
-			float ang_child_proj = children[i].xy().angle(proj.xy());
-			float ang_proj_child = proj.xy().angle(children[i].xy());
-			float ang_b_a = this.b().angle(this.a());
-			float ang_a_b = this.a().angle(this.b());
-			println("children[i].angle(proj)", ang_child_proj); // ce sont les bonnes infos
-			println("proj.angle(children[i])", ang_proj_child); // ce sont les bonnes infos
-			println(">>> children[i].xy().angle()",children[i].xy().angle());
-			println(">>> buf_dir",buf_dir);
-			println(">>> this.b().angle()",this.b().angle());
-			println(">>> this.a().angle()",this.a().angle());
-			println("this.b().angle(this.a()", ang_b_a); // ce sont les bonnes infos
-			println("this.a().angle(this.b()", ang_a_b); // ce sont les bonnes infos
-
-			println("ang_b_a - ang_child_proj",ang_b_a - ang_child_proj); // ok
-			println("ang_child_proj - ang_b_a", ang_child_proj - ang_b_a); // ok
-			println("ang_a_b - ang_proj_child",ang_b_a - ang_proj_child); // ok
-			println("ang_proj_child - ang_a_b",ang_proj_child - ang_a_b); // ok
-
-			dir = (ang_child_proj - ang_b_a) + ang_b_a;
-			vec3 data = new vec3(norm, dist, dir);
-			println("data",data);
-
-
+			vec3 data = new vec3();
+			set_data_child(children[i], data);
 			R_Pair<vec3,vec3> pair = new R_Pair<vec3,vec3>(children[i], data);
 			pair_list.add(pair);
-			list.add(children[i]);
-			ref_list.add(children[i].copy());
 		}
 	}
 
-	private void update_children() {
-		for(int i = 0 ; i < ref_list.size() ; i++) {
-			ref_list.get(i).set(list.get(i));
+	private void set_data_child(vec3 src, vec3 data) {
+		float norm = 0;
+		float dist = 0;
+		float ang = 0;
+		vec2 proj = this.ortho(src.xy());
+		norm = this.normal(proj);
+		dist = proj.dist(src.xy());
+		ang = angle_impl(src.xy(), proj, true);
+		data.set(norm, dist, ang);
+	}
+
+
+
+	public void update_children() {
+		for(int i = 0 ; i < pair_list.size() ; i++) {
+			R_Pair<vec3,vec3> pair = pair_list.get(i);
+			float norm = get_child_normal(i);
+			float dist = get_child_normal(i);
+			vec2 src = get_child_point(i).xy();
+			vec2 proj = this.ortho(src);
+			float ang = angle_impl(src, proj, true);
+			pair.b().set(norm, dist, ang);
+
 		}
 	}
 
-	public ArrayList<vec3> get_children() {
-		return list;
+	private float angle_impl(vec2 point, vec2 proj, boolean classic) {
+		if(classic) {
+			float ang_proj_point = proj.angle(point);
+			float ang_a_b = this.a().angle(this.b());
+			return (ang_proj_point - ang_a_b) + ang_a_b;
+		}
+		float ang_point_proj = point.angle(proj);
+		float ang_b_a = this.b().angle(this.a());
+		return (ang_point_proj - ang_b_a) + ang_b_a;
+	}
+
+
+	public ArrayList<R_Pair> get_children() {
+		return pair_list;
+	}
+
+	public Float get_child_normal(int index) {
+		if(index >= 0 && index < pair_list.size()) {
+			R_Pair<vec3,vec3> pair = this.get_child(index);
+			return pair.b().x();
+		}
+		return Float.NaN;
+	}
+
+	public Float get_child_dist(int index) {
+		if(index >= 0 && index < pair_list.size()) {
+			R_Pair<vec3,vec3> pair = this.get_child(index);
+			return pair.b().y();
+		}
+		return Float.NaN;
+	}
+
+	public Float get_child_angle(int index) {
+		if(index >= 0 && index < pair_list.size()) {
+			R_Pair<vec3,vec3> pair = this.get_child(index);
+			return pair.b().z();
+		}
+		return Float.NaN;
+	}
+
+	public vec3 get_child_point(int index) {
+		if(index >= 0 && index < pair_list.size()) {
+			R_Pair<vec3,vec3> pair = this.get_child(index);
+			return pair.a();
+		}
+		return null;
 	}
 
 	public R_Pair get_child(int index) {
