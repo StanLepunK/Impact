@@ -135,10 +135,11 @@ class R_Puppet2D extends R_Line2D {
 		for(int i = 0 ; i < pair_list.size() ; i++) {
 			R_Pair<vec3,vec3> pair = pair_list.get(i);
 			float norm = get_child_normal(i);
-			float dist = get_child_normal(i);
+			float dist = get_child_dist(i);
 			vec2 src = get_child_point(i).xy();
 			vec2 proj = this.ortho(src);
 			float ang = angle_impl(src, proj, true);
+			println("angle", ang);
 			pair.b().set(norm, dist, ang);
 
 		}
