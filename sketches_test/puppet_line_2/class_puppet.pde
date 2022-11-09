@@ -1,5 +1,6 @@
 import rope.vector.bvec2;
 import rope.utils.R_Pair;
+import rope.vector.vec5;
 
 class R_Puppet2D extends R_Line2D {
 	ArrayList<R_Pair> pair_list = new ArrayList<R_Pair>();
@@ -58,7 +59,7 @@ class R_Puppet2D extends R_Line2D {
 			vec3 ref_p = ref_list.get(i);
 			vec2 buf_p = ref_p.xy().sub(first.xy());
 			float ang_buf_p = buf_p.angle();
-			float new_ang = ang_buf_p + dif_ang + ang_buf + TAU - ang_buf_start;
+			float new_ang = ang_buf_p + dif_ang + ang_buf - ang_buf_start;
 			float dist_p = dist(ref_p,second);
 			float ratio = dist() / start_a.dist(start_b);
 			vec2 new_pos = new vec2(projection(new_ang, dist_p));
@@ -111,49 +112,94 @@ class R_Puppet2D extends R_Line2D {
 		}
 
 		for(int i = 0 ; i < children.length ; i++) {
-			vec3 data = new vec3();
+			vec5 data = new vec5();
 			set_data_child(children[i], data);
-			R_Pair<vec3,vec3> pair = new R_Pair<vec3,vec3>(children[i], data);
+			R_Pair<vec3,vec5> pair = new R_Pair<vec3,vec5>(children[i], data);
 			pair_list.add(pair);
 		}
 	}
 
-	private void set_data_child(vec3 src, vec3 data) {
+	private void set_data_child(vec3 src, vec5 data) {
 		float norm = 0;
 		float dist = 0;
 		float ang = 0;
+		vec2 clock = new vec2(1);
 		vec2 proj = this.ortho(src.xy());
 		norm = this.normal(proj);
 		dist = proj.dist(src.xy());
-		ang = angle_impl(src.xy(), proj, true);
-		data.set(norm, dist, ang);
+		ang = data_impl(src.xy(), proj, clock).a();
+		data.set(norm, dist, ang, clock.a(), clock.b());
 	}
 
 
 
 	public void update_children() {
 		for(int i = 0 ; i < pair_list.size() ; i++) {
-			R_Pair<vec3,vec3> pair = pair_list.get(i);
-			float norm = get_child_normal(i);
-			float dist = get_child_dist(i);
+			R_Pair<vec3,vec5> pair = pair_list.get(i);
+			vec2 clock = get_child_clock(i);
+			// println("clock",clock, frameCount);
 			vec2 src = get_child_point(i).xy();
 			vec2 proj = this.ortho(src);
-			float ang = angle_impl(src, proj, true);
-			println("angle", ang);
-			pair.b().set(norm, dist, ang);
-
+			R_Pair <Float,vec2> ret = data_impl(src, proj, clock);
+			float ang = ret.a();
+			clock.set(ret.b());
+			pair.b().c(ang);
+			pair.b().d(clock.x());
+			pair.b().e(clock.y());
 		}
 	}
 
-	private float angle_impl(vec2 point, vec2 proj, boolean classic) {
-		if(classic) {
-			float ang_proj_point = proj.angle(point);
-			float ang_a_b = this.a().angle(this.b());
-			return (ang_proj_point - ang_a_b) + ang_a_b;
+
+	/**
+	 * REVERSE ALGO maybe for the future
+	* float ang_point_proj = point.angle(proj);
+	* float ang_b_a = this.b().angle(this.a());
+	* ang = (ang_point_proj - ang_b_a) + ang_b_a;
+	* */
+	private float prev_ang = 0.0f;
+	private float next_ang = 0.0f;
+	private R_Pair<Float,vec2> data_impl(vec2 point, vec2 proj, vec2 clock) {
+		float ang = 0.0f;
+		float ang_proj_point = proj.angle(point);
+		float ang_a_b = this.a().angle(this.b());
+		// check progress;
+		next_ang = ang_a_b;
+		if(next_ang != prev_ang) {
+			// float dif = prev_ang - next_ang;
+			// println("dif angle", dif);
+			// println("clock", clock);
+			// println("ang_a_b", ang_a_b);
+			prev_ang = next_ang;
 		}
-		float ang_point_proj = point.angle(proj);
-		float ang_b_a = this.b().angle(this.a());
-		return (ang_point_proj - ang_b_a) + ang_b_a;
+
+		if(compare(ang_a_b, 0, 1)) {
+			println("ang_a_b", ang_a_b);
+		}
+
+		if(in_line(this, point, 1)) {
+			if(clock.x() == clock.y()) {
+				// float dif = prev_ang - next_ang;
+				// println("dif angle", dif);
+				println("BORDER");
+				println("clock", clock);
+				// show the two criticals angle
+				println("ang pts a", point.angle(this.a()));
+				println("ang a pts", this.a().angle(point));
+				println("ang_a_b", ang_a_b);
+				clock.mult_x(-1);
+			}
+		} else {
+			clock.y(clock.x());
+		}
+
+		if(clock.x() == -1) {
+			ang =(ang_proj_point - ang_a_b) + ang_a_b + PI;
+		} else {
+			ang = (ang_proj_point - ang_a_b) + ang_a_b;
+		}
+		// end
+		R_Pair <Float, vec2> buf = new R_Pair<Float, vec2>(ang,clock);
+		return buf;
 	}
 
 
@@ -163,35 +209,47 @@ class R_Puppet2D extends R_Line2D {
 
 	public Float get_child_normal(int index) {
 		if(index >= 0 && index < pair_list.size()) {
-			R_Pair<vec3,vec3> pair = this.get_child(index);
-			return pair.b().x();
+			R_Pair<vec3,vec5> pair = this.get_child(index);
+			return pair.b().a();
 		}
 		return Float.NaN;
 	}
 
 	public Float get_child_dist(int index) {
 		if(index >= 0 && index < pair_list.size()) {
-			R_Pair<vec3,vec3> pair = this.get_child(index);
-			return pair.b().y();
+			R_Pair<vec3,vec5> pair = this.get_child(index);
+			return pair.b().b();
 		}
 		return Float.NaN;
 	}
 
 	public Float get_child_angle(int index) {
 		if(index >= 0 && index < pair_list.size()) {
-			R_Pair<vec3,vec3> pair = this.get_child(index);
-			return pair.b().z();
+			R_Pair<vec3,vec5> pair = this.get_child(index);
+			return pair.b().c();
 		}
 		return Float.NaN;
 	}
 
+	public vec2 get_child_clock(int index) {
+		if(index >= 0 && index < pair_list.size()) {
+			R_Pair<vec3,vec5> pair = this.get_child(index);
+			float clock = pair.b().d();
+			float clock_ref = pair.b().e();
+			return new vec2(clock, clock_ref);
+		}
+		return null;
+	}
+
 	public vec3 get_child_point(int index) {
 		if(index >= 0 && index < pair_list.size()) {
-			R_Pair<vec3,vec3> pair = this.get_child(index);
+			R_Pair<vec3,vec5> pair = this.get_child(index);
 			return pair.a();
 		}
 		return null;
 	}
+
+
 
 	public R_Pair get_child(int index) {
 		if(index >= 0 && index < pair_list.size()) {

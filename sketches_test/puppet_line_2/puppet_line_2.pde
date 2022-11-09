@@ -1,6 +1,7 @@
 import rope.mesh.R_Line2D;
 import rope.vector.vec2;
 import rope.vector.vec3;
+import rope.vector.vec5;
 import rope.core.Rope;
 
 Rope r = new Rope();
@@ -33,7 +34,7 @@ void draw() {
 	textSize(24);
 	textAlign(CENTER, CENTER);
 	text("B",puppet.b().x(), puppet.b().y() - 12);
-	for(R_Pair<vec3,vec3> pair : puppet.get_children()) {
+	for(R_Pair<vec3,vec5> pair : puppet.get_children()) {
 	// for(vec3 v : puppet.get_children()) {
 		// r.line(v,puppet);
 		fill(r.WHITE);
@@ -56,8 +57,8 @@ void draw() {
 	// display
 	fill(r.BLACK);
 	fill(r.BLOOD);
-	R_Pair<vec3,vec3> pair = puppet.get_child(0);
-	vec3 data = pair.b();
+	R_Pair<vec3,vec5> pair = puppet.get_child(0);
+	vec5 data = pair.b();
 	// vec3 data = puppet.get_child(0).b();
 	vec2 v = puppet.point(data.x());
 
