@@ -156,41 +156,30 @@ class R_Puppet2D extends R_Line2D {
 	* float ang_b_a = this.b().angle(this.a());
 	* ang = (ang_point_proj - ang_b_a) + ang_b_a;
 	* */
-	private float prev_ang = 0.0f;
-	private float next_ang = 0.0f;
+
 	private R_Pair<Float,vec2> data_impl(vec2 point, vec2 proj, vec2 clock) {
 		float ang = 0.0f;
 		float ang_proj_point = proj.angle(point);
 		float ang_a_b = this.a().angle(this.b());
-		// check progress;
-		next_ang = ang_a_b;
-		if(next_ang != prev_ang) {
-			// float dif = prev_ang - next_ang;
-			// println("dif angle", dif);
-			// println("clock", clock);
-			// println("ang_a_b", ang_a_b);
-			prev_ang = next_ang;
-		}
 
-		if(compare(ang_a_b, 0, 1)) {
-			println("ang_a_b", ang_a_b);
-		}
+		float ang_pts_a = point.angle(this.a());
+		float ang_a_pts = this.a().angle(point);
+		float border_value = ang_a_b - ang_pts_a;
+		
+		bvec2 zero_is = new bvec2();
+		bvec2 pi_is = new bvec2();
+		zero_is.x(border_value >= 0);
+		zero_is.y(border_value < 0);
+		pi_is.x(border_value <= PI);
+		pi_is.y(border_value <= -PI);
 
-		if(in_line(this, point, 1)) {
-			if(clock.x() == clock.y()) {
-				// float dif = prev_ang - next_ang;
-				// println("dif angle", dif);
-				println("BORDER");
-				println("clock", clock);
-				// show the two criticals angle
-				println("ang pts a", point.angle(this.a()));
-				println("ang a pts", this.a().angle(point));
-				println("ang_a_b", ang_a_b);
-				clock.mult_x(-1);
-			}
+
+		if(all(zero_is.x(),pi_is.x()) || pi_is.y()) {
+			clock.x(-1);
 		} else {
-			clock.y(clock.x());
+			clock.x(1);
 		}
+
 
 		if(clock.x() == -1) {
 			ang =(ang_proj_point - ang_a_b) + ang_a_b + PI;
