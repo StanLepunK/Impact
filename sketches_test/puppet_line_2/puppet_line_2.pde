@@ -14,9 +14,9 @@ void setup() {
 	// new_distribution();
 	puppet.set(width/2, height - (height/3), width/2,height/3);
 	vec3 child_a = new vec3().rand(new vec3(), new vec3(width, height,0));
-	// vec3 child_b = new vec3().rand(new vec3(), new vec3(width, height,0));
-	puppet.add(child_a);
-	// puppet.add(child_a, child_b); // BUG for this time
+	vec3 child_b = new vec3().rand(new vec3(), new vec3(width, height,0));
+	// puppet.add_puppets(child_a);
+	puppet.add_puppets(child_a, child_b); // BUG for this time
 }
 
 void draw() {
@@ -47,25 +47,24 @@ void draw() {
 	}
 
 	puppet.update();
-	puppet.update_children();
+	puppet.update_puppets();
 
 	// display
-	R_Pair<vec3,vec5> pair = puppet.get_child(0);
+	for(int i = 0 ; i < puppet.size() ; i++) {
+		R_Pair<vec3,vec5> pair = puppet.get_puppet(i);
 
-	fill(r.WHITE);
-	circle(pair.a().x(),pair.a().y(), 50);
-	vec5 data = pair.b();
-	vec2 v = puppet.point(data.x());
-	fill(r.BLOOD);
-	circle(v.x(),v.y(),10);
+		fill(r.WHITE);
+		vec2 origin = puppet.get_puppet_origin(i);
+		circle(origin.x(),origin.y(), 50);
 
+		fill(r.BLOOD);
+		vec2 on_line = puppet.get_puppet_online(i);
+		circle(on_line.x(),on_line.y(),10);
 
-	fill(r.BLACK);
-	vec2 vp = puppet.get_child_projection(0);
-	circle(vp.x(),vp.y(),20);
-	// for(vec3 p : list) {
-	// 	circle(p.x(),p.y(), 20);
-	// }
+		fill(r.BLACK);
+		vec2 proj = puppet.get_puppet_projection(i);
+		circle(proj.x(),proj.y(),20);
+	}
 }
 
 void keyPressed() {
@@ -77,8 +76,9 @@ void keyPressed() {
 void new_distribution() {
 	puppet.set(new vec2().rand(0,width), new vec2().rand(0,width));
 	puppet.clear();
-	vec3 child = new vec3().rand(new vec3(), new vec3(width, height,0));
-	puppet.add(child);
+	vec3 child_a = new vec3().rand(new vec3(), new vec3(width, height,0));
+	vec3 child_b = new vec3().rand(new vec3(), new vec3(width, height,0));
+	puppet.add_puppets(child_a, child_b);
 }
 
 
