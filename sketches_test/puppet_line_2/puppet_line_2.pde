@@ -13,8 +13,10 @@ void setup() {
 	puppet = new R_Puppet2D(this);
 	// new_distribution();
 	puppet.set(width/2, height - (height/3), width/2,height/3);
-	vec3 child = new vec3().rand(new vec3(), new vec3(width, height,0));
-	puppet.add(child);
+	vec3 child_a = new vec3().rand(new vec3(), new vec3(width, height,0));
+	// vec3 child_b = new vec3().rand(new vec3(), new vec3(width, height,0));
+	puppet.add(child_a);
+	// puppet.add(child_a, child_b); // BUG for this time
 }
 
 void draw() {
@@ -34,13 +36,6 @@ void draw() {
 	textSize(24);
 	textAlign(CENTER, CENTER);
 	text("B",puppet.b().x(), puppet.b().y() - 12);
-	for(R_Pair<vec3,vec5> pair : puppet.get_children()) {
-	// for(vec3 v : puppet.get_children()) {
-		// r.line(v,puppet);
-		fill(r.WHITE);
-		circle(pair.a().x(),pair.a().y(), 50);
-		// circle(v.x(),v.y(), 50);
-	}
 
 
 	if(puppet.a().compare(mouse, radius *2) && mousePressed) {
@@ -55,20 +50,18 @@ void draw() {
 	puppet.update_children();
 
 	// display
-	fill(r.BLACK);
-	fill(r.BLOOD);
 	R_Pair<vec3,vec5> pair = puppet.get_child(0);
-	vec5 data = pair.b();
-	// vec3 data = puppet.get_child(0).b();
-	vec2 v = puppet.point(data.x());
 
+	fill(r.WHITE);
+	circle(pair.a().x(),pair.a().y(), 50);
+	vec5 data = pair.b();
+	vec2 v = puppet.point(data.x());
+	fill(r.BLOOD);
 	circle(v.x(),v.y(),10);
 
-	float vpx = cos(data.z())* data.y();
-	float vpy = sin(data.z())* data.y();
-	vec2 vp = new vec2(vpx,vpy);
-	vp.add(v);
+
 	fill(r.BLACK);
+	vec2 vp = puppet.get_child_projection(0);
 	circle(vp.x(),vp.y(),20);
 	// for(vec3 p : list) {
 	// 	circle(p.x(),p.y(), 20);

@@ -115,6 +115,11 @@ class R_Puppet2D extends R_Line2D {
 			vec5 data = new vec5();
 			set_data_child(children[i], data);
 			R_Pair<vec3,vec5> pair = new R_Pair<vec3,vec5>(children[i], data);
+			vec2 vp = projection_impl(pair);
+			// vec2 get_child_projection(int index)
+			if(!pair.a().xy().compare(vp,0.1)) {
+				pair.b().e(-1);
+			}
 			pair_list.add(pair);
 		}
 	}
@@ -137,7 +142,6 @@ class R_Puppet2D extends R_Line2D {
 		for(int i = 0 ; i < pair_list.size() ; i++) {
 			R_Pair<vec3,vec5> pair = pair_list.get(i);
 			vec2 clock = get_child_clock(i);
-			// println("clock",clock, frameCount);
 			vec2 src = get_child_point(i).xy();
 			vec2 proj = this.ortho(src);
 			R_Pair <Float,vec2> ret = data_impl(src, proj, clock);
@@ -145,13 +149,13 @@ class R_Puppet2D extends R_Line2D {
 			clock.set(ret.b());
 			pair.b().c(ang);
 			pair.b().d(clock.x());
-			pair.b().e(clock.y());
+			// pair.b().e(clock.y());
 		}
 	}
 
 
 	/**
-	 * REVERSE ALGO maybe for the future
+	* REVERSE ALGO maybe for the future
 	* float ang_point_proj = point.angle(proj);
 	* float ang_b_a = this.b().angle(this.a());
 	* ang = (ang_point_proj - ang_b_a) + ang_b_a;
@@ -175,16 +179,14 @@ class R_Puppet2D extends R_Line2D {
 
 
 		if(all(zero_is.x(),pi_is.x()) || pi_is.y()) {
-			clock.x(-1);
+			clock.x(-1 * clock.y());
 		} else {
-			clock.x(1);
+			clock.x(1 * clock.y());
 		}
 
-
+		ang = (ang_proj_point - ang_a_b) + ang_a_b;
 		if(clock.x() == -1) {
-			ang =(ang_proj_point - ang_a_b) + ang_a_b + PI;
-		} else {
-			ang = (ang_proj_point - ang_a_b) + ang_a_b;
+			ang += PI;
 		}
 		// end
 		R_Pair <Float, vec2> buf = new R_Pair<Float, vec2>(ang,clock);
@@ -204,7 +206,7 @@ class R_Puppet2D extends R_Line2D {
 		return Float.NaN;
 	}
 
-	public Float get_child_dist(int index) {
+	public Float get_child_distance(int index) {
 		if(index >= 0 && index < pair_list.size()) {
 			R_Pair<vec3,vec5> pair = this.get_child(index);
 			return pair.b().b();
@@ -236,6 +238,28 @@ class R_Puppet2D extends R_Line2D {
 			return pair.a();
 		}
 		return null;
+	}
+
+	public vec2 get_child_projection(int index) {
+		if(index >= 0 && index < pair_list.size()) {
+			R_Pair<vec3,vec5> pair = this.get_child(index);
+			return projection_impl(pair);
+			// vec5 data = pair.b();
+			// float vpx = cos(data.z())* data.y();
+			// float vpy = sin(data.z())* data.y();
+			// vec2 vp = new vec2(vpx,vpy);
+			// vp.add(this.point(data.x()));
+			// return vp;
+		}
+		return null;
+	}
+
+	private vec2 projection_impl(R_Pair<vec3,vec5> pair) {
+		vec5 data = pair.b();
+		float vpx = cos(data.z())* data.y();
+		float vpy = sin(data.z())* data.y();
+		vec2 vp = new vec2(vpx,vpy);
+		return vp.add(this.point(data.x()));
 	}
 
 
