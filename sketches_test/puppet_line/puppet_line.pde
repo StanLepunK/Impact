@@ -40,7 +40,7 @@ void draw() {
 	lines[1].show();
 	circle(puppet.x(),puppet.y(), 10);
 	// check for normal position
-	// if(r.in_line(lines[0], puppet.xy(), 3)) {
+	// if(r.in_segment(lines[0], puppet.xy(), 3)) {
 		println("original dist", normal_pos);
 		float dist = lines[0].dist();
 		float dist_ac = r.dist(lines[0].a(), puppet.xy());

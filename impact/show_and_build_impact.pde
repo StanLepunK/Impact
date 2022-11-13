@@ -108,14 +108,25 @@ void show_polygon(int mode) {
 // SHOW LINE
 ///////////////
 void show_lines() {
+	boolean show_heart_is = true;
 	noFill();
 	stroke(r.WHITE);
 	strokeWeight(1);
-	imp.show_line_main();
+	if(imp.get_heart_lines().size() > 0 && show_heart_is) {
+		int max = imp.get_main_lines(0).size();
+		// imp.show_line_main(1, max);
+		imp.show_line_main(0,1);
+	} else {
+		imp.show_line_main();
+	}
 	stroke(r.YELLOW);
 	imp.show_line_circle();
-	stroke(r.GREEN);
-	imp.show_line_heart();
+	
+	if(show_heart_is) {
+		stroke(r.GREEN);
+		imp.show_line_heart();
+	}
+
 
 	if(show_error_is) {
 		stroke(r.RED);

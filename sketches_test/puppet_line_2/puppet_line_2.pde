@@ -7,15 +7,12 @@ import rope.core.Rope;
 Rope r = new Rope();
 R_Puppet2D puppet;
 
-
 void setup() {
 	size(500,500);
 	puppet = new R_Puppet2D(this);
-	// new_distribution();
 	puppet.set(width/2, height - (height/3), width/2,height/3);
 	vec3 child_a = new vec3().rand(new vec3(), new vec3(width, height,0));
 	vec3 child_b = new vec3().rand(new vec3(), new vec3(width, height,0));
-	// puppet.add_puppets(child_a);
 	puppet.add_puppets(child_a, child_b); // BUG for this time
 }
 

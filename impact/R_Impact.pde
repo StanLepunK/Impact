@@ -4,7 +4,7 @@
  * by extension that can simulate the spider web too
  * This algorithm make a part of the project "Éclat d'Ukraine"
  * 
- * v 0.2.0
+ * v 0.2.1
  * copyleft(c) 2022-2022
  * Stanislas Marçais aka Knupel aka Stan le Punk
  * 
@@ -17,6 +17,7 @@ import rope.core.Rope;
 
 import rope.mesh.R_Shape;
 import rope.mesh.R_Line2D;
+import rope.tool.R_Puppet2D;
 import rope.mesh.R_Node;
 
 import rope.vector.bvec2;
@@ -444,7 +445,7 @@ public class R_Impact extends Rope {
 	private void build_main() {
 		main = new ArrayList[get_num_main()];
 		float angle_step = TAU / get_num_main();
-		float angle = 0;
+		float angle = 0f;
 
 		for(int i = 0 ; i < get_num_main() ; i++) {
 			main[i] = new ArrayList<R_Line2D>();
@@ -453,26 +454,10 @@ public class R_Impact extends Rope {
 		}
 	}
 
-	private void build_heart() {
-		heart = new ArrayList<R_Line2D>();
-		if(get_heart_normal_radius() > 0 ) {
-			for(int i = 1 ; i < main.length ; i++) {
-				vec2 a = main[i -1].get(0).a();
-				vec2 b = main[i].get(0).a();
-				R_Line2D line = new R_Line2D(this.pa, a, b);
-				heart.add(line);
-			}
-			vec2 a = main[main.length -1].get(0).a();
-			vec2 b = main[0].get(0).a();
-			R_Line2D line = new R_Line2D(this.pa, a, b);
-			heart.add(line);
-		}
-	}
-
 	private void main_impl(int index, float angle) {
-		float range_jit = TAU / get_num_main() * 0.1;
+		float range_jit = TAU / get_num_main() * 0.1f;
 		vec3 a = pos.copy();
-		float dist = 0;
+		float dist = 0f;
 		boolean start_is = true;
 
 		for(int i = 0 ; i < get_iter_main() ; i++) {
@@ -493,9 +478,16 @@ public class R_Impact extends Rope {
 			if(start_is) {
 				line.pointer_a(a);
 				line.pointer_b(b);
+				//println("ma start", a);
+				println("mb start", b, "level", i);
 			} else {
 				line.pointer_a(main[index].get(i-1).pointer_b());
 				line.pointer_b(b);
+				if(i < 2) {
+					// println("ma next", main[index].get(i-1).pointer_b(), "level", i);
+					// println("mb next", b, "level", i);
+				}
+
 			}
 			if(i == 0 && get_heart_normal_radius() > 0) {
 				line.change(-get_heart_normal_radius(),0);
@@ -507,6 +499,30 @@ public class R_Impact extends Rope {
 				a = b;
 			}
 			start_is = false;
+		}
+	}
+
+
+	// BUILD HEART
+	/////////////////////
+	private void build_heart() {
+		heart = new ArrayList<R_Line2D>();
+		if(get_heart_normal_radius() > 0 ) {
+			for(int i = 1 ; i < main.length ; i++) {
+				vec2 a = main[i -1].get(0).a(); // why is a(), because if it's that's must be a center ?
+				vec2 b = main[i].get(0).a();
+				// println("a", a);
+				println("ha / hb",a, b);
+				// println("hb", b);
+				R_Line2D line = new R_Line2D(this.pa, a, b);
+				heart.add(line);
+			}
+			vec2 a = main[main.length -1].get(0).a();
+			vec2 b = main[0].get(0).a();
+			println("ha",a);
+			println("hb", b);
+			R_Line2D line = new R_Line2D(this.pa, a, b);
+			heart.add(line);
 		}
 	}
 
@@ -726,11 +742,11 @@ public class R_Impact extends Rope {
 					// id from main
 					int id_segment = 0;
 					for(R_Line2D lm : main[k]) {
-						if(in_line(lm,lc.a(),marge)) {
+						if(in_segment(lm,lc.a(),marge)) {
 							lc.id_a(k);
 							lc.id_c(id_segment);
 						}
-						if(in_line(lm,lc.b(),marge)) {
+						if(in_segment(lm,lc.b(),marge)) {
 							lc.id_b(k);
 							lc.id_d(id_segment);
 						}
@@ -739,11 +755,11 @@ public class R_Impact extends Rope {
 					// id from heart, we minus by one to avoid a conflict with the 0 ID
 					for(int m = 0 ; m <  heart.size() ; m++) {
 						R_Line2D lh = heart.get(m);
-						if(lc.id().a() == Integer.MIN_VALUE && in_line(lh,lc.a(),marge)) {
+						if(lc.id().a() == Integer.MIN_VALUE && in_segment(lh,lc.a(),marge)) {
 							lc.id_a(-m-1);
 							lc.id_c(0);
 						}
-						if(lc.id().b() == Integer.MIN_VALUE && in_line(lh,lc.b(),marge)) {
+						if(lc.id().b() == Integer.MIN_VALUE && in_segment(lh,lc.b(),marge)) {
 							lc.id_b(-m-1);
 							lc.id_d(0);
 						}
@@ -978,8 +994,8 @@ public class R_Impact extends Rope {
 
 		for(int i = 0 ; i < list_main_b.size() ; i++) {
 			R_Line2D line = list_main_b.get(i);
-			if(r.in_line(line, a.xy(), marge)) first = i;
-			if(r.in_line(line, b.xy(), marge)) last = i;
+			if(r.in_segment(line, a.xy(), marge)) first = i;
+			if(r.in_segment(line, b.xy(), marge)) last = i;
 		}
 
 		// add point
@@ -1013,8 +1029,8 @@ public class R_Impact extends Rope {
 
 		for(int i = 0 ; i < list_main_a.size() ; i++) {
 			R_Line2D line = list_main_a.get(i);
-			if(r.in_line(line, a.xy(), marge)) first = i;
-			if(r.in_line(line, b.xy(), marge)) last = i;
+			if(r.in_segment(line, a.xy(), marge)) first = i;
+			if(r.in_segment(line, b.xy(), marge)) last = i;
 		}
 
 		// the most of cases
@@ -1085,10 +1101,10 @@ private void junction_heart_circle(R_Shape shape, R_Line2D lh, R_Line2D lc, R_Li
 		if(heart.size() > 0 && id_heart < get_num_main()) {
 			lh = heart.get(id_heart);
 			
-			bvec2 lc_is = new bvec2(r.in_line(lh, lc.a(), marge), 
-															r.in_line(lh, lc.b(), marge));
-			bvec2 next_lc_is = new bvec2(	r.in_line(lh, next_lc.a(), marge), 
-																		r.in_line(lh, next_lc.b(), marge));
+			bvec2 lc_is = new bvec2(r.in_segment(lh, lc.a(), marge), 
+															r.in_segment(lh, lc.b(), marge));
+			bvec2 next_lc_is = new bvec2(	r.in_segment(lh, next_lc.a(), marge), 
+																		r.in_segment(lh, next_lc.b(), marge));
 
 			bvec4 point_is = new bvec4(	lc.b().compare(lh.a(),marge),
 																	lc.b().compare(lh.b(),marge),
@@ -1155,8 +1171,8 @@ private void junction_heart_circle(R_Shape shape, R_Line2D lh, R_Line2D lc, R_Li
 	}
 
 	private void add_point_first_level_polygon(R_Shape shape, R_Line2D lh, R_Line2D lc, vec2 lh_point) {
-		boolean a_is = r.in_line(lh, lc.a(), marge);
-		boolean b_is = r.in_line(lh, lc.b(), marge);
+		boolean a_is = r.in_segment(lh, lc.a(), marge);
+		boolean b_is = r.in_segment(lh, lc.b(), marge);
 		if(r.all(!a_is, !b_is)) {
 			shape.add_points(lh.b(),lh.a());
 		} else {
@@ -1174,10 +1190,10 @@ private void junction_heart_circle(R_Shape shape, R_Line2D lh, R_Line2D lc, R_Li
 	}
 
 	private boolean touch_heart_is(R_Line2D lc1, R_Line2D lc2, R_Line2D lh) {
-		if(in_line(lh, lc1.a(), marge)) return true;
-		if(in_line(lh, lc1.b(), marge)) return true;
-		if(in_line(lh, lc2.a(), marge)) return true;
-		if(in_line(lh, lc2.b(), marge)) return true;
+		if(in_segment(lh, lc1.a(), marge)) return true;
+		if(in_segment(lh, lc1.b(), marge)) return true;
+		if(in_segment(lh, lc2.a(), marge)) return true;
+		if(in_segment(lh, lc2.b(), marge)) return true;
 		return false;
 	}
 
@@ -1549,8 +1565,16 @@ private void junction_heart_circle(R_Shape shape, R_Line2D lh, R_Line2D lc, R_Li
 		show_line_heart();
 	}
 
+	// SHOW MAIN
+	/////////////////
+
 	public void show_line_main() {
 		show_list_impl(main);
+	}
+	
+
+	public void show_line_main(int start, int end) {
+		show_list_impl(main, start, end);
 	}
 
 	public void show_line_main(int index) {
@@ -1559,16 +1583,35 @@ private void junction_heart_circle(R_Shape shape, R_Line2D lh, R_Line2D lc, R_Li
 		}
 	}
 
+	public void show_line_main(int index, int start, int end) {
+		if(index >= 0 && index < main.length) {
+			show_lines_impl(main[index], start, end);	
+		}
+	}
+
+
+	// SHOW CIRCLE
+	//////////////////
+
 	public void show_line_circle() {
 		show_list_impl(circle);
 	}
-	
+
+	public void show_line_circle(int index, int start, int end) {
+		if(index >= 0 && index < circle.length) {
+			show_lines_impl(circle[index], start, end);	
+		}
+	}
+
 	public void show_line_circle(int index) {
 		if(index >= 0 && index < circle.length) {
 			show_lines_impl(circle[index]);	
 		}
 	}
 
+	/**
+	* an other way to show circle, not like circle but by branch from main pie slide
+	 */
 	public void show_line_branch(int index) {
 		for(int i = 0 ; i < circle.length ; i++) {
 			for(int k = 0 ; k < circle[i].size() ; k++) {
@@ -1580,16 +1623,36 @@ private void junction_heart_circle(R_Shape shape, R_Line2D lh, R_Line2D lc, R_Li
 	}
 
 	public void show_line_heart() {
-		show_lines_impl(heart);
+		show_lines_impl(heart, 0, heart.size());
 	}
 
 	public void show_line_fail() {
-		show_lines_impl(fail);
+		show_lines_impl(fail, 0, fail.size());
 	}
+
+	////////////////////////////////
+	// IMPLEMENTATION
+	//////////////////////////////////
 
 	private void show_list_impl(ArrayList<R_Line2D>[] list) {
 		for(int i = 0 ; i < list.length ; i++) {
 			show_lines_impl(list[i]);
+		}
+	}
+
+	private void show_list_impl(ArrayList<R_Line2D>[] list, int start, int end) {
+		for(int i = 0 ; i < list.length ; i++) {
+			show_lines_impl(list[i], start, end);
+		}
+	}
+
+		private void show_lines_impl(ArrayList<R_Line2D> lines, int start, int end) {
+		if(start < 0) start = 0;
+		if(start >= lines.size()) start = lines.size();
+		end = constrain(end, start, lines.size());
+		for(int i = start ; i < end ; i++) {	
+			R_Line2D line = lines.get(i);	
+			show_single_line_impl(line);
 		}
 	}
 
