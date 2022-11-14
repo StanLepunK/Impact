@@ -28,16 +28,19 @@ void set_impact_classic() {
 }
 
 void set_impact() {
+	// int max = 27;
+	// int max = 111;
+	int max = 200;
 	// heart
 	float heart = random(1);
 	if(heart < 0.2) heart = 0;
 	// main
-	int num_main = int(random(5,27));
-	int iter_main = int(random(5,27));
+	int num_main = int(random(5,max));
+	int iter_main = int(random(5,max));
 	float growth_main = random(width/20,width/2);
 	float angle_main = random(PI/120,PI/24);
 	// circle
-	int num_circle = int(random(5,27));
+	int num_circle = int(random(5,max));
 	int iter_circle = int(random(5,num_main));
 	float growth_circle = random(width/20,width/2);
 	imp.normal();
@@ -48,12 +51,14 @@ void set_impact() {
 
 
 void set_spiral() {
+	// int max = 27;
+	int max = 111;
 	// heart
 	float heart = random(1);
 	if(heart < 0.2) heart = 0;
 	// main 
-	int num_main = int(random(5,27));
-	int iter_main = int(random(5,27));
+	int num_main = int(random(5,max));
+	int iter_main = int(random(5,max));
 	float growth_main = random(width/20,width/2);
 	float angle_main = random(PI/120,PI/24);
 	// circle

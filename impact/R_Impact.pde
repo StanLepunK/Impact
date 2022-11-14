@@ -31,7 +31,7 @@ import rope.vector.vec5;
 public class R_Impact extends Rope {
 	private PApplet pa;
 	// LINE
-	private ArrayList<R_Line2D>[] main;
+	private ArrayList<R_Puppet2D>[] main;
 	private ArrayList<R_Line2D>[] circle;
 	private ArrayList<R_Line2D> heart;
 	private ArrayList<R_Line2D> fail;
@@ -229,7 +229,7 @@ public class R_Impact extends Rope {
 		return get_size_impl(circle, get_num_circle());
 	}
 
-	private int [] get_size_impl(ArrayList<R_Line2D>[] list, int len) {
+	private int [] get_size_impl(ArrayList[] list, int len) {
 		int [] size = new int[len];
 		for(int i = 0 ; i < len ; i++) {
 			if(list != null && i < list.length) {
@@ -256,7 +256,7 @@ public class R_Impact extends Rope {
 		return buf;
 	}
 
-	public ArrayList<R_Line2D> get_main_lines(int index) {
+	public ArrayList<R_Puppet2D> get_main_lines(int index) {
 		if(index >= 0 && index < main.length) {
 			return main[index];
 		}
@@ -448,7 +448,7 @@ public class R_Impact extends Rope {
 		float angle = 0f;
 
 		for(int i = 0 ; i < get_num_main() ; i++) {
-			main[i] = new ArrayList<R_Line2D>();
+			main[i] = new ArrayList<R_Puppet2D>();
 			main_impl(i, angle);
 			angle += angle_step;
 		}
@@ -473,8 +473,8 @@ public class R_Impact extends Rope {
 			float y = cos(final_angle) * dist;
 			b.x(x + this.pos.x());
 			b.y(y + this.pos.y());
-
-			R_Line2D line = new R_Line2D(this.pa);
+			
+			R_Puppet2D line = new R_Puppet2D(this.pa);
 			if(start_is) {
 				line.pointer_a(a);
 				line.pointer_b(b);
@@ -891,8 +891,8 @@ public class R_Impact extends Rope {
 		if(next_id_branch >= get_num_main()) {
 			next_id_branch = 0;
 		}
-		ArrayList<R_Line2D>[] main = tupple_main(id_branch, next_id_branch);
-		R_Line2D next_line = new R_Line2D(this.pa, main[0].get(main[0].size() -1).b(), main[1].get(main[1].size() -1).b());
+		ArrayList<R_Puppet2D>[] main = tupple_main(id_branch, next_id_branch);
+		R_Puppet2D next_line = new R_Puppet2D(this.pa, main[0].get(main[0].size() -1).b(), main[1].get(main[1].size() -1).b());
 		if(r.all(main[0] != null,main[1] != null)) {
 			shape.add_points(next_line.a(), next_line.b(), line.b(),line.a());
 		}
@@ -912,7 +912,7 @@ public class R_Impact extends Rope {
 		shape.add_points(next_lc.a(), next_lc.b(), lc.b(), lc.a());
 		R_Line2D lh = null;
 		junction_heart_circle(shape, lh, lc, next_lc);
-		ArrayList<R_Line2D>[] main = tupple_main(lc.id().a(), lc.id().b());
+		ArrayList<R_Puppet2D>[] main = tupple_main(lc.id().a(), lc.id().b());
 		add_points_go(main[1], shape, lh);
 		add_points_return(main[0], shape, lh);
 		imp_shapes.add(shape);
@@ -926,7 +926,7 @@ public class R_Impact extends Rope {
 		shape.id_a(r.GRIS[7]);
 		shape.id_b(get_abs_id(lc.id().a()));
 		R_Line2D lh = null;
-		ArrayList<R_Line2D> [] main = tupple_main(lc.id().a(), lc.id().b());
+		ArrayList<R_Puppet2D> [] main = tupple_main(lc.id().a(), lc.id().b());
 		if(heart.size() > 0) {
 			if(r.any(lc.id().a() < 0, lc.id().b() < 0)) {
 				lh = get_line_heart(lc);
@@ -952,17 +952,16 @@ public class R_Impact extends Rope {
 	// ADD GO and RETURN
 	/////////////////////
 
-	private void add_points_go(ArrayList<R_Line2D> list_main_b, R_Shape shape, R_Line2D lh) {
+	private void add_points_go(ArrayList<R_Puppet2D> list_main_b, R_Shape shape, R_Line2D lh) {
 		int index = 1;
 		int index_next = shape.get_summits() -2;
 		if(shape.get_summits() == 5) {
-			// index = 2;
 			index_next = shape.get_summits() -3;
 		}
 		add_points_go_impl(list_main_b, shape, lh, index, index_next);
 	}
 
-	private void add_points_return(ArrayList<R_Line2D> list_main_a, R_Shape shape, R_Line2D lh) {
+	private void add_points_return(ArrayList<R_Puppet2D> list_main_a, R_Shape shape, R_Line2D lh) {
 		int index = shape.get_summits() -1;
 		int index_next = 0;
 		add_points_return_impl(list_main_a, shape, lh, index, index_next);
@@ -973,14 +972,14 @@ public class R_Impact extends Rope {
 
 	// ADD GO IMPLEMENTATION
 	////////////////////////
-
-	private void add_points_go_impl(ArrayList<R_Line2D> list_main_b, R_Shape shape, R_Line2D lh, int index, int index_next) {
+	private void add_points_go_impl(ArrayList<R_Puppet2D> list_main_b, R_Shape shape, R_Line2D lh, int index, int index_next) {
 		int first = 0;
 		int last = 0;
 		vec3 a = shape.get_point(index);
 		vec3 b = shape.get_point(index_next);
 
 		for(int i = 0 ; i < list_main_b.size() ; i++) {
+			// R_Puppet2D line = list_main_b.get(i);
 			R_Line2D line = list_main_b.get(i);
 			if(r.in_segment(line, a.xy(), marge)) first = i;
 			if(r.in_segment(line, b.xy(), marge)) last = i;
@@ -1009,7 +1008,7 @@ public class R_Impact extends Rope {
 	// ADD RETURN IMPLEMENTATION
 	////////////////////////
 
-	private void add_points_return_impl(ArrayList<R_Line2D> list_main_a, R_Shape shape, R_Line2D lh, int index, int index_next) {
+	private void add_points_return_impl(ArrayList<R_Puppet2D> list_main_a, R_Shape shape, R_Line2D lh, int index, int index_next) {
 		int first = 0;
 		int last = 0;
 		vec3 a = shape.get_point(index);
@@ -1126,9 +1125,10 @@ private void junction_heart_circle(R_Shape shape, R_Line2D lh, R_Line2D lc, R_Li
 			}
 		}
 	}
+	
 
-	private ArrayList<R_Line2D>[] tupple_main(int id_a, int id_b) {
-		ArrayList<R_Line2D> [] arr = new ArrayList[2];
+	private ArrayList<R_Puppet2D>[] tupple_main(int id_a, int id_b) {
+		ArrayList<R_Puppet2D> [] arr = new ArrayList[2];
 		int im_0 = id_a;
 		int im_1 = im_0 + 1;
 		if(id_a < 0) {
@@ -1148,8 +1148,7 @@ private void junction_heart_circle(R_Shape shape, R_Line2D lh, R_Line2D lc, R_Li
 		return arr;
 	}
 
-
-	private vec2 get_point_line_heart(R_Line2D lh, R_Line2D lc, ArrayList<R_Line2D> main_a, ArrayList<R_Line2D> main_b) {
+	private vec2 get_point_line_heart(R_Line2D lh, R_Line2D lc, ArrayList<R_Puppet2D> main_a, ArrayList<R_Puppet2D> main_b) {
 		float dist_a = r.dist(pos.xy(), lh.a());
 		float dist_b = r.dist(pos.xy(), lh.b());
 		if(dist_a < dist_b) {
@@ -1236,9 +1235,9 @@ private void junction_heart_circle(R_Shape shape, R_Line2D lh, R_Line2D lc, R_Li
 		}
 	}
 
-	private void add_nodes_impl(ArrayList<R_Line2D> list, R_Impact imp, int family, boolean add_last_is) {
-		for(R_Line2D line : list) {
-			// check the center
+	private void add_nodes_impl(ArrayList list, R_Impact imp, int family, boolean add_last_is) {
+		for(Object obj : list) {
+			R_Line2D line = (R_Line2D)obj;
 			boolean a_is = this.pos().compare(line.a(), new vec2(marge));
 			boolean b_is = this.pos().compare(line.b(), new vec2(marge));
 			if(r.all((r.any(r.all(!a_is, !b_is, !line.mute_is()),!this.use_mute_is())),!a_is,!b_is)) {
@@ -1252,7 +1251,7 @@ private void junction_heart_circle(R_Shape shape, R_Line2D lh, R_Line2D lc, R_Li
 					node_b.id(family, 15,0,0,0,0);
 					nodes.add(node_b);
 				}
-			}
+			}	
 		}
 	}
 
@@ -1320,14 +1319,15 @@ private void junction_heart_circle(R_Shape shape, R_Line2D lh, R_Line2D lc, R_Li
 		set_pixels_lines_impl(fail, normal_value, colour);
 	}
 
-	private void set_pixels_list_impl(ArrayList<R_Line2D>[] list, float normal_value, int... colour) {
+	private void set_pixels_list_impl(ArrayList[] list, float normal_value, int... colour) {
 		for(int i = 0 ; i < list.length ; i++) {
 			set_pixels_lines_impl(list[i], normal_value, colour);
 		}
 	}
-
-	private void set_pixels_lines_impl(ArrayList<R_Line2D> lines, float normal_value, int... colour) {
-		for(R_Line2D line : lines) {
+	
+	private void set_pixels_lines_impl(ArrayList lines, float normal_value, int... colour) {
+		for(Object obj : lines) {
+			R_Line2D line = (R_Line2D)obj;
 			line.set_pixels(normal_value, colour);
 		}
 	}
@@ -1462,21 +1462,22 @@ private void junction_heart_circle(R_Shape shape, R_Line2D lh, R_Line2D lc, R_Li
 		show_pixels_lines_impl(fail);
 	}
 
-	private void show_pixels_list_impl(ArrayList<R_Line2D>[] list) {
+	private void show_pixels_list_impl(ArrayList[] list) {
 		for(int i = 0 ; i < list.length ; i++) {
 			show_pixels_lines_impl(list[i]);
 		}
 	}
 
-	private void show_pixels_lines_impl(ArrayList<R_Line2D> lines) {
-		for(R_Line2D line : lines) {
+	private void show_pixels_lines_impl(ArrayList lines) {
+		for(Object obj : lines) {
+			R_Line2D line = (R_Line2D)obj;
 			if(use_mute_is()) {
 				if(!line.mute_is()) {
 					line.show_pixels();
 				}
 			} else {
 				line.show_pixels();
-			}
+			}	
 		}
 	}
 
@@ -1506,13 +1507,13 @@ private void junction_heart_circle(R_Shape shape, R_Line2D lh, R_Line2D lc, R_Li
 		show_pixels_lines_impl(fail, normal_value, colour);
 	}
 
-	private void show_pixels_list_impl(ArrayList<R_Line2D>[] list, float normal_value, int... colour) {
+	private void show_pixels_list_impl(ArrayList[] list, float normal_value, int... colour) {
 		for(int i = 0 ; i < list.length ; i++) {
 			show_pixels_lines_impl(list[i], normal_value, colour);
 		}
 	}
 
-	private void show_pixels_lines_impl(ArrayList<R_Line2D> lines, float normal_value, int... colour) {
+	private void show_pixels_lines_impl(ArrayList lines, float normal_value, int... colour) {
 		switch(get_pixel_mode()) {
 			case 1: show_pixels_lines_impl_x1(lines, normal_value, colour); break;
 			case 2: show_pixels_lines_impl_x2(lines, normal_value, colour); break;
@@ -1520,9 +1521,10 @@ private void junction_heart_circle(R_Shape shape, R_Line2D lh, R_Line2D lc, R_Li
 		}
 	}
 
-	private void show_pixels_lines_impl_x1(ArrayList<R_Line2D> lines, float normal_value, int... colour) {
-		for(R_Line2D line : lines) {
-			if(use_mute_is()) {
+	private void show_pixels_lines_impl_x1(ArrayList lines, float normal_value, int... colour) {
+		for(Object obj : lines) {
+				R_Line2D line = (R_Line2D)obj;
+				if(use_mute_is()) {
 				if(!line.mute_is()) {
 					line.show_pixels(normal_value, colour);
 				}
@@ -1532,15 +1534,17 @@ private void junction_heart_circle(R_Shape shape, R_Line2D lh, R_Line2D lc, R_Li
 		}
 	}
 
-	private void show_pixels_lines_impl_x2(ArrayList<R_Line2D> lines, float normal_value, int... colour) {
-		for(R_Line2D line : lines) {
-			if(use_mute_is()) {
-				if(!line.mute_is()) {
+	private void show_pixels_lines_impl_x2(ArrayList lines, float normal_value, int... colour) {
+		for(Object obj : lines) {
+				R_Line2D line = (R_Line2D)obj;
+				if(use_mute_is()) {
+					if(!line.mute_is()) {
+						line.show_pixels_x2(normal_value, colour);
+					}
+				} else {
 					line.show_pixels_x2(normal_value, colour);
 				}
-			} else {
-				line.show_pixels_x2(normal_value, colour);
-			}
+			// }
 		}
 	}
 
@@ -1622,31 +1626,31 @@ private void junction_heart_circle(R_Shape shape, R_Line2D lh, R_Line2D lc, R_Li
 	// IMPLEMENTATION
 	//////////////////////////////////
 
-	private void show_list_impl(ArrayList<R_Line2D>[] list) {
+private void show_list_impl(ArrayList[] list) {
 		for(int i = 0 ; i < list.length ; i++) {
 			show_lines_impl(list[i]);
 		}
 	}
 
-	private void show_list_impl(ArrayList<R_Line2D>[] list, int start, int end) {
+	private void show_list_impl(ArrayList[] list, int start, int end) {
 		for(int i = 0 ; i < list.length ; i++) {
 			show_lines_impl(list[i], start, end);
 		}
 	}
 
-		private void show_lines_impl(ArrayList<R_Line2D> lines, int start, int end) {
+	private void show_lines_impl(ArrayList lines, int start, int end) {
 		if(start < 0) start = 0;
 		if(start >= lines.size()) start = lines.size();
 		end = constrain(end, start, lines.size());
 		for(int i = start ; i < end ; i++) {	
-			R_Line2D line = lines.get(i);	
+			R_Line2D line = (R_Line2D)lines.get(i);
 			show_single_line_impl(line);
 		}
 	}
 
-	private void show_lines_impl(ArrayList<R_Line2D> lines) {
-		for(R_Line2D line : lines) {		
-			show_single_line_impl(line);
+	private void show_lines_impl(ArrayList lines) {
+		for(Object line : lines) {	
+			show_single_line_impl((R_Line2D)line);
 		}
 	}
 
@@ -1741,15 +1745,17 @@ private void junction_heart_circle(R_Shape shape, R_Line2D lh, R_Line2D lc, R_Li
 		show_lines_bug_impl(fail);
 	}
 
-	private void show_bug_impl(ArrayList<R_Line2D>[] list) {
+	private void show_bug_impl(ArrayList[] list) {
 		for(int i = 0 ; i < list.length ; i++) {
 			show_lines_bug_impl(list[i]);
 		}
 	}
 
-	private void show_lines_bug_impl(ArrayList<R_Line2D> lines) {
+	// not very fast with the casting test, but no matter is just for the bug
+	private void show_lines_bug_impl(ArrayList lines) {
 		int marge_err = 5;
-		for(R_Line2D line : lines) {
+		for(Object obj : lines) {
+			R_Line2D line = (R_Line2D)obj;
 			if(line.a().compare(line.b(),new vec2(marge_err))) {
 				circle(line.a().x(),line.a().y(), 10);
 			}

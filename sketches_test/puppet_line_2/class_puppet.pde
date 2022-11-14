@@ -66,8 +66,6 @@ class R_Puppet2D extends R_Line2D {
 		}
 	}
 
-
-
   public void set_a(float x, float y) {
     this.a(x,y);
     this.ref_a(x,y);

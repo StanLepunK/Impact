@@ -23,7 +23,7 @@ void draw() {
 	// float alpha_bg = map(abs(sin(frameCount * 0.002)),0,1, 0,20);
 	// bg(r.BLACK, alpha_bg);
 	background(r.GRIS[1]);
-	// println("frameRate", (int)frameRate, "alpha bg",alpha_bg);
+	println("frameRate", (int)frameRate, imp.get_num_main(), imp.get_num_circle());
 
 	switch(which_display(10)) {
 		case 0 : show_polygon(1); impact_draw(); break;
