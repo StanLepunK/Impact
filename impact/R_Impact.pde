@@ -478,16 +478,9 @@ public class R_Impact extends Rope {
 			if(start_is) {
 				line.pointer_a(a);
 				line.pointer_b(b);
-				//println("ma start", a);
-				println("mb start", b, "level", i);
 			} else {
 				line.pointer_a(main[index].get(i-1).pointer_b());
 				line.pointer_b(b);
-				if(i < 2) {
-					// println("ma next", main[index].get(i-1).pointer_b(), "level", i);
-					// println("mb next", b, "level", i);
-				}
-
 			}
 			if(i == 0 && get_heart_normal_radius() > 0) {
 				line.change(-get_heart_normal_radius(),0);
@@ -509,18 +502,13 @@ public class R_Impact extends Rope {
 		heart = new ArrayList<R_Line2D>();
 		if(get_heart_normal_radius() > 0 ) {
 			for(int i = 1 ; i < main.length ; i++) {
-				vec2 a = main[i -1].get(0).a(); // why is a(), because if it's that's must be a center ?
-				vec2 b = main[i].get(0).a();
-				// println("a", a);
-				println("ha / hb",a, b);
-				// println("hb", b);
+				vec2 a = main[i -1].get(0).b();
+				vec2 b = main[i].get(0).b();
 				R_Line2D line = new R_Line2D(this.pa, a, b);
 				heart.add(line);
 			}
-			vec2 a = main[main.length -1].get(0).a();
-			vec2 b = main[0].get(0).a();
-			println("ha",a);
-			println("hb", b);
+			vec2 a = main[main.length -1].get(0).b();
+			vec2 b = main[0].get(0).b();
 			R_Line2D line = new R_Line2D(this.pa, a, b);
 			heart.add(line);
 		}

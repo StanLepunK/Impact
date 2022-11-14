@@ -114,8 +114,8 @@ void show_lines() {
 	strokeWeight(1);
 	if(imp.get_heart_lines().size() > 0 && show_heart_is) {
 		int max = imp.get_main_lines(0).size();
-		// imp.show_line_main(1, max);
-		imp.show_line_main(0,1);
+		imp.show_line_main(1, max);
+		// imp.show_line_main(0,1);
 	} else {
 		imp.show_line_main();
 	}

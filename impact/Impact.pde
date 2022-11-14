@@ -75,8 +75,8 @@ void mousePressed() {
 				for(R_Shape shape_info : imp.get_polygons()) {
 					if(shape_info.id().b() == id_branch) {
 						num_poly++;
-						println("polygon");
-						printArray(shape_info.get_points());
+						// println("polygon");
+						// printArray(shape_info.get_points());
 					}
 				}
 				println("there is", num_poly, "polygons on branch", id_branch);
