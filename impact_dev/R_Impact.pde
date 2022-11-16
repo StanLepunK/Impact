@@ -18,6 +18,7 @@ import rope.core.Rope;
 import rope.mesh.R_Shape;
 import rope.mesh.R_Line2D;
 import rope.tool.R_Puppet2D;
+import rope.utils.R_Pair;
 import rope.mesh.R_Node;
 
 import rope.vector.bvec2;
@@ -61,7 +62,10 @@ public class R_Impact extends Rope {
 	private vec3 data_circle = new vec3();
 
 	
-	
+	////////////////////////////
+	// CONSTRUCTOR
+	/////////////////////////////
+
 	public R_Impact(PApplet pa) {
 		this.pa = pa;
 		pos = new vec3();
@@ -84,6 +88,11 @@ public class R_Impact extends Rope {
 		data_main.set(this.base, this.base, growth, main_growth_angle, heart);
 		data_circle.set(this.base, this.base, growth);
 	}
+
+
+
+
+
 
 	////////////////////////////////
 	// SETTING
@@ -137,10 +146,8 @@ public class R_Impact extends Rope {
 		return this;
 	}
 
-
 	// SET DATA CIRCLE
 	///////////////////
-
 
 	public R_Impact set_num_circle(int num) {
 		this.data_circle.x(num);
@@ -156,6 +163,32 @@ public class R_Impact extends Rope {
 		this.data_circle.z(growth);
 		return this;
 	}
+
+
+
+
+	/////////////////////////////
+	// UPDATE
+	//////////////////////////
+
+	public void update() {
+		for(int i = 0 ; i < main.length ; i++)
+			for(R_Puppet2D puppet : main[i]) {
+				puppet.update();
+				puppet.update_puppets();
+				for(int k = 0 ; k < puppet.size() ; k++) {
+					R_Pair<vec3,vec5> pair = puppet.get_puppet(k);
+					// vec2 origin = puppet.get_puppet_origin(i);
+					// vec2 on_line = puppet.get_puppet_online(k);
+					// vec2 proj = puppet.get_puppet_projection(k);
+					pair.a().set(puppet.get_puppet_online(k));
+				}
+			}
+	}
+
+
+
+
 
 
 
@@ -1087,26 +1120,10 @@ public class R_Impact extends Rope {
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 	// UTILS POLYGON
 	//////////////////
 
-private void junction_heart_circle(R_Shape shape, R_Line2D lh, R_Line2D lc, R_Line2D next_lc) {
+	private void junction_heart_circle(R_Shape shape, R_Line2D lh, R_Line2D lc, R_Line2D next_lc) {
 		int id_heart = get_abs_id(lc.id().a());
 		if(heart.size() > 0 && id_heart < get_num_main()) {
 			lh = heart.get(id_heart);

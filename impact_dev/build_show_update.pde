@@ -1,3 +1,7 @@
+// UPDATE
+//////////////////////
+
+
 void impact_update() {
 	vec3 mouse = new vec3(mouseX,mouseY,0);
 	int diam = 20;
@@ -16,6 +20,28 @@ void impact_update() {
 	imp.update();
 }
 
+
+void update_nodes(R_Node node, float diam) {
+	if(node.id().a() == 0) {
+		vec3 mouse = new vec3(mouseX, mouseY, 0);
+		if(node.pos().compare(mouse, diam * 0.5)) {
+			if(mousePressed) {
+				node.pos(mouse.xy());
+			}
+			fill(r.MAGENTA);
+		} else {
+			noFill();
+		}
+	}
+}
+
+
+
+
+
+// SETUP
+//////////////////
+
 void impact_setup(R_Impact imp) {
 	impact_build();	
 	imp.pixel_mode(2);
@@ -23,6 +49,39 @@ void impact_setup(R_Impact imp) {
 	// print_setting();
 }
 
+void set_mute_main() {
+	int [] list_size = imp.get_size_main();
+	for(int i = 0 ; i < imp.get_num_main() ; i++) {
+		for(int k = 0 ; k < list_size[i] ; k++) {
+			float choice = random(1);
+			imp.set_mute_main(i, k, false);
+			if(choice < 0.5) {
+				imp.set_mute_main(i, k, true);
+			}
+		}
+	}
+}
+
+void set_mute_circle() {
+	int [] list_size = imp.get_size_circle();
+	for(int i = 0 ; i < imp.get_num_circle() ; i++) {
+		for(int k = 0 ; k < list_size[i] ; k++) {
+			float choice = random(1);
+			imp.set_mute_circle(i, k, false);
+			if(choice < 0.5) {
+				imp.set_mute_circle(i, k, true);
+			}
+		}
+	}
+}
+
+
+
+
+
+
+// DRAW
+//////////////////
 void impact_draw() {
 	if(use_pixels_is) {
 		show_lines_pixel();
@@ -30,6 +89,7 @@ void impact_draw() {
 		show_lines();
 	}
 }
+
 
 
 void circle_draw(int mode) {
@@ -67,22 +127,8 @@ void impact_build_polygon() {
 	imp.build_polygon();
 }
 
-// NODES
+// SHOW NODE
 ////////////////////
-
-void update_nodes(R_Node node, float diam) {
-	if(node.id().a() == 0) {
-		vec3 mouse = new vec3(mouseX, mouseY, 0);
-		if(node.pos().compare(mouse, diam * 0.5)) {
-			if(mousePressed) {
-				node.pos(mouse.xy());
-			}
-			fill(r.MAGENTA);
-		} else {
-			noFill();
-		}
-	}
-}
 
 void show_nodes() {
 	// imp.show_nodes(); basic show who depend of the id node
@@ -165,34 +211,7 @@ void show_lines_pixel() {
 }
 
 
-// SET MUTE
-/////////////////
 
-void set_mute_main() {
-	int [] list_size = imp.get_size_main();
-	for(int i = 0 ; i < imp.get_num_main() ; i++) {
-		for(int k = 0 ; k < list_size[i] ; k++) {
-			float choice = random(1);
-			imp.set_mute_main(i, k, false);
-			if(choice < 0.5) {
-				imp.set_mute_main(i, k, true);
-			}
-		}
-	}
-}
-
-void set_mute_circle() {
-	int [] list_size = imp.get_size_circle();
-	for(int i = 0 ; i < imp.get_num_circle() ; i++) {
-		for(int k = 0 ; k < list_size[i] ; k++) {
-			float choice = random(1);
-			imp.set_mute_circle(i, k, false);
-			if(choice < 0.5) {
-				imp.set_mute_circle(i, k, true);
-			}
-		}
-	}
-}
 
 
 
