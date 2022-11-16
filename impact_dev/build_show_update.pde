@@ -85,7 +85,7 @@ void impact_update() {
 	imp.update();
 	if(update_is) {
 		
-		// imp.build_polygon();
+		imp.build_polygon();
 	}
 	
 }

@@ -171,6 +171,13 @@ public class R_Impact extends Rope {
 	//////////////////////////
 
 	public void update() {
+		// reset id circle, to give the opportuny to refresh the rank and id polygon
+		for(int i = 0 ; i < circle.length ; i++) {
+			for(R_Line2D line : circle[i]) {
+				line.id_f(Integer.MIN_VALUE);
+			}
+		}
+
 		for(int i = 0 ; i < main.length ; i++) {
 			for(R_Puppet2D puppet : main[i]) {
 				update_puppet(puppet);
@@ -789,18 +796,12 @@ public class R_Impact extends Rope {
 						if(in_segment(line_main,lc.a(),marge)) {
 							lc.id_a(k);
 							lc.id_c(id_segment);
-							//////////////////////////////////////////////////////////
-							// add puppet here to main ?
 							line_main.add_puppets(lc.pointer_a());
-							//////////////////////////////////////////////////////////
 						}
 						if(in_segment(line_main,lc.b(),marge)) {
 							lc.id_b(k);
 							lc.id_d(id_segment);
-							//////////////////////////////////////////////////////////
-							// add puppet here to main ?
 							line_main.add_puppets(lc.pointer_b());
-							//////////////////////////////////////////////////////////
 						}
 						id_segment++;
 					}
@@ -822,15 +823,6 @@ public class R_Impact extends Rope {
 			}
 		}
 	}
-
-
-
-
-
-
-
-
-
 
 
 
@@ -908,7 +900,6 @@ public class R_Impact extends Rope {
 		// first element
 		for(int i = 0 ; i < len -1 ; i++) {
 			R_Line2D line =  arr_branch[i];
-			
 			if(r.all(line.id().f() == Integer.MIN_VALUE)) {
 				create_polygon_first(line);
 				break;
@@ -920,9 +911,8 @@ public class R_Impact extends Rope {
 		for(int i = 0 ; i < len -1 ; i++) {
 			R_Line2D line =  arr_branch[i];
 			for(int k = i + 1 ; k < len ; k++) {
-				R_Line2D next_line =  arr_branch[k];
-				
-				if(r.all(!line.mute_is(), ! next_line.mute_is(), line.id().f() == Integer.MIN_VALUE)) {
+				R_Line2D next_line =  arr_branch[k];	
+				if(r.all(!line.mute_is(), !next_line.mute_is(), line.id().f() == Integer.MIN_VALUE)) {
 					create_polygon_current(line, next_line);
 					last_index = k;
 					break;
@@ -1626,7 +1616,6 @@ public class R_Impact extends Rope {
 			show_lines_impl(main[index], start, end);	
 		}
 	}
-
 
 	// SHOW CIRCLE
 	//////////////////
