@@ -1,4 +1,20 @@
-
+void impact_update() {
+	vec3 mouse = new vec3(mouseX,mouseY,0);
+	int diam = 20;
+	stroke(r.BLACK);
+	fill(r.WHITE);
+	for(R_Node n : imp.get_nodes_main()) {
+		if(n.pos().compare(mouse,diam)) {
+			circle(n.pos().x(),n.pos().y(),diam *2);
+			if(mousePressed) {
+				n.pos(mouse);
+			}
+		} else {
+			circle(n.pos().x(),n.pos().y(),diam);
+		}
+	}
+	imp.update();
+}
 
 void impact_setup(R_Impact imp) {
 	impact_build();	

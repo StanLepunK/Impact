@@ -62,6 +62,8 @@ void draw() {
 		vec2 proj = puppet.get_puppet_projection(i);
 		circle(proj.x(),proj.y(),20);
 	}
+	child_a = puppet.get_puppet_projection(0);
+	child_b = puppet.get_puppet_projection(1);
 }
 
 void keyPressed() {

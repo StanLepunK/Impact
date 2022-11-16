@@ -35,6 +35,11 @@ public class R_Impact extends Rope {
 	private ArrayList<R_Line2D>[] circle;
 	private ArrayList<R_Line2D> heart;
 	private ArrayList<R_Line2D> fail;
+
+	private int ID_MAIN = 0;
+	private int ID_CIRCLE = 1;
+	private int ID_HEART = 2;
+
 	// SHAPE
 	private ArrayList<R_Shape> imp_shapes_center = new ArrayList<R_Shape>();
 	private ArrayList<R_Shape> imp_shapes = new ArrayList<R_Shape>();
@@ -308,6 +313,16 @@ public class R_Impact extends Rope {
 		return nodes;
 	}
 
+	public ArrayList<R_Node> get_nodes_main() {
+		ArrayList<R_Node> buf = new ArrayList<R_Node>();
+		for(R_Node n : nodes) {
+			if(n.id().a() == ID_MAIN) {
+				buf.add(n);
+			}
+		}
+		return buf;
+	}
+
 	// get polygon
 	public ArrayList<R_Shape> get_all_polygons() {
 		ArrayList<R_Shape> buf = new ArrayList<R_Shape>();
@@ -541,10 +556,10 @@ public class R_Impact extends Rope {
 			ArrayList<R_Line2D> selected_list = new ArrayList<R_Line2D>();
 			ArrayList<R_Line2D> working_list = new ArrayList<R_Line2D>();
 			// list of vec2 point of the heart
-			vec2 [] polygon = get_heart_polygon();
+			vec2 [] heart_polygon = get_heart_polygon();
 			// check all the lines web string point
 			for(R_Line2D line : circle_lines) {
-				bvec2 is = new bvec2(in_polygon(polygon, line.a()), in_polygon(polygon, line.b()));
+				bvec2 is = new bvec2(in_polygon(heart_polygon, line.a()), in_polygon(heart_polygon, line.b()));
 				if(is.only(1)) {
 					working_list.add(line);
 				} else if(is.only(0)) {
@@ -561,7 +576,7 @@ public class R_Impact extends Rope {
 			}
 			// cut the line if necessary
 			for(R_Line2D line : working_list) {
-				boolean a_is = in_polygon(polygon, line.a());
+				boolean a_is = in_polygon(heart_polygon, line.a());
 				vec2 inter = null;
 				for(R_Line2D line_heart : heart) {
 					inter = line_heart.intersection(line);
@@ -605,7 +620,7 @@ public class R_Impact extends Rope {
 	  for(int count = 0 ; count < get_iter_circle();  count++){
 			R_Line2D line = draw_string_web(ang_set, buf_dist);
 			// here we catch the meeting point with the main branches
-			vec2 [] tupple = meet_point(line, true);
+			vec2 [] tupple = meeting_point_main_and_circle(line, true);
 			boolean good_tupple_is = false;
 			if(tupple[0] != null && tupple[1] != null) {
 				good_tupple_is = true;
@@ -684,7 +699,7 @@ public class R_Impact extends Rope {
 		}
 	}
 
-	private vec2 [] meet_point(R_Line2D line, boolean two_points_is) {
+	private vec2 [] meeting_point_main_and_circle(R_Line2D line, boolean two_points_is) {
 		// the temporary list to work
 		ArrayList<ArrayList> buf_list = new ArrayList<ArrayList>();
 		for(int i = 0 ; i < main.length ; i++) {
@@ -729,14 +744,22 @@ public class R_Impact extends Rope {
 				for(R_Line2D lc : circle[i]) {
 					// id from main
 					int id_segment = 0;
-					for(R_Line2D lm : main[k]) {
-						if(in_segment(lm,lc.a(),marge)) {
+					for(R_Puppet2D line_main : main[k]) {
+						if(in_segment(line_main,lc.a(),marge)) {
 							lc.id_a(k);
 							lc.id_c(id_segment);
+							//////////////////////////////////////////////////////////
+							// add puppet here to main ?
+							line_main.add_puppets(lc.pointer_a());
+							//////////////////////////////////////////////////////////
 						}
-						if(in_segment(lm,lc.b(),marge)) {
+						if(in_segment(line_main,lc.b(),marge)) {
 							lc.id_b(k);
 							lc.id_d(id_segment);
+							//////////////////////////////////////////////////////////
+							// add puppet here to main ?
+							line_main.add_puppets(lc.pointer_b());
+							//////////////////////////////////////////////////////////
 						}
 						id_segment++;
 					}
@@ -1206,36 +1229,41 @@ private void junction_heart_circle(R_Shape shape, R_Line2D lh, R_Line2D lc, R_Li
 
 	private void add_nodes() {
 		nodes.clear();
-		int family = 0;
+		// int family = 0;
 		// main point
 		for(int i = 0 ; i < this.get_num_main() ; i++) {
-			family = 0;
+			// family = 0;
 			if(i == this.get_num_main() -1) {
-				add_nodes_impl(this.get_main_lines(i), imp, family, true);
+				add_nodes_impl(this.get_main_lines(i), imp, ID_MAIN, true);
+				// add_nodes_impl(this.get_main_lines(i), imp, family, true);
 			} else {
-				add_nodes_impl(this.get_main_lines(i), imp, family, false);
+				add_nodes_impl(this.get_main_lines(i), imp, ID_MAIN, false);
+				// add_nodes_impl(this.get_main_lines(i), imp, family, false);
 			}
 			
 		}
 		// circle point
 		for(int i = 0 ; i < this.get_num_circle() ; i++) {
-			family = 1;
-			add_nodes_impl(this.get_circle_lines(i), imp, family, false);
+			// family = 1;
+			// add_nodes_impl(this.get_circle_lines(i), imp, family, false);
+			add_nodes_impl(this.get_circle_lines(i), imp, ID_CIRCLE, false);
 		}
 		// // heart
-		family = 2;
-		add_nodes_impl(this.get_heart_lines(), imp, family, false);
+		// family = 2;
+		// add_nodes_impl(this.get_heart_lines(), imp, family, false);
+		add_nodes_impl(this.get_heart_lines(), imp, ID_HEART, false);
 		if(this.get_heart_polygon() != null) {
 			vec2 [] polygon = this.get_heart_polygon();
 		} else {
 			R_Node node = new R_Node();
 			node.pointer(this.pos);
-			node.id(family, 15,0,0,0,0);
+			node.id(ID_HEART, 15,0,0,0,0);
+			// node.id(family, 15,0,0,0,0);
 			nodes.add(node);
 		}
 	}
 
-	private void add_nodes_impl(ArrayList list, R_Impact imp, int family, boolean add_last_is) {
+	private void add_nodes_impl(ArrayList list, R_Impact imp, int id_family, boolean add_last_is) {
 		for(Object obj : list) {
 			R_Line2D line = (R_Line2D)obj;
 			boolean a_is = this.pos().compare(line.a(), new vec2(marge));
@@ -1243,12 +1271,12 @@ private void junction_heart_circle(R_Shape shape, R_Line2D lh, R_Line2D lc, R_Li
 			if(r.all((r.any(r.all(!a_is, !b_is, !line.mute_is()),!this.use_mute_is())),!a_is,!b_is)) {
 				R_Node node_a = new R_Node();
 				node_a.pointer(line.pointer_a());
-				node_a.id(family, 15,0,0,0,0);
+				node_a.id(id_family, 15,0,0,0,0);
 				nodes.add(node_a);
 				if(add_last_is) {
 					R_Node node_b = new R_Node();
 					node_b.pointer(line.pointer_b());
-					node_b.id(family, 15,0,0,0,0);
+					node_b.id(id_family, 15,0,0,0,0);
 					nodes.add(node_b);
 				}
 			}	

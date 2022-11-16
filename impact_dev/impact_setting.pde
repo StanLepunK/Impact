@@ -29,8 +29,8 @@ void set_impact_classic() {
 
 void set_impact() {
 	// int max = 27;
-	// int max = 111;
-	int max = 200;
+	int max = 111;
+	// int max = 200;
 	// heart
 	float heart = random(1);
 	if(heart < 0.2) heart = 0;

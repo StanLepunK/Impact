@@ -23,7 +23,8 @@ void draw() {
 	// float alpha_bg = map(abs(sin(frameCount * 0.002)),0,1, 0,20);
 	// bg(r.BLACK, alpha_bg);
 	background(r.GRIS[1]);
-	println("frameRate", (int)frameRate, imp.get_num_main(), imp.get_num_circle());
+	// println("frameRate", (int)frameRate, imp.get_num_main(), imp.get_num_circle());
+	
 
 	switch(which_display(10)) {
 		case 0 : show_polygon(1); impact_draw(); break;
@@ -40,7 +41,11 @@ void draw() {
 		case 10 : circle_draw(1); break;
 		// default : show_polygon(1); impact_draw(); imp.show_cloud(); break;
 	}
+	
 
+	impact_update();
+
+	
 	String info = mouseX + " / " + mouseY;
 	fill(r.CYAN);
 	text(info, mouseX,mouseY);
