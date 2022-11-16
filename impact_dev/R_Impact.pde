@@ -172,7 +172,7 @@ public class R_Impact extends Rope {
 	//////////////////////////
 
 	public void update() {
-		for(int i = 0 ; i < main.length ; i++)
+		for(int i = 0 ; i < main.length ; i++) {
 			for(R_Puppet2D puppet : main[i]) {
 				puppet.update();
 				puppet.update_puppets();
@@ -184,6 +184,7 @@ public class R_Impact extends Rope {
 					pair.a().set(puppet.get_puppet_online(k));
 				}
 			}
+		}
 	}
 
 

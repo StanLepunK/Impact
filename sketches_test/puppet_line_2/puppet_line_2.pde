@@ -3,6 +3,8 @@ import rope.vector.vec2;
 import rope.vector.vec3;
 import rope.vector.vec5;
 import rope.core.Rope;
+import rope.tool.R_Puppet2D;
+import rope.utils.R_Pair;
 
 Rope r = new Rope();
 R_Puppet2D puppet;
@@ -62,8 +64,6 @@ void draw() {
 		vec2 proj = puppet.get_puppet_projection(i);
 		circle(proj.x(),proj.y(),20);
 	}
-	child_a = puppet.get_puppet_projection(0);
-	child_b = puppet.get_puppet_projection(1);
 }
 
 void keyPressed() {
