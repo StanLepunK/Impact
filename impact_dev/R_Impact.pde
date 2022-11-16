@@ -31,36 +31,35 @@ import rope.vector.vec5;
 
 public class R_Impact extends Rope {
 	private PApplet pa;
-	// LINE
+	// PUPPET MASTER
 	private ArrayList<R_Puppet2D>[] main;
+	private ArrayList<R_Puppet2D> heart;
+	// LINE
 	private ArrayList<R_Line2D>[] circle;
-	private ArrayList<R_Line2D> heart;
 	private ArrayList<R_Line2D> fail;
-
+	// ID / MODE
 	private int ID_MAIN = 0;
 	private int ID_CIRCLE = 1;
 	private int ID_HEART = 2;
-
+	private int mode = LINE;
 	// SHAPE
 	private ArrayList<R_Shape> imp_shapes_center = new ArrayList<R_Shape>();
 	private ArrayList<R_Shape> imp_shapes = new ArrayList<R_Shape>();
 	// POINT
 	private ArrayList<R_Node> nodes = new ArrayList<R_Node>();
-
+	// GLOBAL POSTION of the impact
 	private vec3 pos;
 
-	private int mode = LINE;
 	private float marge = 2; // use for in_line detection
+	private int base = 5;
 
 	private boolean use_mute_is = false;
 	private int mode_pixel_x = 1;
 
 	private float growth_fact_spiral = 1;
 
-	private int base = 5;
 	private vec5 data_main = new vec5();
 	private vec3 data_circle = new vec3();
-
 	
 	////////////////////////////
 	// CONSTRUCTOR
@@ -174,19 +173,22 @@ public class R_Impact extends Rope {
 	public void update() {
 		for(int i = 0 ; i < main.length ; i++) {
 			for(R_Puppet2D puppet : main[i]) {
-				puppet.update();
-				puppet.update_puppets();
-				for(int k = 0 ; k < puppet.size() ; k++) {
-					R_Pair<vec3,vec5> pair = puppet.get_puppet(k);
-					// vec2 origin = puppet.get_puppet_origin(i);
-					// vec2 on_line = puppet.get_puppet_online(k);
-					// vec2 proj = puppet.get_puppet_projection(k);
-					pair.a().set(puppet.get_puppet_online(k));
-				}
+				update_puppet(puppet);
 			}
+		}
+		for(R_Puppet2D puppet : heart) {
+			update_puppet(puppet);
 		}
 	}
 
+	private void update_puppet(R_Puppet2D puppet) {
+		puppet.update();
+		puppet.update_puppets();
+		for(int k = 0 ; k < puppet.size() ; k++) {
+			R_Pair<vec3,vec5> pair = puppet.get_puppet(k);
+			pair.a().set(puppet.get_puppet_online(k));
+		}
+	}
 
 
 
@@ -335,7 +337,7 @@ public class R_Impact extends Rope {
 		return list;
 	}
 
-	public ArrayList<R_Line2D> get_heart_lines() {
+	public ArrayList<R_Puppet2D> get_heart_lines() {
 		return heart;
 	}
 
@@ -548,19 +550,24 @@ public class R_Impact extends Rope {
 	// BUILD HEART
 	/////////////////////
 	private void build_heart() {
-		heart = new ArrayList<R_Line2D>();
+		heart = new ArrayList<R_Puppet2D>();
 		if(get_heart_normal_radius() > 0 ) {
 			for(int i = 1 ; i < main.length ; i++) {
-				vec2 a = main[i -1].get(0).b();
-				vec2 b = main[i].get(0).b();
-				R_Line2D line = new R_Line2D(this.pa, a, b);
-				heart.add(line);
+				vec3 a = main[i -1].get(0).pointer_b();
+				vec3 b = main[i].get(0).pointer_b();
+				add_puppet_line_to_heart(a, b);
 			}
-			vec2 a = main[main.length -1].get(0).b();
-			vec2 b = main[0].get(0).b();
-			R_Line2D line = new R_Line2D(this.pa, a, b);
-			heart.add(line);
+			vec3 a = main[main.length -1].get(0).pointer_b();
+			vec3 b = main[0].get(0).pointer_b();
+			add_puppet_line_to_heart(a, b);
 		}
+	}
+
+	private void add_puppet_line_to_heart(vec3 a, vec3 b) {
+		R_Puppet2D line = new R_Puppet2D(this.pa);
+		line.pointer_a(a);
+		line.pointer_b(b);
+		heart.add(line);
 	}
 
 
@@ -799,14 +806,16 @@ public class R_Impact extends Rope {
 					}
 					// id from heart, we minus by one to avoid a conflict with the 0 ID
 					for(int m = 0 ; m <  heart.size() ; m++) {
-						R_Line2D lh = heart.get(m);
+						R_Puppet2D lh = heart.get(m);
 						if(lc.id().a() == Integer.MIN_VALUE && in_segment(lh,lc.a(),marge)) {
 							lc.id_a(-m-1);
 							lc.id_c(0);
+							lh.add_puppets(lc.pointer_a());
 						}
 						if(lc.id().b() == Integer.MIN_VALUE && in_segment(lh,lc.b(),marge)) {
 							lc.id_b(-m-1);
 							lc.id_d(0);
+							lh.add_puppets(lc.pointer_b());
 						}
 					}
 				}
@@ -1036,7 +1045,6 @@ public class R_Impact extends Rope {
 		vec3 b = shape.get_point(index_next);
 
 		for(int i = 0 ; i < list_main_b.size() ; i++) {
-			// R_Puppet2D line = list_main_b.get(i);
 			R_Line2D line = list_main_b.get(i);
 			if(r.in_segment(line, a.xy(), marge)) first = i;
 			if(r.in_segment(line, b.xy(), marge)) last = i;
@@ -1247,28 +1255,21 @@ public class R_Impact extends Rope {
 
 	private void add_nodes() {
 		nodes.clear();
-		// int family = 0;
 		// main point
 		for(int i = 0 ; i < this.get_num_main() ; i++) {
 			// family = 0;
 			if(i == this.get_num_main() -1) {
 				add_nodes_impl(this.get_main_lines(i), imp, ID_MAIN, true);
-				// add_nodes_impl(this.get_main_lines(i), imp, family, true);
 			} else {
 				add_nodes_impl(this.get_main_lines(i), imp, ID_MAIN, false);
-				// add_nodes_impl(this.get_main_lines(i), imp, family, false);
 			}
 			
 		}
 		// circle point
 		for(int i = 0 ; i < this.get_num_circle() ; i++) {
-			// family = 1;
-			// add_nodes_impl(this.get_circle_lines(i), imp, family, false);
 			add_nodes_impl(this.get_circle_lines(i), imp, ID_CIRCLE, false);
 		}
 		// // heart
-		// family = 2;
-		// add_nodes_impl(this.get_heart_lines(), imp, family, false);
 		add_nodes_impl(this.get_heart_lines(), imp, ID_HEART, false);
 		if(this.get_heart_polygon() != null) {
 			vec2 [] polygon = this.get_heart_polygon();
@@ -1276,7 +1277,6 @@ public class R_Impact extends Rope {
 			R_Node node = new R_Node();
 			node.pointer(this.pos);
 			node.id(ID_HEART, 15,0,0,0,0);
-			// node.id(family, 15,0,0,0,0);
 			nodes.add(node);
 		}
 	}

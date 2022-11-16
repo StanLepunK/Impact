@@ -1,39 +1,4 @@
-// UPDATE
-//////////////////////
 
-
-void impact_update() {
-	vec3 mouse = new vec3(mouseX,mouseY,0);
-	int diam = 20;
-	stroke(r.BLACK);
-	fill(r.WHITE);
-	for(R_Node n : imp.get_nodes_main()) {
-		if(n.pos().compare(mouse,diam)) {
-			circle(n.pos().x(),n.pos().y(),diam *2);
-			if(mousePressed) {
-				n.pos(mouse);
-			}
-		} else {
-			circle(n.pos().x(),n.pos().y(),diam);
-		}
-	}
-	imp.update();
-}
-
-
-void update_nodes(R_Node node, float diam) {
-	if(node.id().a() == 0) {
-		vec3 mouse = new vec3(mouseX, mouseY, 0);
-		if(node.pos().compare(mouse, diam * 0.5)) {
-			if(mousePressed) {
-				node.pos(mouse.xy());
-			}
-			fill(r.MAGENTA);
-		} else {
-			noFill();
-		}
-	}
-}
 
 
 
@@ -76,6 +41,72 @@ void set_mute_circle() {
 }
 
 
+// BUILD
+/////////////////
+void impact_build() {
+	imp.build_struct(width/2, height/2);
+	imp.set_pixels(0.3, r.RED);
+	impact_build_polygon();
+}
+
+void impact_build_polygon() {
+	set_mute_circle();
+	imp.build_polygon();
+}
+
+
+
+
+
+
+
+
+// UPDATE
+//////////////////////
+
+
+void impact_update() {
+	vec3 mouse = new vec3(mouseX,mouseY,0);
+	int diam = 20;
+	stroke(r.BLACK);
+	fill(r.WHITE);
+	boolean update_is = false;
+	for(R_Node n : imp.get_nodes_main()) {
+		if(n.pos().compare(mouse,diam)) {
+			circle(n.pos().x(),n.pos().y(),diam *2);
+			if(mousePressed) {
+				update_is = true;
+				n.pos(mouse);
+			}
+		} else {
+			circle(n.pos().x(),n.pos().y(),diam);
+		}
+	}
+	imp.update();
+	if(update_is) {
+		
+		// imp.build_polygon();
+	}
+	
+}
+
+
+void update_nodes(R_Node node, float diam) {
+	if(node.id().a() == 0) {
+		vec3 mouse = new vec3(mouseX, mouseY, 0);
+		if(node.pos().compare(mouse, diam * 0.5)) {
+			if(mousePressed) {
+				node.pos(mouse.xy());
+			}
+			fill(r.MAGENTA);
+		} else {
+			noFill();
+		}
+	}
+}
+
+
+
 
 
 
@@ -114,18 +145,14 @@ void circle_draw(int mode) {
 
 
 
-// BUILD
-/////////////////
-void impact_build() {
-	imp.build_struct(width/2, height/2);
-	imp.set_pixels(0.3, r.RED);
-	impact_build_polygon();
-}
 
-void impact_build_polygon() {
-	set_mute_circle();
-	imp.build_polygon();
-}
+
+
+
+
+
+
+
 
 // SHOW NODE
 ////////////////////
