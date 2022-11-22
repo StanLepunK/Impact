@@ -36,17 +36,25 @@ void draw() {
 	textAlign(CENTER, CENTER);
 	text("B",puppet.b().x(), puppet.b().y() - 12);
 
+	// UPDATE
+	///////////////
+	boolean update_is = false;
 
 	if(puppet.a().compare(mouse, radius *2) && mousePressed) {
 		puppet.a(mouse);
+		update_is = true;
 	}
 
 	if(puppet.b().compare(mouse, radius *2) && mousePressed) {
 		puppet.b(mouse);
+		update_is = true;
 	}
 
-	puppet.update();
-	puppet.update_puppets();
+	if(update_is) {
+		puppet.update();
+		puppet.update_puppets();
+	}
+
 
 	// display
 	for(int i = 0 ; i < puppet.size() ; i++) {

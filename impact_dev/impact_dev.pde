@@ -23,7 +23,7 @@ void draw() {
 	// float alpha_bg = map(abs(sin(frameCount * 0.002)),0,1, 0,20);
 	// bg(r.BLACK, alpha_bg);
 	background(r.GRIS[1]);
-	// println("frameRate", (int)frameRate, imp.get_num_main(), imp.get_num_circle());
+	// println("frameRate", (int)frameRate, imp.get_num_main(), imp.get_num_circle(), "case", which_display(10));
 	
 
 	switch(which_display(10)) {
@@ -60,8 +60,8 @@ void mousePressed() {
 		count++;
 		int area_min = 20;
 		vec3 [] arr = shape.get_points();
-		
-		if(r.in_polygon(shape, new vec2(mouseX,mouseY))) {
+		boolean print_is = false;
+		if(r.in_polygon(shape, new vec2(mouseX,mouseY)) && print_is) {
 			println("shape #", count);
 			int id_branch = shape.id().b();
 			println("shape ", shape.id().a(), id_branch);

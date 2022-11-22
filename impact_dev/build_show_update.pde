@@ -64,13 +64,21 @@ void impact_build_polygon() {
 // UPDATE
 //////////////////////
 
-
+boolean update_is = false;
 void impact_update() {
 	vec3 mouse = new vec3(mouseX,mouseY,0);
 	int diam = 20;
 	stroke(r.BLACK);
 	fill(r.WHITE);
-	boolean update_is = false;
+	// allways first and active to be sure all compoent stay updated in the good position
+	imp.update_preset();
+
+	// update position if puppet masters are changing
+	if(update_is) {
+		imp.update();
+		update_is = false;
+	}
+	// puppet masters move
 	for(R_Node n : imp.get_nodes_main()) {
 		if(n.pos().compare(mouse,diam)) {
 			circle(n.pos().x(),n.pos().y(),diam *2);
@@ -82,13 +90,13 @@ void impact_update() {
 			circle(n.pos().x(),n.pos().y(),diam);
 		}
 	}
-	imp.update();
-	if(update_is) {
-		
-		imp.build_polygon();
-	}
+
+
 	
+
 }
+
+
 
 
 void update_nodes(R_Node node, float diam) {
@@ -139,6 +147,9 @@ void circle_draw(int mode) {
 		for(int i = 0 ; i < imp.get_num_main() ; i++) {
 			stroke(start_colour -= step_colour);
 			imp.show_line_branch(i);
+			// for(R_Line2D lc : imp.get_circle_lines(i)) {
+			// 	println("id", lc.id());
+			// }
 		}
 	}
 }

@@ -27,6 +27,7 @@ import rope.vector.vec2;
 import rope.vector.vec3;
 import rope.vector.vec4;
 import rope.vector.vec5;
+import rope.vector.ivec6;
 
 
 public class R_Impact extends Rope {
@@ -179,23 +180,49 @@ public class R_Impact extends Rope {
 		}
 
 		for(int i = 0 ; i < main.length ; i++) {
-			for(R_Puppet2D puppet : main[i]) {
-				update_puppet(puppet);
+			for(R_Puppet2D puppet_m : main[i]) {
+				update_puppet(puppet_m);
 			}
 		}
-		for(R_Puppet2D puppet : heart) {
-			update_puppet(puppet);
+		for(R_Puppet2D puppet_h : heart) {
+			update_puppet(puppet_h);
 		}
+		build_polygon();
 	}
 
 	private void update_puppet(R_Puppet2D puppet) {
 		puppet.update();
 		puppet.update_puppets();
+	}
+
+	public void update_preset() {
+		for(int i = 0 ; i < main.length ; i++) {
+			for(R_Puppet2D puppet_m : main[i]) {
+				update_pair(puppet_m);
+			}
+		}
+		for(R_Puppet2D puppet_h : heart) {
+			update_pair(puppet_h);
+		}
+	}
+
+	private void update_pair(R_Puppet2D puppet) {
 		for(int k = 0 ; k < puppet.size() ; k++) {
 			R_Pair<vec3,vec5> pair = puppet.get_puppet(k);
 			pair.a().set(puppet.get_puppet_online(k));
 		}
 	}
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -335,9 +362,8 @@ public class R_Impact extends Rope {
 							list.add(line);
 						}
 					} else {
-						list.add( circle[i].get(k));
+						list.add(circle[i].get(k));
 					}
-					
 				}		
 			}
 		}
@@ -464,34 +490,12 @@ public class R_Impact extends Rope {
 		this.pos.set(x,y,0);
 		build_main();
 		build_heart();
-  	
-  	// hack algo to avoid the bug center when the spiral don't start
-  	float start_value = 0;
-  	if(mode == SPIRAL) {
-  		boolean spiral_is_good = false;
-  		vec2 area = new vec2(2);
-  		int threshold_critic = get_num_main() * 2;
-	  	while(!spiral_is_good) {
-				int threshold = 0;
-	  		build_circle(start_value);
-	  		for(int i = 0 ; i < get_num_circle() ; i++) {
-	  			for(R_Line2D line : circle[i]) {
-						if(line.a().compare(this.pos.xy(),area)) {
-	  					threshold++;
-	  				}
-	  			}
-	  		}
-	  		if(threshold < threshold_critic) {
-	  			spiral_is_good = true;
-	  		}
-	  		start_value += 0.05;
-			}
-			return;
-  	}
-  	build_circle(0);
-		set_id_circle();
+		build_circle();
 		add_nodes();	
 	}
+
+
+
 
 
 	////////////////////////
@@ -583,6 +587,16 @@ public class R_Impact extends Rope {
 
 	// BUILD CIRCLE
 	//////////////////////////
+	private void build_circle() {
+  	if(mode == SPIRAL) {
+			build_circle_spiral();
+			return;
+  	}
+		float start_value = 0;
+  	build_circle(start_value);
+		set_id_circle();
+	}
+
 
 	private void build_circle(float start_value) {
 	  circle = new ArrayList[get_num_circle()];
@@ -594,19 +608,19 @@ public class R_Impact extends Rope {
 			circle[i] = new ArrayList<R_Line2D>();
 			float fact = i + start_value; // that work but to far from the center
 			dist = (dist_step * fact);
-			circle_impl(circle[i], dist);
-			sort_circle(circle[i]);
+			circle_impl(i, dist);
+			sort_circle(i);
 		}
 	}
 
-	private void sort_circle(ArrayList<R_Line2D> circle_lines) {
+	private void sort_circle(int index) {
 		if(get_heart_normal_radius() > 0) {
 			ArrayList<R_Line2D> selected_list = new ArrayList<R_Line2D>();
 			ArrayList<R_Line2D> working_list = new ArrayList<R_Line2D>();
 			// list of vec2 point of the heart
 			vec2 [] heart_polygon = get_heart_polygon();
 			// check all the lines web string point
-			for(R_Line2D line : circle_lines) {
+			for(R_Line2D line : circle[index]) {
 				bvec2 is = new bvec2(in_polygon(heart_polygon, line.a()), in_polygon(heart_polygon, line.b()));
 				if(is.only(1)) {
 					working_list.add(line);
@@ -618,9 +632,9 @@ public class R_Impact extends Rope {
 			}
 
 			// clear and add the good ones
-			circle_lines.clear();
+			circle[index].clear();
 			for(R_Line2D line : selected_list) {
-				circle_lines.add(line);
+				circle[index].add(line);
 			}
 			// cut the line if necessary
 			for(R_Line2D line : working_list) {
@@ -635,29 +649,26 @@ public class R_Impact extends Rope {
 						} else {
 							new_line.set(line.a(), inter);
 						}
-						circle_lines.add(new_line);
+						circle[index].add(new_line);
 						break;
 					}
 				}
 			}
-			// last clean, to remove the too tiny lines that could cause problem with the buiding polygons part
 			selected_list.clear();
-			for(R_Line2D line : circle_lines) {
+			for(R_Line2D line : circle[index]) {
 				// here 2.05 is the threshold to remove smaller line
 				if(line.dist() > 2.05) {
 					selected_list.add(line);
 				}
 			}
-			circle_lines.clear();
+			circle[index].clear();
 			for(R_Line2D line : selected_list) {
-				circle_lines.add(line);
+				circle[index].add(line);
 			}
 		}
 	}
 
-
-
-	private void circle_impl(ArrayList<R_Line2D> circle_lines, float dist) {
+	private void circle_impl(int index, float dist) {
 		float start_angle = 0;
 		float step_angle = TAU / get_num_main();
 		vec2 ang_set = new vec2(start_angle, step_angle);
@@ -679,21 +690,44 @@ public class R_Impact extends Rope {
 					tupple[1] = swap;
 				}
 			}
-			jump_is = adjust_string_web(circle_lines, line, buf_meet, tupple, good_tupple_is, jump_is);
+			jump_is = adjust_string_web(index, line, buf_meet, tupple, good_tupple_is, jump_is);
 
 			if(mode == SPIRAL) {
 				buf_dist = dist(line.b(),this.pos.xy());
 			}
 
 			// close the circle line
-			int index = count + 1;
-			if(mode == LINE && index%get_num_main() == 0) {
-				int which_one = index - get_num_main();
-				close_string_web(circle_lines, which_one);
+			int what = count + 1;
+			if(mode == LINE && what%get_num_main() == 0) {
+				int which_one = what - get_num_main();
+				close_string_web(index, which_one);
 			}
 	  }
 	}
 
+
+	private void build_circle_spiral() {
+		float start_value = 0;
+		boolean spiral_is_good = false;
+		vec2 area = new vec2(2);
+		int threshold_critic = get_num_main() * 2;
+		while(!spiral_is_good) {
+			int threshold = 0;
+			build_circle(start_value);
+			for(int i = 0 ; i < get_num_circle() ; i++) {
+				for(R_Line2D line : circle[i]) {
+					if(line.a().compare(this.pos.xy(),area)) {
+						threshold++;
+					}
+				}
+			}
+			if(threshold < threshold_critic) {
+				spiral_is_good = true;
+			}
+			start_value += 0.05;
+		}
+	}
+	
 	// ALGO CIRCLE BRANCH
 	/////////////////////////
 
@@ -715,21 +749,21 @@ public class R_Impact extends Rope {
 		return line;
 	}
 
-	private boolean adjust_string_web(ArrayList<R_Line2D> circle_lines, R_Line2D line, vec2 buf_meet, vec2 [] tupple, boolean good_tupple_is, boolean jump_is) {
+	private boolean adjust_string_web(int index, R_Line2D line, vec2 buf_meet, vec2 [] tupple, boolean good_tupple_is, boolean jump_is) {
 		if(!good_tupple_is) {
 			jump_is = true;
 			fail.add(line);
 	  } else {
 			if(buf_meet.equals(-1) || jump_is) {  
 				line.set(tupple[0],tupple[1]);
-				circle_lines.add(line);
+				circle[index].add(line);
 				buf_meet.set(tupple[1].x(),tupple[1].y());
 				jump_is = false;
 				add_err(line, buf_meet, tupple, "FAIL 1", false);
 			} else {
 				line.set(buf_meet,tupple[1]);
 				add_err(line, buf_meet, tupple, "FAIL 2", false);
-				circle_lines.add(line);
+				circle[index].add(line);
 				buf_meet.set(tupple[1]);
 			}	
 		}
@@ -737,13 +771,13 @@ public class R_Impact extends Rope {
 	}
 
 
-	private void close_string_web(ArrayList<R_Line2D> circle_lines, int index) {
-		if(index < circle_lines.size()) {
-			vec2 last = circle_lines.get(index).a();
-			int max = circle_lines.size() -1;
-			R_Line2D line = new R_Line2D(this.pa ,circle_lines.get(max).a(), last);
-			circle_lines.remove(max);
-			circle_lines.add(line);
+	private void close_string_web(int index, int which_one) {
+		if(which_one < circle[index].size()) {
+			vec2 last = circle[index].get(which_one).a();
+			int max = circle[index].size() -1;
+			R_Line2D line = new R_Line2D(this.pa ,circle[index].get(max).a(), last);
+			circle[index].remove(max);
+			circle[index].add(line);
 		}
 	}
 
@@ -1572,15 +1606,14 @@ public class R_Impact extends Rope {
 
 	private void show_pixels_lines_impl_x2(ArrayList lines, float normal_value, int... colour) {
 		for(Object obj : lines) {
-				R_Line2D line = (R_Line2D)obj;
-				if(use_mute_is()) {
-					if(!line.mute_is()) {
-						line.show_pixels_x2(normal_value, colour);
-					}
-				} else {
+			R_Line2D line = (R_Line2D)obj;
+			if(use_mute_is()) {
+				if(!line.mute_is()) {
 					line.show_pixels_x2(normal_value, colour);
 				}
-			// }
+			} else {
+				line.show_pixels_x2(normal_value, colour);
+			}
 		}
 	}
 
@@ -1717,7 +1750,6 @@ private void show_list_impl(ArrayList[] list) {
 	}
 
 	private void show_polygon_from(ArrayList<R_Shape> list) {
-		// boolean display_all = !keyPressed;
 		boolean display_all = true;
 		for(R_Shape shape : list) {
 			if(r.any(shape.id().a() == r.GRIS[4], 
