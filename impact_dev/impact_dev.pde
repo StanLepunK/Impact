@@ -9,6 +9,13 @@
 
 R_Impact imp;
 import rope.core.Rope;
+// import rope.costume.R_Impact;
+// import rope.mesh.R_Shape;
+// import rope.mesh.R_Line2D;
+// import rope.mesh.R_Node;
+// import rope.vector.vec3;
+// import rope.vector.vec2;
+
 
 Rope r = new Rope();
 
