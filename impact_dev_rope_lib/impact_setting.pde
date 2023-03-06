@@ -1,16 +1,16 @@
 // SET BUILD
 //////////////////
 void set_impact_pentagon() {
-	float heart = random(1);
+	float heart = random(1) *4;
 	if(heart < 0.2) heart = 0;
 	imp.normal();
-	imp.set_heart_main(heart);
+	imp.set_heart((int)heart);
 }
 
 
 void set_impact_classic() {
 	// heart
-	float heart = random(1);
+	float heart = random(1) * 4;
 	if(heart < 0.2) heart = 0;
 	// main
 	int num_main = 12;
@@ -22,7 +22,7 @@ void set_impact_classic() {
 	int iter_circle = num_main;
 	float growth_circle = random(width/20,width/2);
 	imp.normal();
-	imp.set_heart_main(heart);
+	imp.set_heart((int)heart);
 	imp.set_num_main(num_main).set_iter_main(iter_main).set_growth_main(growth_main).set_angle_main(angle_main);
 	imp.set_num_circle(num_circle).set_iter_circle(iter_circle).set_growth_circle(growth_circle);
 }
@@ -32,7 +32,7 @@ void set_impact() {
 	int max = 111;
 	// int max = 200;
 	// heart
-	float heart = random(1);
+	float heart = random(1) * 4;
 	if(heart < 0.2) heart = 0;
 	// main
 	int num_main = int(random(5,max));
@@ -44,7 +44,7 @@ void set_impact() {
 	int iter_circle = int(random(5,num_main));
 	float growth_circle = random(width/20,width/2);
 	imp.normal();
-	imp.set_heart_main(heart);
+	imp.set_heart((int)heart);
 	imp.set_num_main(num_main).set_iter_main(iter_main).set_growth_main(growth_main).set_angle_main(angle_main);
 	imp.set_num_circle(num_circle).set_iter_circle(iter_circle).set_growth_circle(growth_circle);
 }
@@ -54,7 +54,7 @@ void set_spiral() {
 	// int max = 27;
 	int max = 111;
 	// heart
-	float heart = random(1);
+	float heart = random(1) *4;
 	if(heart < 0.2) heart = 0;
 	// main 
 	int num_main = int(random(5,max));
@@ -71,7 +71,7 @@ void set_spiral() {
 	imp.growth_factor_spiral(factor_spiral_growth);
 
 	imp.spiral();
-	imp.set_heart_main(heart);
+	imp.set_heart((int)heart);
 	imp.set_num_main(num_main).set_iter_main(iter_main).set_growth_main(growth_main).set_angle_main(angle_main);
 	imp.set_num_circle(num_circle).set_iter_circle(iter_circle).set_growth_circle(growth_circle);
 }
@@ -108,7 +108,7 @@ void print_setting() {
 	// println("circle iteration by ring");
 	// println(imp.get_size_circle());
 	for(int i = 0 ; i < imp.get_num_circle() ; i++) {
-		for(R_Line2D line : imp.get_circle_lines(i)) {
+		for(R_Line2D line : imp.get_lines_circle(i)) {
 			println(i, line);
 		}
 	}

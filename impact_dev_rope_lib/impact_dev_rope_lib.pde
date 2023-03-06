@@ -1,27 +1,27 @@
 /**
 *
 * Create a broken network like an bullet impact or spider web
-* Stanislas Marçais alias Stan le Punk / Knupel
-* v 0.1.0
+* Stanislas Marçais alias Knupel
+* v 0.2.0
 * 2022-2022 copyleft (l)
 * 
 */
 
 R_Impact imp;
 import rope.core.Rope;
-// import rope.costume.R_Impact;
-// import rope.mesh.R_Shape;
-// import rope.mesh.R_Line2D;
-// import rope.mesh.R_Node;
-// import rope.vector.vec3;
-// import rope.vector.vec2;
+import rope.costume.R_Impact;
+import rope.mesh.R_Shape;
+import rope.mesh.R_Line2D;
+import rope.mesh.R_Node;
+import rope.vector.vec3;
+import rope.vector.vec2;
 
 
 Rope r = new Rope();
 
 void setup() {
 	size(800,800,P2D);
-	imp = new R_Impact(this);
+	imp = new R_Impact(this, width/2, height/2);
 	impact_setup(imp);
 }
 
@@ -35,7 +35,7 @@ void draw() {
 
 	switch(which_display(10)) {
 		case 0 : show_polygon(1); impact_draw(); break;
-		case 1 : imp.show_polygon_from(imp.get_polygons()); break;
+		case 1 : imp.show_polygons_from(imp.get_polygons(),0); break;
 		case 2 : impact_draw(); break;
 		case 3 : show_polygon(1); break;
 		case 4 : show_polygon(0); break;
@@ -74,13 +74,13 @@ void mousePressed() {
 			println("shape ", shape.id().a(), id_branch);
 			printArray(arr);
 			if(id_branch != -1) {
-				if(imp.get_heart_lines().size() > 0) {
-					println("line heart", imp.get_heart_lines().get(id_branch));
+				if(imp.get_lines_heart().size() > 0) {
+					println("line heart", imp.get_lines_heart().get(id_branch));
 				}
 			
 				println("line branch circle from this pie:",id_branch);
-				println("num branch circle on this pie",imp.get_branch_lines(id_branch, true).size());
-				for(R_Line2D line : imp.get_branch_lines(id_branch, true)) {
+				println("num branch circle on this pie",imp.get_lines_branch(id_branch, true).size());
+				for(R_Line2D line : imp.get_lines_branch(id_branch, true)) {
 					println("line circle",line, "len", line.dist());
 				}
 				int num_poly = 0;

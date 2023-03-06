@@ -44,7 +44,7 @@ void set_mute_circle() {
 // BUILD
 /////////////////
 void impact_build() {
-	imp.build_struct(width/2, height/2);
+	imp.build();
 	imp.set_pixels(0.3, r.RED);
 	impact_build_polygon();
 }
@@ -139,14 +139,14 @@ void circle_draw(int mode) {
 		float step_colour = g.colorModeX / imp.get_num_circle() / 2;
 		for(int i = 0 ; i < imp.get_num_circle() ; i++) {
 			stroke(start_colour -= step_colour);
-			imp.show_line_circle(i);
+			imp.show_lines_circle(i);
 		}
 	} else if (mode == 1) {
 		float start_colour = g.colorModeX - (g.colorModeX / 4);
 		float step_colour = g.colorModeX / imp.get_num_circle() / 2;
 		for(int i = 0 ; i < imp.get_num_main() ; i++) {
 			stroke(start_colour -= step_colour);
-			imp.show_line_branch(i);
+			imp.show_lines_branch(i);
 			// for(R_Line2D lc : imp.get_circle_lines(i)) {
 			// 	println("id", lc.id());
 			// }
@@ -201,7 +201,7 @@ void show_nodes() {
 
 // SHOW POLYGON
 void show_polygon(int mode) {
-	imp.show_polygon(mode);
+	imp.show_polygons(mode);
 }
 
 
@@ -212,28 +212,29 @@ void show_lines() {
 	noFill();
 	stroke(r.WHITE);
 	strokeWeight(1);
-	if(imp.get_heart_lines().size() > 0 && show_heart_is) {
-		int max = imp.get_main_lines(0).size();
-		imp.show_line_main(1, max);
+	if(imp.get_lines_heart().size() > 0 && show_heart_is) {
+		int max = imp.get_lines_main(0).size();
+		imp.show_lines_main(1, max);
 		// imp.show_line_main(0,1);
 	} else {
-		imp.show_line_main();
+		imp.show_lines_main();
 	}
 	stroke(r.YELLOW);
-	imp.show_line_circle();
+	imp.show_lines_circle();
 	
 	if(show_heart_is) {
 		stroke(r.GREEN);
-		imp.show_line_heart();
+		imp.show_lines_heart();
 	}
 
-
+/*
 	if(show_error_is) {
 		stroke(r.RED);
-		imp.show_line_fail();
+		imp.show_lines_fail();
 		stroke(r.WHITE);
 		imp.show_bug();
 	}
+*/
 }
 
 // SHOW PIXEL
@@ -247,12 +248,3 @@ void show_lines_pixel() {
 	// imp.show_pixels_circle();
 	// imp.show_pixels_heart();
 }
-
-
-
-
-
-
-
-
-
