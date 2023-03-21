@@ -79,8 +79,8 @@ void mousePressed() {
 				}
 			
 				println("line branch circle from this pie:",id_branch);
-				println("num branch circle on this pie",imp.get_lines_branch(id_branch, true).size());
-				for(R_Line2D line : imp.get_lines_branch(id_branch, true)) {
+				println("num branch circle on this pie",imp.get_lines_circle_branch(id_branch, true).size());
+				for(R_Line2D line : imp.get_lines_circle_branch(id_branch, true)) {
 					println("line circle",line, "len", line.dist());
 				}
 				int num_poly = 0;

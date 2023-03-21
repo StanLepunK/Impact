@@ -1,12 +1,12 @@
 # ACHTUNG
 
-- Maintenant  R_Impact est developpé ici
-- Now R_Impact is develop here : 
-https://github.com/knupel/Rope/blob/master/src/rope/costume/R_Impact.java
 
 - Les exemples à jours 
 - the examples uptodate are here
 https://github.com/knupel/Rope/tree/master/examples/COSTUME/IMPACT
+
+- l'algorithme est là /  The algorithm is here [follow the link / cliquez moi](https://github.com/knupel/Rope/blob/master/src/rope/costume/R_Impact.java)
+
 
 # Impact
 

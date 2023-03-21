@@ -1,17 +1,14 @@
 // SET BUILD
 //////////////////
 void set_impact_pentagon() {
-	float heart = random(1) *4;
-	if(heart < 0.2) heart = 0;
+	set_heart(imp, 0.2);
 	imp.normal();
-	imp.set_heart((int)heart);
 }
 
 
+
+
 void set_impact_classic() {
-	// heart
-	float heart = random(1) * 4;
-	if(heart < 0.2) heart = 0;
 	// main
 	int num_main = 12;
 	int iter_main = 18;
@@ -22,7 +19,7 @@ void set_impact_classic() {
 	int iter_circle = num_main;
 	float growth_circle = random(width/20,width/2);
 	imp.normal();
-	imp.set_heart((int)heart);
+	set_heart(imp, 0.2);
 	imp.set_num_main(num_main).set_iter_main(iter_main).set_growth_main(growth_main).set_angle_main(angle_main);
 	imp.set_num_circle(num_circle).set_iter_circle(iter_circle).set_growth_circle(growth_circle);
 }
@@ -31,9 +28,6 @@ void set_impact() {
 	//int max = 12;
 	int max = 111;
 	// int max = 200;
-	// heart
-	float heart = random(1) * 4;
-	if(heart < 0.2) heart = 0;
 	// main
 	int num_main = int(random(5,max));
 	int iter_main = int(random(5,max));
@@ -44,7 +38,7 @@ void set_impact() {
 	int iter_circle = int(random(5,num_main));
 	float growth_circle = random(width/20,width/2);
 	imp.normal();
-	imp.set_heart((int)heart);
+	set_heart(imp, 0.2);
 	imp.set_num_main(num_main).set_iter_main(iter_main).set_growth_main(growth_main).set_angle_main(angle_main);
 	imp.set_num_circle(num_circle).set_iter_circle(iter_circle).set_growth_circle(growth_circle);
 }
@@ -53,9 +47,7 @@ void set_impact() {
 void set_spiral() {
 	// int max = 27;
 	int max = 111;
-	// heart
-	float heart = random(1) *4;
-	if(heart < 0.2) heart = 0;
+
 	// main 
 	int num_main = int(random(5,max));
 	int iter_main = int(random(5,max));
@@ -71,7 +63,7 @@ void set_spiral() {
 	imp.growth_factor_spiral(factor_spiral_growth);
 
 	imp.spiral();
-	imp.set_heart((int)heart);
+	set_heart(imp, 0.2);
 	imp.set_num_main(num_main).set_iter_main(iter_main).set_growth_main(growth_main).set_angle_main(angle_main);
 	imp.set_num_circle(num_circle).set_iter_circle(iter_circle).set_growth_circle(growth_circle);
 }
@@ -111,5 +103,16 @@ void print_setting() {
 		for(R_Line2D line : imp.get_lines_circle(i)) {
 			println(i, line);
 		}
+	}
+}
+
+
+
+void set_heart(R_Impact imp , float threshold) {
+	float heart = random(1);
+	if(heart < threshold) {
+		imp.heart_is(false);
+	} else {
+		imp.heart_is(true);
 	}
 }
