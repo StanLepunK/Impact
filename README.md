@@ -10,7 +10,7 @@ https://github.com/knupel/Rope/tree/master/examples/COSTUME/IMPACT
 
 # Impact
 
-Impact est un algorithme pour réaliséer une structure proche des impacts de vitre ou de toiles d'araignée.
+Impact est un algorithme pour réaliser une structure proche des impacts de vitre.
 
 le code est construit à l'aide de Processing et de la [librairie Rope](https://github.com/StanLepunK/Rope/blob/master/build_rope/Rope.zip)
 
@@ -21,7 +21,7 @@ L'ensemble des éléments sont stockés dans des listes accessibles. lignes, poi
 
 # Impact
 
-Impact is an algorithm to realize a structure close to the impact of glass or spider web.
+Impact is an algorithm to build two dimensionals structure close to the impact of glass.
 
 the code is built with Processing and the [Rope library](https://github.com/StanLepunK/Rope/blob/master/build_rope/Rope.zip)
 

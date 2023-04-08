@@ -70,7 +70,7 @@ void impact_update() {
 	int diam = 20;
 	stroke(r.BLACK);
 	fill(r.WHITE);
-	// allways first and active to be sure all compoent stay updated in the good position
+	// allways first and active to be sure all component stay updated in the good position
 	imp.update_preset();
 
 	// update position if puppet masters are changing
@@ -90,10 +90,6 @@ void impact_update() {
 			circle(n.pos().x(),n.pos().y(),diam);
 		}
 	}
-
-
-	
-
 }
 
 
